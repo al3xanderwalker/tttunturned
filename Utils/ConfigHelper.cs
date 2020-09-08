@@ -15,6 +15,9 @@ namespace TTTUnturned.Utils
     {
         public int exampleValue { get; set; }
 
+        public List<Spawn> LobbySpawns { get; set; }
+
+        public List<Map> Maps { get; set; }
         //public List<ArenaConfig> arenas { get; set; }
     }
 
@@ -28,6 +31,14 @@ namespace TTTUnturned.Utils
 
                 JObject tttUnuturnedConfig = new JObject();
                 tttUnuturnedConfig.Add("exampleValue", 10);
+                Spawn exampleSpawn = new Spawn(0, 0, 0);
+                List<Spawn> Spawns = new List<Spawn>();
+                Spawns.Add(exampleSpawn);
+                tttUnuturnedConfig["lobbySpawns"] = JToken.FromObject(Spawns);
+                Map exampleMap = new Map("Example", Spawns);
+                List<Map> Maps = new List<Map>();
+                Maps.Add(exampleMap);
+                tttUnuturnedConfig["maps"] = JToken.FromObject(Maps);
 
 
                 //combatArenaConfig["arenas"] = JToken.FromObject(defaultArenas);

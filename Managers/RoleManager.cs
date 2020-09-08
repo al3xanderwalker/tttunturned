@@ -17,7 +17,7 @@ namespace TTTUnturned.Managers
             CommandWindow.Log("RoleManager loaded");
         }
 
-        public static List<LobbyPlayer> ShufflePlayerRoles(Lobby lobby)
+        public static List<LobbyPlayer> GeneratePlayerRoles()
         {
             List<CSteamID> tickets = new List<CSteamID>();
             List<LobbyPlayer> players = new List<LobbyPlayer>();
@@ -39,8 +39,8 @@ namespace TTTUnturned.Managers
 
             System.Random rng = new System.Random();
 
-            int terroistCount = (int)Math.Floor(lobby.Players.Count / 8.0);
-            int detectiveCount = (int)Math.Floor(lobby.Players.Count / 12.0);
+            int terroistCount = (int)Math.Floor(Provider.clients.Count / 8.0);
+            int detectiveCount = (int)Math.Floor(Provider.clients.Count / 12.0);
             if (terroistCount == 0) terroistCount = 1;
             if (detectiveCount == 0) detectiveCount = 1;
 

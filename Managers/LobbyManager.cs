@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using UnityEngine;
 using TTTUnturned.Models;
+using TTTUnturned.Managers;
 
 namespace TTTUnturned.Managers
 {
@@ -28,7 +29,11 @@ namespace TTTUnturned.Managers
             {
                 if(Lobby.Players.Count == 5)
                 {
-                    //Lobby.start()
+                    Lobby.Start();
+                }
+                else if(Lobby.Players.Count < 5)
+                {
+                    ChatManager.say($"<color=red>{5 - Lobby.Players.Count}</color> Players needed to start game.",Color.white, true);
                 }
                 // if lobby players > 5 call the start function
 
@@ -45,6 +50,11 @@ namespace TTTUnturned.Managers
         {
             Lobby createdSession = new Lobby(LobbyState.SETUP);
             return createdSession;
+        }
+        private void Start()
+        {
+            Lobby.Players = RoleManager.GeneratePlayerRoles();
+            // Wait X seconds and 
         }
 
         private void StartGameSession(Lobby lobby)
