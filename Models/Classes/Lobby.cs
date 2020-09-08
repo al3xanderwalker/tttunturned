@@ -27,7 +27,7 @@ namespace TTTUnturned.Models
 
         public void Start()
         {
-            Players = RoleManager.ShufflePlayerRoles(this);
+            Players = RoleManager.GeneratePlayerRoles();
             // Spawn items
             // Teleport all players to spawn point
             // Assign all players a role
