@@ -75,6 +75,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Main.cs" />
+    <Compile Include="Managers\ItemsManager.cs" />
     <Compile Include="Managers\LobbyManager.cs" />
     <Compile Include="Managers\RoleManager.cs" />
     <Compile Include="Models\Classes\Config.cs" />
