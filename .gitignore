@@ -360,3 +360,7 @@ MigrationBackup/
 
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
+obj/Debug/TTTUnturned.csprojAssemblyReference.cache
+obj/Debug/TTTUnturned.csproj.FileListAbsolute.txt
+obj/Debug/TTTUnturned.csproj.CoreCompileInputs.cache
+.vs/TTTUnturned/v16/.suo
