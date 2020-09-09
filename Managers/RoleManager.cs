@@ -72,15 +72,16 @@ namespace TTTUnturned.Managers
         {
             lobby.Players.ForEach(player =>
             {
+                SteamPlayer steamPlayer = PlayerTool.getSteamPlayer(player.SteamID);
                 switch (player.Role) {
                     case PlayerRole.INNOCENT:
-                        LobbyManager.message($"You are a <color=green>Innocent</color>");
+                        LobbyManager.message($"You are a <color=green>Innocent</color>", steamPlayer);
                         break;
                     case PlayerRole.DETECTIVE:
-                        LobbyManager.message($"You are a <color=blue>Detective</color>");
+                        LobbyManager.message($"You are a <color=blue>Detective</color>", steamPlayer);
                         break;
                     case PlayerRole.TERRORIST:
-                        LobbyManager.message($"You are a <color=red>Terroist</color>");
+                        LobbyManager.message($"You are a <color=red>Terroist</color>", steamPlayer);
                         break;
                 }
             });

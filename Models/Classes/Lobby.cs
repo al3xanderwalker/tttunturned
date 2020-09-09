@@ -44,7 +44,7 @@ namespace TTTUnturned.Models
             {
                 int t = rng.Next(spawns.Count);
                 Vector3 spawn = new Vector3(spawns[t].X, spawns[t].Y, spawns[t].Z);
-                SteamPlayer steamPlayer = Provider.clients.Find(x => x.playerID.steamID == player.SteamID);
+                SteamPlayer steamPlayer = PlayerTool.getSteamPlayer(player.SteamID);
                 steamPlayer.player.teleportToLocation(spawn, 0f);
             });
             // Wait 30 seconds before displaying roles and allowing damage
