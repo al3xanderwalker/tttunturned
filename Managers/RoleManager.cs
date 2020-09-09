@@ -68,5 +68,22 @@ namespace TTTUnturned.Managers
             });
             return players;
         }
+        public static void tellRoles(Lobby lobby)
+        {
+            lobby.Players.ForEach(player =>
+            {
+                switch (player.Role) {
+                    case PlayerRole.INNOCENT:
+                        LobbyManager.message($"You are a <color=green>Innocent</color>");
+                        break;
+                    case PlayerRole.DETECTIVE:
+                        LobbyManager.message($"You are a <color=blue>Detective</color>");
+                        break;
+                    case PlayerRole.TERRORIST:
+                        LobbyManager.message($"You are a <color=red>Terroist</color>");
+                        break;
+                }
+            });
+        }
     }
 }

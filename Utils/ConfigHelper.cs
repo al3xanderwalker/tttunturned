@@ -18,6 +18,10 @@ namespace TTTUnturned.Utils
         public List<Spawn> LobbySpawns { get; set; }
 
         public List<Map> Maps { get; set; }
+
+        public int RoundLength { get; set; }
+
+        public bool DebugMode { get; set; }
         //public List<ArenaConfig> arenas { get; set; }
     }
 
@@ -30,7 +34,8 @@ namespace TTTUnturned.Utils
                 CommandWindow.Log("No TTTUnturned config found, generating...");
 
                 JObject tttUnuturnedConfig = new JObject();
-                tttUnuturnedConfig.Add("exampleValue", 10);
+                tttUnuturnedConfig.Add("roundLength", 600);
+                tttUnuturnedConfig.Add("debugMode", true);
                 Spawn exampleSpawn = new Spawn(0, 0, 0);
                 List<Spawn> Spawns = new List<Spawn>();
                 Spawns.Add(exampleSpawn);

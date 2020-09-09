@@ -33,7 +33,7 @@ namespace TTTUnturned
             string path = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
             ConfigHelper.EnsureConfig($"{path}{Path.DirectorySeparatorChar}config.json");
             Config = ConfigHelper.ReadConfig($"{path}{Path.DirectorySeparatorChar}config.json");
-
+            CommandWindow.Log($"DEBUG MODE: {Config.DebugMode}");
             // Load our module as a gameObject
             TTTUnturnedObject = new GameObject("TTTUnturned");
             DontDestroyOnLoad(TTTUnturnedObject);
