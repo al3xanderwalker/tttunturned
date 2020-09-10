@@ -9,7 +9,6 @@ using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using UnityEngine;
-using TTT.Utils;
 using TTTUnturned.Managers;
 
 namespace TTTUnturned
@@ -23,6 +22,9 @@ namespace TTTUnturned
         public void initialize()
         {
             Instance = this;
+            Provider.hasCheats = true; // i keeep forgetting to enable in config
+            Provider.configData.Normal.Items.Gun_Bullets_Full_Chance = 1;
+            Provider.configData.Normal.Items.Quality_Full_Chance = 1;
 
             Patcher patch = new Patcher(); // Create patcher object and call PatchAll
             Patcher.DoPatching();

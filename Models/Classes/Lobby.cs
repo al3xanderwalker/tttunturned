@@ -9,6 +9,7 @@ using TTTUnturned.Managers;
 using TTTUnturned.Utils;
 using TTTUnturned.Models;
 using UnityEngine;
+using System.Collections;
 
 namespace TTTUnturned.Models
 {
@@ -32,7 +33,7 @@ namespace TTTUnturned.Models
             Players = players;
         }
 
-        public void Start()
+        public async Task Start()
         {
             LobbyManager.Message("Starting game session...");
             // Assign all players a role
@@ -50,22 +51,53 @@ namespace TTTUnturned.Models
                 steamPlayer.player.teleportToLocation(spawn, 0f);
             });
             // Wait 30 seconds before displaying roles and allowing damage
+            State = LobbyState.WAITING;
+            await Task.Delay(30000);
             // Display roles
             LobbyManager.Message("Game is live!");
             RoleManager.tellRoles(this);
             State = LobbyState.LIVE;
         }
 
-        public void Stop()
+        public async Task Stop()
         {
             State = LobbyState.SETUP; // Set game state to setup
             RoundTime = Main.Config.RoundLength; // Reset round timer
+
+            await Task.Delay(10000);
+            //Teleport players NOT kill them 
             Players.ForEach(player => 
             {
-                Player ply = PlayerTool.getPlayer(player.SteamID);
-                EPlayerKill kill; // Useless var we have to pass
-                ply.life.askDamage(200, Vector3.up, EDeathCause.SUICIDE, ELimb.SKULL, CSteamID.Nil, out kill);
+                UnityThread.executeCoroutine(ResetPlayer(player));
             });
+
+            // Track stats in database
+        }
+
+        IEnumerator ResetPlayer(LobbyPlayer player)
+        {
+            Player ply = PlayerTool.getPlayer(player.SteamID);
+            if (ply is null) yield return null;
+
+            for (byte page = 0; page < 6; page++)
+            {
+                for (byte i = 0; i < ply.inventory.items[page].getItemCount(); i++)
+                {
+                    if (ply.inventory.items[page].getItem(i) != null) 
+                    {
+                        ItemJar item = ply.inventory.items[page].getItem(i);
+                        ply.inventory.removeItem(page, ply.inventory.getIndex(page, item.x, item.y));
+                    }
+                }
+            }
+            System.Random rng = new System.Random();
+            List<Spawn> spawns = Main.Config.LobbySpawns;
+
+            int t = rng.Next(spawns.Count);
+            Vector3 spawn = new Vector3(spawns[t].X, spawns[t].Y, spawns[t].Z);
+            ply.teleportToLocation(spawn, 0f);
+            
+            yield return null;
         }
 
         public List<LobbyPlayer> GetAlive(PlayerRole role)

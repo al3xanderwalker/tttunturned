@@ -1,11 +1,12 @@
 ﻿using SDG.Unturned;
+using Steamworks;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using TTT.Utils;
 using TTTUnturned.Models;
+using TTTUnturned.Managers;
 using TTTUnturned.Utils;
 using UnityEngine;
 
@@ -13,11 +14,46 @@ namespace TTTUnturned.Managers
 {
     public class RoundManager : MonoBehaviour
     {
+        public static Lobby Lobby;
+
         public void Awake()
         {
+            Lobby = LobbyManager.GetLobby();
+
             CommandWindow.Log("RoundManager loaded");
 
             AsyncHelper.Schedule("RoundTick", RoundTick, 1000);
+
+            PlayerLife.onPlayerDied += OnPlayerDied;
+        }
+
+        private void OnPlayerDied(PlayerLife sender, EDeathCause cause, ELimb limb, CSteamID instigator)
+        {
+            LobbyPlayer player = LobbyManager.GetLobbyPlayer(sender.channel.owner.playerID.steamID);
+            if (player is null || player.Status != PlayerStatus.DEAD) return;
+
+            player.Status = PlayerStatus.DEAD;
+
+            CheckWin();
+        }
+
+        private void CheckWin()
+        {
+            if (Lobby.GetAlive(PlayerRole.TERRORIST).Count == 0)
+            {
+                CommandWindow.Log("Innocents win");
+                LobbyManager.Message("<color=lime>Innocents</color> Win!");
+
+                AsyncHelper.RunAsync("LobbyStopCheckWinT", Lobby.Stop);
+                // Innocents win
+            }
+            if (Lobby.GetAlive(PlayerRole.DETECTIVE).Count == 0 && Lobby.GetAlive(PlayerRole.INNOCENT).Count == 0)
+            {
+                CommandWindow.Log("Terrorist win");
+                LobbyManager.Message("<color=red>Terroists</color> Win!");
+                AsyncHelper.RunAsync("LobbyStopCheckWinInnocent", Lobby.Stop);
+                // Terrorist win
+            }
         }
 
         private async Task RoundTick()
@@ -39,8 +75,10 @@ namespace TTTUnturned.Managers
             {
                 UnityThread.executeInUpdate(() =>
                 {
-                    lobby.Stop();
-                    LobbyManager.Message("Timer expired! Innocents win.");
+                    CommandWindow.Log("Innocents win");
+                    LobbyManager.Message("<color=lime>Innocents</color> Win!");
+
+                    AsyncHelper.RunAsync("LobbyStopRoundTime", Lobby.Stop);
                 });
                 return;
             }

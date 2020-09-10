@@ -96,5 +96,33 @@ namespace TTTUnturned.Utils
                 }
             });
         }
+
+        /// <summary>
+        ///     Fire and forget an async task
+        /// </summary>
+        /// <param name="name">The name of the task.</param>
+        /// <param name="task">The task to run.</param>
+        /// <param name="exceptionHandler">The optional exception handler.</param>
+        public static void RunAsync(string name, Func<Task> task, Action<Exception> exceptionHandler = null)
+        {
+            Task.Run(async () =>
+            {
+                try
+                {
+                    await task();
+                }
+                catch (Exception e)
+                {
+                    if (exceptionHandler != null)
+                    {
+                        exceptionHandler(e);
+                    }
+                    else
+                    {
+                        CommandWindow.Log($"Exception occured in task \"{name}\"\n{e}");
+                    }
+                }
+            });
+        }
     }
 }

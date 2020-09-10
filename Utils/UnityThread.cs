@@ -10,7 +10,7 @@ using System.Text;
 using System.Threading.Tasks;
 using UnityEngine;
 
-namespace TTT.Utils
+namespace TTTUnturned.Utils
 {
     public class UnityThread : MonoBehaviour
     {

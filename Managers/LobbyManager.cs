@@ -7,6 +7,9 @@ using System.Threading.Tasks;
 using UnityEngine;
 using TTTUnturned.Models;
 using TTTUnturned.Managers;
+using Steamworks;
+using TTTUnturned.Commands;
+using TTTUnturned.Utils;
 
 namespace TTTUnturned.Managers
 {
@@ -24,6 +27,8 @@ namespace TTTUnturned.Managers
             else playersRequired = 5;
 
             Provider.onEnemyConnected += OnEnemyConnected;
+
+            Commander.register(new CommandPos());
         }
 
         private void OnEnemyConnected(SteamPlayer steamPlayer)
@@ -33,6 +38,7 @@ namespace TTTUnturned.Managers
                 if (Provider.clients.Count == playersRequired)
                 {
                     Message($"<color=red>{steamPlayer.playerID.playerName}</color> has joined!");
+                    AsyncHelper.RunAsync("LobbyStart", Lobby.Start);
                     Lobby.Start();
                     return;
                 }
@@ -62,9 +68,21 @@ namespace TTTUnturned.Managers
             return Lobby;
         }
 
+        public static LobbyPlayer GetLobbyPlayer(CSteamID steamID)
+        {
+            return Lobby.Players.Find(x => x.SteamID == steamID);
+        }
+
         public static void Message(string message, SteamPlayer target = null)
         {
-            ChatManager.serverSendMessage(message, Color.white, null, target, EChatMode.GLOBAL, "https://image.winudf.com/v2/image/Y29tLmlvbmljZnJhbWV3b3JrLnR0dDMxOTQ5OV9pY29uXzBfYjAxN2RkMGE/icon.png?w=170&fakeurl=1", true);
+            ChatManager.serverSendMessage(message, Color.white, null, target, EChatMode.GLOBAL, "https://i.imgur.com/UUwQfvY.png", true);
+        }
+
+        IEnumerator SendMessageAsync(string message, SteamPlayer target = null)
+        {
+            ChatManager.serverSendMessage(message, Color.white, null, target, EChatMode.GLOBAL, "https://i.imgur.com/UUwQfvY.png", true);
+
+            yield return null;
         }
     }
 }

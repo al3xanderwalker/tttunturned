@@ -9,6 +9,7 @@ namespace TTTUnturned.Models
     public enum LobbyState
     {
         SETUP,
+        WAITING,
         LIVE
     }
 }
