@@ -22,7 +22,6 @@ namespace TTTUnturned.Utils
         public int RoundLength { get; set; }
 
         public bool DebugMode { get; set; }
-        //public List<ArenaConfig> arenas { get; set; }
     }
 
     public class ConfigHelper
@@ -36,17 +35,16 @@ namespace TTTUnturned.Utils
                 JObject tttUnuturnedConfig = new JObject();
                 tttUnuturnedConfig.Add("roundLength", 600);
                 tttUnuturnedConfig.Add("debugMode", true);
+
                 Spawn exampleSpawn = new Spawn(0, 0, 0);
                 List<Spawn> Spawns = new List<Spawn>();
                 Spawns.Add(exampleSpawn);
                 tttUnuturnedConfig["lobbySpawns"] = JToken.FromObject(Spawns);
+
                 Map exampleMap = new Map("Example", Spawns);
                 List<Map> Maps = new List<Map>();
                 Maps.Add(exampleMap);
                 tttUnuturnedConfig["maps"] = JToken.FromObject(Maps);
-
-
-                //combatArenaConfig["arenas"] = JToken.FromObject(defaultArenas);
 
                 using (StreamWriter file = File.CreateText(path))
                 using (JsonTextWriter writer = new JsonTextWriter(file))

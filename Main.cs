@@ -39,6 +39,7 @@ namespace TTTUnturned
             DontDestroyOnLoad(TTTUnturnedObject);
 
             TTTUnturnedObject.AddComponent<LobbyManager>();
+            TTTUnturnedObject.AddComponent<RoundManager>();
             TTTUnturnedObject.AddComponent<RoleManager>();
 
             CommandWindow.Log("TTTUnturned by Corbyn & Alex loaded");

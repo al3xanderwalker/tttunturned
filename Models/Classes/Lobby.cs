@@ -33,6 +33,7 @@ namespace TTTUnturned.Models
 
         public void Start()
         {
+            LobbyManager.message("Starting game session...");
             // Assign all players a role
             Players = RoleManager.GeneratePlayerRoles();
             // Spawn items
@@ -49,7 +50,60 @@ namespace TTTUnturned.Models
             });
             // Wait 30 seconds before displaying roles and allowing damage
             // Display roles
+            LobbyManager.message("Game is live!");
             RoleManager.tellRoles(this);
+            State = LobbyState.LIVE;
+        }
+
+        public void Stop()
+        {
+            State = LobbyState.SETUP; // Set game state to setup
+            RoundTime = Main.Config.RoundLength; // Reset round timer
+            Players.ForEach(player => 
+            {
+                Player ply = PlayerTool.getPlayer(player.SteamID);
+                EPlayerKill kill; // Useless var we have to pass
+                ply.life.askDamage(200, Vector3.up, EDeathCause.SUICIDE, ELimb.SKULL, CSteamID.Nil, out kill);
+            });
+        }
+
+        public int GetAliveDetectiveCount()
+        {
+            int detectiveCount = 0;
+            foreach (LobbyPlayer p in Players)
+            {
+                if (p.Role == PlayerRole.DETECTIVE)
+                {
+                    detectiveCount++;
+                }
+            }
+            return detectiveCount;
+        }
+
+        public int GetAliveTerroristCount()
+        {
+            int terroristCount = 0;
+            foreach (LobbyPlayer p in Players)
+            {
+                if (p.Role == PlayerRole.TERRORIST)
+                {
+                    terroristCount++;
+                }
+            }
+            return terroristCount;
+        }
+
+        public int GetAliveInnocentCount()
+        {
+            int innocentCount = 0;
+            foreach (LobbyPlayer p in Players)
+            {
+                if (p.Role == PlayerRole.INNOCENT)
+                {
+                    innocentCount++;
+                }
+            }
+            return innocentCount;
         }
     }
 }
