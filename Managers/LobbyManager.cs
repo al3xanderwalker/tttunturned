@@ -10,6 +10,7 @@ using TTTUnturned.Managers;
 using Steamworks;
 using TTTUnturned.Commands;
 using TTTUnturned.Utils;
+using System.Collections;
 
 namespace TTTUnturned.Managers
 {
@@ -75,13 +76,12 @@ namespace TTTUnturned.Managers
 
         public static void Message(string message, SteamPlayer target = null)
         {
-            ChatManager.serverSendMessage(message, Color.white, null, target, EChatMode.GLOBAL, "https://i.imgur.com/UUwQfvY.png", true);
+            UnityThread.executeCoroutine(SendMessageAsync(message, target));
         }
 
-        IEnumerator SendMessageAsync(string message, SteamPlayer target = null)
+        static IEnumerator SendMessageAsync(string message, SteamPlayer target = null)
         {
             ChatManager.serverSendMessage(message, Color.white, null, target, EChatMode.GLOBAL, "https://i.imgur.com/UUwQfvY.png", true);
-
             yield return null;
         }
     }
