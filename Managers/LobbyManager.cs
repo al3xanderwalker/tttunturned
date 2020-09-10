@@ -32,21 +32,21 @@ namespace TTTUnturned.Managers
             {
                 if (Provider.clients.Count == playersRequired)
                 {
-                    message($"<color=red>{steamPlayer.playerID.playerName}</color> has joined!");
+                    Message($"<color=red>{steamPlayer.playerID.playerName}</color> has joined!");
                     Lobby.Start();
                     return;
                 }
                 else if (Provider.clients.Count < playersRequired)
                 {
-                    message($"<color=red>{steamPlayer.playerID.playerName}</color> has joined, <color=red>{playersRequired - Provider.clients.Count}</color> more players needed to start game.");
+                    Message($"<color=red>{steamPlayer.playerID.playerName}</color> has joined, <color=red>{playersRequired - Provider.clients.Count}</color> more players needed to start game.");
                     return;
                 }
             }
 
             if (Lobby.State == LobbyState.LIVE)
             {
-                message($"<color=red>{steamPlayer.playerID.playerName}</color> has joined!");
-                message($"Game is currently in progress, time left: <color=red>{RoundManager.ParseTime(Main.Config.RoundLength - Lobby.RoundTime)}</color>", steamPlayer);
+                Message($"<color=red>{steamPlayer.playerID.playerName}</color> has joined!");
+                Message($"Game is currently in progress, time left: <color=red>{RoundManager.ParseTime(Main.Config.RoundLength - Lobby.RoundTime)}</color>", steamPlayer);
                 return;
             }
         }
@@ -62,7 +62,7 @@ namespace TTTUnturned.Managers
             return Lobby;
         }
 
-        public static void message(string message, SteamPlayer target = null)
+        public static void Message(string message, SteamPlayer target = null)
         {
             ChatManager.serverSendMessage(message, Color.white, null, target, EChatMode.GLOBAL, "https://image.winudf.com/v2/image/Y29tLmlvbmljZnJhbWV3b3JrLnR0dDMxOTQ5OV9pY29uXzBfYjAxN2RkMGE/icon.png?w=170&fakeurl=1", true);
         }

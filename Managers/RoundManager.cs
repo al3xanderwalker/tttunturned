@@ -32,7 +32,7 @@ namespace TTTUnturned.Managers
             if (lobby.RoundTime == 60)
             {
                 // TODO: Make this execute async so it doesnt block the thread
-                UnityThread.executeInUpdate(() => { LobbyManager.message("1 minute remaining"); });
+                UnityThread.executeInUpdate(() => { LobbyManager.Message("1 minute remaining"); });
             }
 
             if (lobby.RoundTime == 0)
@@ -40,7 +40,7 @@ namespace TTTUnturned.Managers
                 UnityThread.executeInUpdate(() =>
                 {
                     lobby.Stop();
-                    LobbyManager.message("Timer expired! Innocents win.");
+                    LobbyManager.Message("Timer expired! Innocents win.");
                 });
                 return;
             }

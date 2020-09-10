@@ -34,7 +34,7 @@ namespace TTTUnturned.Models
 
         public void Start()
         {
-            LobbyManager.message("Starting game session...");
+            LobbyManager.Message("Starting game session...");
             // Assign all players a role
             Players = RoleManager.GeneratePlayerRoles();
             // Spawn items
@@ -51,7 +51,7 @@ namespace TTTUnturned.Models
             });
             // Wait 30 seconds before displaying roles and allowing damage
             // Display roles
-            LobbyManager.message("Game is live!");
+            LobbyManager.Message("Game is live!");
             RoleManager.tellRoles(this);
             State = LobbyState.LIVE;
         }
@@ -68,7 +68,7 @@ namespace TTTUnturned.Models
             });
         }
 
-        public List<LobbyPlayer> getAlive(PlayerRole role)
+        public List<LobbyPlayer> GetAlive(PlayerRole role)
         {
             return Players.FindAll(player => player.Role == role && player.Status == PlayerStatus.ALIVE);
         }
