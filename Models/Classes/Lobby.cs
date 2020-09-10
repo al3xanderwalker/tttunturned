@@ -80,14 +80,15 @@ namespace TTTUnturned.Models
             State = LobbyState.SETUP; // Set game state to setup
             RoundTime = Main.Config.RoundLength; // Reset round timer
 
-            LobbyManager.Message("Round restarting in 10 seconds"); // Fix hardcoded time value
+            LobbyManager.Message("Round ending in 10 seconds"); // Fix hardcoded time value
 
             await Task.Delay(10000);
             //Teleport players NOT kill them 
             Players.ForEach(player => 
             {
-                UnityThread.executeCoroutine(ResetPlayer(player));
+                if(player.Status == PlayerStatus.ALIVE) UnityThread.executeCoroutine(ResetPlayer(player));
             });
+            LobbyManager.Message("Round starting in 10 seconds"); // Fix hardcoded time value
             await Task.Delay(20000);
             AsyncHelper.RunAsync("RestartLobby", Start);
             // Track stats in database
