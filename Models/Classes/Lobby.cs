@@ -88,7 +88,7 @@ namespace TTTUnturned.Models
             {
                 if(player.Status == PlayerStatus.ALIVE) UnityThread.executeCoroutine(ResetPlayer(player));
             });
-            LobbyManager.Message("Round starting in 10 seconds"); // Fix hardcoded time value
+            LobbyManager.Message("New round starting in 20 seconds"); // Fix hardcoded time value
             await Task.Delay(20000);
             AsyncHelper.RunAsync("RestartLobby", Start);
             // Track stats in database
