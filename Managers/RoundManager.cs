@@ -40,7 +40,7 @@ namespace TTTUnturned.Managers
                 UnityThread.executeInUpdate(() =>
                 {
                     lobby.Stop();
-                    LobbyManager.message("Timer expired! Detectives win.");
+                    LobbyManager.message("Timer expired! Innocents win.");
                 });
                 return;
             }

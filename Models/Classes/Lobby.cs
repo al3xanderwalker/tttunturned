@@ -7,6 +7,7 @@ using SDG.Unturned;
 using Steamworks;
 using TTTUnturned.Managers;
 using TTTUnturned.Utils;
+using TTTUnturned.Models;
 using UnityEngine;
 
 namespace TTTUnturned.Models
@@ -67,43 +68,9 @@ namespace TTTUnturned.Models
             });
         }
 
-        public int GetAliveDetectiveCount()
+        public List<LobbyPlayer> getAlive(PlayerRole role)
         {
-            int detectiveCount = 0;
-            foreach (LobbyPlayer p in Players)
-            {
-                if (p.Role == PlayerRole.DETECTIVE)
-                {
-                    detectiveCount++;
-                }
-            }
-            return detectiveCount;
-        }
-
-        public int GetAliveTerroristCount()
-        {
-            int terroristCount = 0;
-            foreach (LobbyPlayer p in Players)
-            {
-                if (p.Role == PlayerRole.TERRORIST)
-                {
-                    terroristCount++;
-                }
-            }
-            return terroristCount;
-        }
-
-        public int GetAliveInnocentCount()
-        {
-            int innocentCount = 0;
-            foreach (LobbyPlayer p in Players)
-            {
-                if (p.Role == PlayerRole.INNOCENT)
-                {
-                    innocentCount++;
-                }
-            }
-            return innocentCount;
+            return Players.FindAll(player => player.Role == role && player.Status == PlayerStatus.ALIVE);
         }
     }
 }
