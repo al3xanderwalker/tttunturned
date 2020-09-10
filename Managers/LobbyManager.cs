@@ -28,19 +28,37 @@ namespace TTTUnturned.Managers
             else playersRequired = 5;
 
             Provider.onEnemyConnected += OnEnemyConnected;
+            Provider.onEnemyDisconnected += OnEnemyDisconnected;
 
             Commander.register(new CommandPos());
+            Commander.register(new CommandDiscord());
+        }
+
+        private void OnEnemyDisconnected(SteamPlayer steamPlayer)
+        {
+            LobbyPlayer lPlayer = GetLobbyPlayer(steamPlayer.playerID.steamID);
+            if (lPlayer is null) return;
+
+            Lobby.Players.Remove(lPlayer);
+            RoundManager.CheckWin();
         }
 
         private void OnEnemyConnected(SteamPlayer steamPlayer)
         {
+            ClearInventory(steamPlayer.playerID.steamID);
+            System.Random rng = new System.Random();
+            List<Spawn> spawns = Main.Config.LobbySpawns;
+
+            int t = rng.Next(spawns.Count);
+            Vector3 spawn = new Vector3(spawns[t].X, spawns[t].Y, spawns[t].Z);
+            Lobby.TeleportToLocation(steamPlayer, spawn);
+
             if (Lobby.State == LobbyState.SETUP)
             {
                 if (Provider.clients.Count == playersRequired)
                 {
                     Message($"<color=red>{steamPlayer.playerID.playerName}</color> has joined!");
                     AsyncHelper.RunAsync("LobbyStart", Lobby.Start);
-                    Lobby.Start();
                     return;
                 }
                 else if (Provider.clients.Count < playersRequired)
@@ -53,7 +71,7 @@ namespace TTTUnturned.Managers
             if (Lobby.State == LobbyState.LIVE)
             {
                 Message($"<color=red>{steamPlayer.playerID.playerName}</color> has joined!");
-                Message($"Game is currently in progress, time left: <color=red>{RoundManager.ParseTime(Main.Config.RoundLength - Lobby.RoundTime)}</color>", steamPlayer);
+                Message($"Game is currently in progress, time left: <color=red>{RoundManager.ParseTime(Lobby.RoundTime - Main.Config.RoundLength)}</color>", steamPlayer);
                 return;
             }
         }
@@ -82,6 +100,29 @@ namespace TTTUnturned.Managers
         static IEnumerator SendMessageAsync(string message, SteamPlayer target = null)
         {
             ChatManager.serverSendMessage(message, Color.white, null, target, EChatMode.GLOBAL, "https://i.imgur.com/UUwQfvY.png", true);
+            yield return null;
+        }
+
+        public void ClearInventory(CSteamID steamID)
+        {
+            UnityThread.executeCoroutine(ClearInventoryAsync(steamID));
+        }
+
+        private IEnumerator ClearInventoryAsync(CSteamID steamID)
+        {
+            Player ply = PlayerTool.getPlayer(steamID);
+            for (byte page = 0; page < 6; page++)
+            {
+                for (byte i = 0; i < ply.inventory.items[page].getItemCount(); i++)
+                {
+                    if (ply.inventory.items[page].getItem(i) != null)
+                    {
+                        ItemJar item = ply.inventory.items[page].getItem(i);
+                        ply.inventory.removeItem(page, ply.inventory.getIndex(page, item.x, item.y));
+                    }
+                }
+            }
+
             yield return null;
         }
     }

@@ -25,19 +25,40 @@ namespace TTTUnturned.Managers
             AsyncHelper.Schedule("RoundTick", RoundTick, 1000);
 
             PlayerLife.onPlayerDied += OnPlayerDied;
+
+            DamageTool.damagePlayerRequested += OnDamageRequested;
+        }
+
+        private void OnDamageRequested(ref DamagePlayerParameters parameters, ref bool shouldAllow)
+        {
+            if (Lobby.State != LobbyState.LIVE)
+            {
+                shouldAllow = false;
+            }
         }
 
         private void OnPlayerDied(PlayerLife sender, EDeathCause cause, ELimb limb, CSteamID instigator)
         {
+            System.Random rng = new System.Random();
+            List<Spawn> spawns = Main.Config.LobbySpawns;
+            int t = rng.Next(spawns.Count);
+            Vector3 spawn = new Vector3(spawns[t].X, spawns[t].Y, spawns[t].Z);
+
+            sender.channel.send("tellRevive", ESteamCall.ALL, ESteamPacket.UPDATE_RELIABLE_BUFFER, new object[] // thanks alien man
+            {
+                spawn,
+                (byte) 0
+            });
+            sender.sendRevive();
+
             LobbyPlayer player = LobbyManager.GetLobbyPlayer(sender.channel.owner.playerID.steamID);
-            if (player is null || player.Status != PlayerStatus.DEAD) return;
+            if (player is null || player.Status == PlayerStatus.DEAD) return;
 
             player.Status = PlayerStatus.DEAD;
-
             CheckWin();
         }
 
-        private void CheckWin()
+        public static void CheckWin()
         {
             if (Lobby.GetAlive(PlayerRole.TERRORIST).Count == 0)
             {
@@ -63,7 +84,7 @@ namespace TTTUnturned.Managers
             if (lobby.State != LobbyState.LIVE) return;
 
             lobby.RoundTime--;
-            CommandWindow.Log(lobby.RoundTime);
+            if(Main.Config.DebugMode) CommandWindow.Log(lobby.RoundTime);
 
             if (lobby.RoundTime == 60)
             {

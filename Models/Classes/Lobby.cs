@@ -35,28 +35,44 @@ namespace TTTUnturned.Models
 
         public async Task Start()
         {
-            LobbyManager.Message("Starting game session...");
-            // Assign all players a role
-            Players = RoleManager.GeneratePlayerRoles();
-            // Spawn items
-            ItemsManager.respawnItems();
-            // Teleport all players to spawn point
-            System.Random rng = new System.Random();
-            List<Spawn> spawns = Main.Config.Maps[rng.Next(Main.Config.Maps.Count)].Spawns;
-            Players.ForEach(player =>
+            // CHECK IF WE CAN START THE GAME
+            int playersRequired;
+            if (Main.Config.DebugMode) playersRequired = 2;
+            else playersRequired = 5;
+            if (State == LobbyState.SETUP)
             {
-                int t = rng.Next(spawns.Count);
-                Vector3 spawn = new Vector3(spawns[t].X, spawns[t].Y, spawns[t].Z);
-                SteamPlayer steamPlayer = PlayerTool.getSteamPlayer(player.SteamID);
-                steamPlayer.player.teleportToLocation(spawn, 0f);
-            });
-            // Wait 30 seconds before displaying roles and allowing damage
-            State = LobbyState.WAITING;
-            await Task.Delay(30000);
-            // Display roles
-            LobbyManager.Message("Game is live!");
-            RoleManager.tellRoles(this);
-            State = LobbyState.LIVE;
+                if (Provider.clients.ToList().Count >= playersRequired)
+                {
+                    LobbyManager.Message("Starting game session...");
+                    // Assign all players a role
+                    Players = RoleManager.GeneratePlayerRoles();
+                    // Spawn items
+                    ItemsManager.RespawnItems();
+                    // Teleport all players to spawn point
+                    System.Random rng = new System.Random();
+                    List<Spawn> spawns = Main.Config.Maps[rng.Next(Main.Config.Maps.Count)].Spawns;
+                    Players.ForEach(player =>
+                    {
+                        int t = rng.Next(spawns.Count);
+                        Vector3 spawn = new Vector3(spawns[t].X, spawns[t].Y, spawns[t].Z);
+                        SteamPlayer steamPlayer = PlayerTool.getSteamPlayer(player.SteamID);
+                        TeleportToLocation(steamPlayer, spawn);
+                    });
+                    LobbyManager.Message("Game is live, roles will be assigned in 30 seconds!");
+                    // Wait 30 seconds before displaying roles and allowing damage
+                    State = LobbyState.WAITING;
+                    await Task.Delay(10000); // CHANGE TO 30 LATER TODO: Add this value to config
+                                             // Display roles
+                    RoleManager.tellRoles(this);
+                    State = LobbyState.LIVE;
+                    return;
+                }
+                else
+                {
+                    LobbyManager.Message($"<color=red>{playersRequired - Provider.clients.Count}</color> more players needed to start game.");
+                    return;
+                }
+            }
         }
 
         public async Task Stop()
@@ -64,21 +80,24 @@ namespace TTTUnturned.Models
             State = LobbyState.SETUP; // Set game state to setup
             RoundTime = Main.Config.RoundLength; // Reset round timer
 
+            LobbyManager.Message("Round restarting in 10 seconds"); // Fix hardcoded time value
+
             await Task.Delay(10000);
             //Teleport players NOT kill them 
             Players.ForEach(player => 
             {
                 UnityThread.executeCoroutine(ResetPlayer(player));
             });
-
+            await Task.Delay(20000);
+            AsyncHelper.RunAsync("RestartLobby", Start);
             // Track stats in database
         }
 
-        IEnumerator ResetPlayer(LobbyPlayer player)
+        public IEnumerator ResetPlayer(LobbyPlayer player)
         {
             Player ply = PlayerTool.getPlayer(player.SteamID);
             if (ply is null) yield return null;
-
+            ply.life.sendRevive();
             for (byte page = 0; page < 6; page++)
             {
                 for (byte i = 0; i < ply.inventory.items[page].getItemCount(); i++)
@@ -90,6 +109,7 @@ namespace TTTUnturned.Models
                     }
                 }
             }
+
             System.Random rng = new System.Random();
             List<Spawn> spawns = Main.Config.LobbySpawns;
 
@@ -97,6 +117,18 @@ namespace TTTUnturned.Models
             Vector3 spawn = new Vector3(spawns[t].X, spawns[t].Y, spawns[t].Z);
             ply.teleportToLocation(spawn, 0f);
             
+            yield return null;
+        }
+
+        public void TeleportToLocation(SteamPlayer steamPlayer, Vector3 location)
+        {
+            UnityThread.executeCoroutine(TeleportToLocationAsync(steamPlayer, location));
+        }
+
+        private IEnumerator TeleportToLocationAsync(SteamPlayer steamPlayer, Vector3 location)
+        {
+            steamPlayer.player.teleportToLocation(location, 0f);
+
             yield return null;
         }
 

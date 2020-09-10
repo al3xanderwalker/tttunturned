@@ -22,7 +22,7 @@ namespace TTTUnturned.Managers
             List<CSteamID> tickets = new List<CSteamID>();
             List<LobbyPlayer> players = new List<LobbyPlayer>();
 
-            Provider.clients.ForEach(player => // SteamPlayer
+            Provider.clients.ToList().ForEach(player => // SteamPlayer
             {
                 tickets.Add(player.playerID.steamID);
                 /*
@@ -60,14 +60,15 @@ namespace TTTUnturned.Managers
                 tickets.RemoveAll(x => x == test);
             }
 
-            tickets.ForEach(ticket =>
+            tickets.ToList().ForEach(ticket =>
             {
-                LobbyPlayer innocent = new LobbyPlayer(ticket, PlayerRole.TERRORIST, PlayerRank.NONE, PlayerStatus.ALIVE);
+                LobbyPlayer innocent = new LobbyPlayer(ticket, PlayerRole.INNOCENT, PlayerRank.NONE, PlayerStatus.ALIVE);
                 players.Add(innocent);
                 tickets.RemoveAll(x => x == ticket);
             });
             return players;
         }
+
         public static void tellRoles(Lobby lobby)
         {
             lobby.Players.ForEach(player =>

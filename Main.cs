@@ -25,6 +25,8 @@ namespace TTTUnturned
             Provider.hasCheats = true; // i keeep forgetting to enable in config
             Provider.configData.Normal.Items.Gun_Bullets_Full_Chance = 1;
             Provider.configData.Normal.Items.Quality_Full_Chance = 1;
+            Provider.configData.Normal.Players.Can_Start_Bleeding = false;
+            Provider.configData.Normal.Gameplay.Can_Suicide = false;
 
             Patcher patch = new Patcher(); // Create patcher object and call PatchAll
             Patcher.DoPatching();

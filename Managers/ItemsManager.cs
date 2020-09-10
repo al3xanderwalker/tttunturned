@@ -1,16 +1,24 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using SDG.Unturned;
+using TTTUnturned.Utils;
 
 namespace TTTUnturned.Managers
 {
     public class ItemsManager
     {
-        public static void respawnItems()
+        public static void RespawnItems()
         {
+            UnityThread.executeCoroutine(RespawnItemsAsync());
+        }
+
+        private static IEnumerator RespawnItemsAsync()
+        {
+            ItemManager.askClearAllItems();
             for (byte x = 0; x < Regions.WORLD_SIZE; x++) // Straight from uEssentials, dont judge me lmao
             {
                 for (byte y = 0; y < Regions.WORLD_SIZE; y++)
@@ -31,6 +39,8 @@ namespace TTTUnturned.Managers
                     }
                 }
             }
+
+            yield return null;
         }
     }
 }

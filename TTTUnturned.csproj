@@ -74,6 +74,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Commands\CommandDiscord.cs" />
     <Compile Include="Commands\CommandPos.cs" />
     <Compile Include="Main.cs" />
     <Compile Include="Managers\ItemsManager.cs" />
