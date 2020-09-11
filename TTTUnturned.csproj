@@ -79,7 +79,7 @@
     <Compile Include="Managers\LevelConfigManager.cs" />
     <Compile Include="Managers\ItemManager.cs" />
     <Compile Include="Managers\LobbyManager.cs" />
-    <Compile Include="Managers\PlayerManager.cs" />
+    <Compile Include="Managers\PlayersManager.cs" />
     <Compile Include="Managers\RoleManager.cs" />
     <Compile Include="Managers\RoundManager.cs" />
     <Compile Include="Models\Classes\Config.cs" />
