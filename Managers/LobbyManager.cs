@@ -17,15 +17,15 @@ namespace TTTUnturned.Managers
     public class LobbyManager : MonoBehaviour
     {
         public static Lobby Lobby;
-        public static int playersRequired;
+        public static int PlayersRequired;
 
         public void Awake()
         {
             CommandWindow.Log("LobbyManager loaded");
 
             Lobby = CreateLobbyInitial();
-            if (Main.Config.DebugMode) playersRequired = 2;
-            else playersRequired = 5;
+            if (Main.Config.DebugMode) PlayersRequired = 2;
+            else PlayersRequired = 5;
 
             Provider.onEnemyConnected += OnEnemyConnected;
             Provider.onEnemyDisconnected += OnEnemyDisconnected;
@@ -45,6 +45,11 @@ namespace TTTUnturned.Managers
 
         private void OnEnemyConnected(SteamPlayer steamPlayer)
         {
+            steamPlayer.player.setPluginWidgetFlag(EPluginWidgetFlags.ShowFood, false);
+            steamPlayer.player.setPluginWidgetFlag(EPluginWidgetFlags.ShowWater, false);
+            steamPlayer.player.setPluginWidgetFlag(EPluginWidgetFlags.ShowVirus, false);
+            steamPlayer.player.setPluginWidgetFlag(EPluginWidgetFlags.ShowOxygen, false);
+
             ClearInventory(steamPlayer.playerID.steamID);
             System.Random rng = new System.Random();
             List<Spawn> spawns = Main.Config.LobbySpawns;
@@ -55,15 +60,15 @@ namespace TTTUnturned.Managers
 
             if (Lobby.State == LobbyState.SETUP)
             {
-                if (Provider.clients.Count == playersRequired)
+                if (Provider.clients.Count == PlayersRequired)
                 {
                     Message($"<color=red>{steamPlayer.playerID.playerName}</color> has joined!");
                     AsyncHelper.RunAsync("LobbyStart", Lobby.Start);
                     return;
                 }
-                else if (Provider.clients.Count < playersRequired)
+                else if (Provider.clients.Count < PlayersRequired)
                 {
-                    Message($"<color=red>{steamPlayer.playerID.playerName}</color> has joined, <color=red>{playersRequired - Provider.clients.Count}</color> more players needed to start game.");
+                    Message($"<color=red>{steamPlayer.playerID.playerName}</color> has joined, <color=red>{PlayersRequired - Provider.clients.Count}</color> more players needed to start game.");
                     return;
                 }
             }
@@ -97,7 +102,7 @@ namespace TTTUnturned.Managers
             UnityThread.executeCoroutine(SendMessageAsync(message, target));
         }
 
-        static IEnumerator SendMessageAsync(string message, SteamPlayer target = null)
+        private static IEnumerator SendMessageAsync(string message, SteamPlayer target = null)
         {
             ChatManager.serverSendMessage(message, Color.white, null, target, EChatMode.GLOBAL, "https://i.imgur.com/UUwQfvY.png", true);
             yield return null;
@@ -122,7 +127,6 @@ namespace TTTUnturned.Managers
                     }
                 }
             }
-
             yield return null;
         }
     }
