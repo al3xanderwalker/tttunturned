@@ -4,7 +4,7 @@ using TTTUnturned.Utils;
 
 namespace TTTUnturned.Managers
 {
-    public class ItemsManager
+    public class ItemManager
     {
         public static void RespawnItems()
         {
@@ -13,7 +13,7 @@ namespace TTTUnturned.Managers
 
         private static IEnumerator RespawnItemsAsync()
         {
-            ItemManager.askClearAllItems();
+            SDG.Unturned.ItemManager.askClearAllItems();
             for (byte x = 0; x < Regions.WORLD_SIZE; x++) // Straight from uEssentials, dont judge me lmao
             {
                 for (byte y = 0; y < Regions.WORLD_SIZE; y++)
@@ -30,7 +30,7 @@ namespace TTTUnturned.Managers
                         if (itemId == 0) continue;
 
                         var item = new Item(itemId, true);
-                        ItemManager.dropItem(item, itemSpawnpoint.point, false, false, false);
+                        SDG.Unturned.ItemManager.dropItem(item, itemSpawnpoint.point, false, false, false);
                     }
                 }
             }

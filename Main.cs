@@ -30,7 +30,7 @@ namespace TTTUnturned
 
             CommandWindow.Log($"DEBUG MODE: {Config.DebugMode}");
             // Level Config
-            ConfigManager.SetConfig();
+            LevelConfigManager.SetConfig();
 
             // Load our module as a gameObject
             TTTUnturnedObject = new GameObject("TTTUnturned");
@@ -38,6 +38,7 @@ namespace TTTUnturned
 
             // Add managers as gameObject components
             TTTUnturnedObject.AddComponent<LobbyManager>();
+            TTTUnturnedObject.AddComponent<Managers.PlayerManager>();
             TTTUnturnedObject.AddComponent<RoundManager>();
             TTTUnturnedObject.AddComponent<RoleManager>();
 

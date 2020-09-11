@@ -12,65 +12,47 @@ using UnityEngine;
 
 namespace TTTUnturned.Managers
 {
-    public class PlayersManager
+    public class PlayerManager : MonoBehaviour
     {
-        public static void ClearInventory(SteamPlayer player)
+        public void Awake()
         {
-            UnityThread.executeCoroutine(ClearInventoryAsync(player));
+            CommandWindow.Log("PlayerManager loaded");
+
+            Provider.onEnemyConnected += OnEnemyConnected;
+            Provider.onEnemyDisconnected += OnEnemyDisconnected;
+            DamageTool.damagePlayerRequested += OnDamageRequested;
+            PlayerLife.onPlayerDied += OnPlayerDied;
         }
 
-        private static IEnumerator ClearInventoryAsync(SteamPlayer player)
-        {
-            for (byte page = 0; page < 6; page++)
-            {
-                for (byte i = 0; i < player.player.inventory.items[page].getItemCount(); i++)
-                {
-                    if (player.player.inventory.items[page].getItem(i) != null)
-                    {
-                        ItemJar item = player.player.inventory.items[page].getItem(i);
-                        player.player.inventory.removeItem(page, player.player.inventory.getIndex(page, item.x, item.y));
-                    }
-                }
-            }
-            yield return null;
-        }
-
-        public static void TeleportToLocation(SteamPlayer steamPlayer, Vector3 location)
-        {
-            UnityThread.executeCoroutine(TeleportToLocationAsync(steamPlayer, location));
-        }
-
-        private static IEnumerator TeleportToLocationAsync(SteamPlayer steamPlayer, Vector3 location)
-        {
-            steamPlayer.player.teleportToLocation(location, 0f);
-
-            yield return null;
-        }
-
-        public static void SetFlags(SteamPlayer player)
-        {
-            UnityThread.executeCoroutine(SetFlagsAsync(player));
-        }
-        private static IEnumerator SetFlagsAsync(SteamPlayer player)
-        {
-            player.player.setPluginWidgetFlag(EPluginWidgetFlags.ShowFood, false);
-            player.player.setPluginWidgetFlag(EPluginWidgetFlags.ShowWater, false);
-            player.player.setPluginWidgetFlag(EPluginWidgetFlags.ShowVirus, false);
-            player.player.setPluginWidgetFlag(EPluginWidgetFlags.ShowOxygen, false);
-
-            yield return null;
-        }
-        public static void OnEnemyConnected(SteamPlayer steamPlayer)
+        #region Events
+        private void OnEnemyConnected(SteamPlayer steamPlayer)
         {
             Lobby Lobby = LobbyManager.GetLobby();
-            SetFlags(steamPlayer);
-            ClearInventory(steamPlayer);
-
-            TeleportToLocation(steamPlayer, PlayersManager.RandomSpawn(Main.Config.LobbySpawns));
             LobbyManager.Message($"<color=red>{steamPlayer.playerID.playerName}</color> has joined!");
-            LobbyManager.CheckStart(steamPlayer);
+
+            // Manually call Task.Run since we have to pass parameters
+            Task.Run(async () =>
+            {
+                await DisableHUDAsync(steamPlayer);
+                await ClearInventoryAsync(steamPlayer);
+                await TeleportToLocationAsync(steamPlayer, GetRandomSpawn(Main.Config.LobbySpawns));
+                await Lobby.Start();
+            });
+
+            EffectManager.sendUIEffect(8420, 1, steamPlayer.playerID.steamID, true);
         }
-        public static void OnDamageRequested(ref DamagePlayerParameters parameters, ref bool shouldAllow)
+
+        public static void OnEnemyDisconnected(SteamPlayer steamPlayer)
+        {
+            Lobby Lobby = LobbyManager.GetLobby();
+            LobbyPlayer lobbyPlayer = LobbyManager.GetLobbyPlayer(steamPlayer.playerID.steamID);
+            if (lobbyPlayer is null) return;
+
+            Lobby.Players.Remove(lobbyPlayer);
+            RoundManager.CheckWin();
+        }
+
+        private void OnDamageRequested(ref DamagePlayerParameters parameters, ref bool shouldAllow)
         {
             Lobby Lobby = LobbyManager.GetLobby();
             if (Lobby.State != LobbyState.LIVE)
@@ -79,7 +61,7 @@ namespace TTTUnturned.Managers
             }
         }
 
-        public static void OnPlayerDied(PlayerLife sender, EDeathCause cause, ELimb limb, CSteamID instigator)
+        private void OnPlayerDied(PlayerLife sender, EDeathCause cause, ELimb limb, CSteamID instigator)
         {
             System.Random rng = new System.Random();
             List<Spawn> spawns = Main.Config.LobbySpawns;
@@ -99,16 +81,58 @@ namespace TTTUnturned.Managers
             player.Status = PlayerStatus.DEAD;
             RoundManager.CheckWin();
         }
-        public static void OnEnemyDisconnected(SteamPlayer steamPlayer)
-        {
-            Lobby Lobby = LobbyManager.GetLobby();
-            LobbyPlayer lPlayer = LobbyManager.GetLobbyPlayer(steamPlayer.playerID.steamID);
-            if (lPlayer is null) return;
+        #endregion
 
-            Lobby.Players.Remove(lPlayer);
-            RoundManager.CheckWin();
+        public static async Task ClearInventoryAsync(SteamPlayer player)
+        {
+            UnityThread.executeCoroutine(ClearInventoryCoroutine(player));
         }
-        public static Vector3 RandomSpawn(List<Spawn> spawns)
+
+        private static IEnumerator ClearInventoryCoroutine(SteamPlayer player)
+        {
+            for (byte page = 0; page < 6; page++)
+            {
+                for (byte i = 0; i < player.player.inventory.items[page].getItemCount(); i++)
+                {
+                    ItemJar item = player.player.inventory.items[page].getItem(i);
+                    player.player.inventory.removeItem(page, player.player.inventory.getIndex(page, item.x, item.y));
+                    /*
+                    if (player.player.inventory.items[page].getItem(i) != null)
+                    {
+
+                    }
+                    */
+                }
+            }
+            yield return null;
+        }
+
+        public static async Task TeleportToLocationAsync(SteamPlayer steamPlayer, Vector3 location)
+        {
+            UnityThread.executeCoroutine(TeleportToLocationCoroutine(steamPlayer, location));
+        }
+
+        private static IEnumerator TeleportToLocationCoroutine(SteamPlayer steamPlayer, Vector3 location)
+        {
+            steamPlayer.player.teleportToLocation(location, 0f);
+
+            yield return null;
+        }
+
+        public static async Task DisableHUDAsync(SteamPlayer player)
+        {
+            UnityThread.executeCoroutine(DisableHUDCoroutine(player));
+        }
+        private static IEnumerator DisableHUDCoroutine(SteamPlayer player)
+        {
+            player.player.setPluginWidgetFlag(EPluginWidgetFlags.ShowFood, false);
+            player.player.setPluginWidgetFlag(EPluginWidgetFlags.ShowWater, false);
+            player.player.setPluginWidgetFlag(EPluginWidgetFlags.ShowVirus, false);
+            player.player.setPluginWidgetFlag(EPluginWidgetFlags.ShowOxygen, false);
+            yield return null;
+        }
+
+        public static Vector3 GetRandomSpawn(List<Spawn> spawns)
         {
             System.Random rng = new System.Random();
             int t = rng.Next(spawns.Count);

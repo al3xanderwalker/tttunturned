@@ -20,13 +20,9 @@ namespace TTTUnturned.Managers
 
             Lobby = CreateLobbyInitial();
 
-            Provider.onEnemyConnected += PlayersManager.OnEnemyConnected;
-            Provider.onEnemyDisconnected += PlayersManager.OnEnemyDisconnected;
-
             Commander.register(new CommandPos());
             Commander.register(new CommandDiscord());
         }
-
 
         private Lobby CreateLobbyInitial()
         {
@@ -53,28 +49,6 @@ namespace TTTUnturned.Managers
         {
             ChatManager.serverSendMessage(message, Color.white, null, target, EChatMode.GLOBAL, "https://i.imgur.com/UUwQfvY.png", true);
             yield return null;
-        }
-        public static void CheckStart(SteamPlayer player)
-        {
-            if (Lobby.State == LobbyState.SETUP)
-            {
-                if (Provider.clients.Count == Main.Config.MinimumPlayers)
-                {
-                    AsyncHelper.RunAsync("LobbyStart", Lobby.Start);
-                    return;
-                }
-                else if (Provider.clients.Count < Main.Config.MinimumPlayers)
-                {
-                    Message($"<color=red>{Main.Config.MinimumPlayers - Provider.clients.Count}</color> more players needed to start game.");
-                    return;
-                }
-            }
-
-            if (Lobby.State == LobbyState.LIVE)
-            {
-                Message($"Game is currently in progress, time left: <color=red>{RoundManager.ParseTime(Lobby.RoundTime - Main.Config.RoundLength)}</color>", player);
-                return;
-            }
         }
     }
 }

@@ -7,7 +7,7 @@ using SDG.Unturned;
 
 namespace TTTUnturned.Managers
 {
-    public class ConfigManager
+    public class LevelConfigManager
     {
         public static void SetConfig()
         {

@@ -24,29 +24,26 @@ namespace TTTUnturned.Models
 
         public async Task Start()
         {
-            // CHECK IF WE CAN START THE GAME
+            if (State != LobbyState.SETUP) return;
 
-            if (State != LobbyState.SETUP)
-            {
-                return;
-            }
+            CommandWindow.Log(Provider.clients.Count);
+            CommandWindow.Log(Main.Config.MinimumPlayers);
 
             if (Provider.clients.ToList().Count >= Main.Config.MinimumPlayers)
             {
-
                 LobbyManager.Message("Round starting in <color=red>15</color> seconds");
                 await Task.Delay(15000);
 
                 Players = RoleManager.GeneratePlayerRoles(); // Assign all players a role
-                ItemsManager.RespawnItems(); // Spawn items
+                Managers.ItemManager.RespawnItems(); // Spawn items
 
                 // Teleport all players to spawn point
                 System.Random rng = new System.Random();
                 List<Spawn> spawns = Main.Config.Maps[rng.Next(Main.Config.Maps.Count)].Spawns;
-                Players.ForEach(player =>
+                Players.ForEach(async player =>
                 {
                     SteamPlayer steamPlayer = PlayerTool.getSteamPlayer(player.SteamID);
-                    PlayersManager.TeleportToLocation(steamPlayer, PlayersManager.RandomSpawn(spawns));
+                    await Managers.PlayerManager.TeleportToLocationAsync(steamPlayer, Managers.PlayerManager.GetRandomSpawn(spawns));
                 });
 
                 // Wait 30 seconds before displaying roles and allowing damage
@@ -56,12 +53,10 @@ namespace TTTUnturned.Models
 
                 RoleManager.TellRoles(this);
                 State = LobbyState.LIVE;
-                return;
             }
             else
             {
                 LobbyManager.Message($"<color=red>{Main.Config.MinimumPlayers - Provider.clients.Count}</color> more players needed to start game.");
-                return;
             }
         }
 
@@ -78,8 +73,8 @@ namespace TTTUnturned.Models
                 {
                     SteamPlayer ply = PlayerTool.getSteamPlayer(player.SteamID);
                     if (ply is null) return;
-                    PlayersManager.ClearInventory(ply);
-                    PlayersManager.TeleportToLocation(ply, PlayersManager.RandomSpawn(Main.Config.LobbySpawns));
+                    Managers.PlayerManager.ClearInventoryAsync(ply);
+                    Managers.PlayerManager.TeleportToLocationAsync(ply, Managers.PlayerManager.GetRandomSpawn(Main.Config.LobbySpawns));
                 }
             });
 
