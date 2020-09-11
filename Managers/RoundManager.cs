@@ -9,6 +9,7 @@ using TTTUnturned.Models;
 using TTTUnturned.Managers;
 using TTTUnturned.Utils;
 using UnityEngine;
+using System.Collections;
 
 namespace TTTUnturned.Managers
 {
@@ -88,19 +89,16 @@ namespace TTTUnturned.Managers
 
             if (lobby.RoundTime == 60)
             {
-                // TODO: Make this execute async so it doesnt block the thread
-                UnityThread.executeInUpdate(() => { LobbyManager.Message("1 minute remaining"); });
+                LobbyManager.Message("1 minute remaining");
             }
 
             if (lobby.RoundTime == 0)
             {
-                UnityThread.executeInUpdate(() =>
-                {
-                    CommandWindow.Log("Innocents win");
-                    LobbyManager.Message("<color=lime>Innocents</color> Win!");
+                CommandWindow.Log("Innocents win");
+                LobbyManager.Message("<color=lime>Innocents</color> Win!");
 
-                    AsyncHelper.RunAsync("LobbyStopRoundTime", Lobby.Stop);
-                });
+                await Lobby.Stop();
+                //AsyncHelper.RunAsync("LobbyStopRoundTime", Lobby.Stop);
                 return;
             }
         }
