@@ -26,52 +26,51 @@ namespace TTTUnturned.Models
             Players = new List<LobbyPlayer>();
         }
 
-        public Lobby(LobbyState state, List<LobbyPlayer> players)
-        {
-            State = state;
-            RoundTime = Main.Config.RoundLength;
-            Players = players;
-        }
-
         public async Task Start()
         {
             // CHECK IF WE CAN START THE GAME
             int playersRequired;
             if (Main.Config.DebugMode) playersRequired = 2;
             else playersRequired = 5;
-            if (State == LobbyState.SETUP)
+
+            if (State != LobbyState.SETUP)
             {
-                if (Provider.clients.ToList().Count >= playersRequired)
+                return;
+            }
+
+            if (Provider.clients.ToList().Count >= playersRequired)
+            {
+
+                LobbyManager.Message("Round starting in <color=red>15</color> seconds");
+                await Task.Delay(15000);
+
+                Players = RoleManager.GeneratePlayerRoles(); // Assign all players a role
+                ItemsManager.RespawnItems(); // Spawn items
+
+                // Teleport all players to spawn point
+                System.Random rng = new System.Random();
+                List<Spawn> spawns = Main.Config.Maps[rng.Next(Main.Config.Maps.Count)].Spawns;
+                Players.ForEach(player =>
                 {
-                    LobbyManager.Message("Starting game session...");
-                    // Assign all players a role
-                    Players = RoleManager.GeneratePlayerRoles();
-                    // Spawn items
-                    ItemsManager.RespawnItems();
-                    // Teleport all players to spawn point
-                    System.Random rng = new System.Random();
-                    List<Spawn> spawns = Main.Config.Maps[rng.Next(Main.Config.Maps.Count)].Spawns;
-                    Players.ForEach(player =>
-                    {
-                        int t = rng.Next(spawns.Count);
-                        Vector3 spawn = new Vector3(spawns[t].X, spawns[t].Y, spawns[t].Z);
-                        SteamPlayer steamPlayer = PlayerTool.getSteamPlayer(player.SteamID);
-                        TeleportToLocation(steamPlayer, spawn);
-                    });
-                    LobbyManager.Message("Game is live, roles will be assigned in 30 seconds!");
-                    // Wait 30 seconds before displaying roles and allowing damage
-                    State = LobbyState.WAITING;
-                    await Task.Delay(10000); // CHANGE TO 30 LATER TODO: Add this value to config
-                                             // Display roles
-                    RoleManager.tellRoles(this);
-                    State = LobbyState.LIVE;
-                    return;
-                }
-                else
-                {
-                    LobbyManager.Message($"<color=red>{playersRequired - Provider.clients.Count}</color> more players needed to start game.");
-                    return;
-                }
+                    int t = rng.Next(spawns.Count);
+                    Vector3 spawn = new Vector3(spawns[t].X, spawns[t].Y, spawns[t].Z);
+                    SteamPlayer steamPlayer = PlayerTool.getSteamPlayer(player.SteamID);
+                    TeleportToLocation(steamPlayer, spawn);
+                });
+
+                // Wait 30 seconds before displaying roles and allowing damage
+                State = LobbyState.WAITING;
+                LobbyManager.Message("Roles will be assigned in <color=red>30</color> seconds!");
+                await Task.Delay(30000);
+
+                RoleManager.TellRoles(this);
+                State = LobbyState.LIVE;
+                return;
+            }
+            else
+            {
+                LobbyManager.Message($"<color=red>{playersRequired - Provider.clients.Count}</color> more players needed to start game.");
+                return;
             }
         }
 
@@ -80,17 +79,15 @@ namespace TTTUnturned.Models
             State = LobbyState.SETUP; // Set game state to setup
             RoundTime = Main.Config.RoundLength; // Reset round timer
 
-            LobbyManager.Message("Round ending in 10 seconds"); // Fix hardcoded time value
-
             await Task.Delay(10000);
             //Teleport players NOT kill them 
             Players.ForEach(player => 
             {
                 if(player.Status == PlayerStatus.ALIVE) UnityThread.executeCoroutine(ResetPlayer(player));
             });
-            LobbyManager.Message("New round starting in 20 seconds"); // Fix hardcoded time value
-            await Task.Delay(20000);
-            AsyncHelper.RunAsync("RestartLobby", Start);
+
+            await Start();
+            //AsyncHelper.RunAsync("RestartLobby", Start);
             // Track stats in database
         }
 
@@ -98,7 +95,9 @@ namespace TTTUnturned.Models
         {
             Player ply = PlayerTool.getPlayer(player.SteamID);
             if (ply is null) yield return null;
+
             ply.life.sendRevive();
+
             for (byte page = 0; page < 6; page++)
             {
                 for (byte i = 0; i < ply.inventory.items[page].getItemCount(); i++)

@@ -10,6 +10,7 @@ using System.Text;
 using System.Threading.Tasks;
 using UnityEngine;
 using TTTUnturned.Managers;
+using System.Collections;
 
 namespace TTTUnturned
 {
@@ -22,14 +23,6 @@ namespace TTTUnturned
         public void initialize()
         {
             Instance = this;
-            Provider.hasCheats = true; // i keeep forgetting to enable in config
-            Provider.configData.Normal.Items.Gun_Bullets_Full_Chance = 1;
-            Provider.configData.Normal.Items.Quality_Full_Chance = 1;
-            Provider.configData.Normal.Gameplay.Can_Suicide = false;
-            Provider.configData.Normal.Players.Can_Start_Bleeding = false;
-            Provider.configData.Normal.Players.Food_Use_Ticks = uint.MaxValue;
-            Provider.configData.Normal.Players.Water_Use_Ticks = uint.MaxValue;
-            Provider.configData.Normal.Players.Allow_Per_Character_Saves = false;
 
             Patcher patch = new Patcher(); // Create patcher object and call PatchAll
             Patcher.DoPatching();
@@ -40,11 +33,23 @@ namespace TTTUnturned
             string path = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
             ConfigHelper.EnsureConfig($"{path}{Path.DirectorySeparatorChar}config.json");
             Config = ConfigHelper.ReadConfig($"{path}{Path.DirectorySeparatorChar}config.json");
+
             CommandWindow.Log($"DEBUG MODE: {Config.DebugMode}");
+
+            Provider.hasCheats = true;
+            Provider.configData.Normal.Items.Gun_Bullets_Full_Chance = 1;
+            Provider.configData.Normal.Items.Quality_Full_Chance = 1;
+            Provider.configData.Normal.Gameplay.Can_Suicide = false;
+            Provider.configData.Normal.Players.Can_Start_Bleeding = false;
+            Provider.configData.Normal.Players.Food_Use_Ticks = uint.MaxValue;
+            Provider.configData.Normal.Players.Water_Use_Ticks = uint.MaxValue;
+            Provider.configData.Normal.Players.Allow_Per_Character_Saves = false;
+
             // Load our module as a gameObject
             TTTUnturnedObject = new GameObject("TTTUnturned");
             DontDestroyOnLoad(TTTUnturnedObject);
 
+            // Add managers as gameObject components
             TTTUnturnedObject.AddComponent<LobbyManager>();
             TTTUnturnedObject.AddComponent<RoundManager>();
             TTTUnturnedObject.AddComponent<RoleManager>();

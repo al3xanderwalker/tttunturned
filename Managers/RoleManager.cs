@@ -69,7 +69,7 @@ namespace TTTUnturned.Managers
             return players;
         }
 
-        public static void tellRoles(Lobby lobby)
+        public static void TellRoles(Lobby lobby)
         {
             lobby.Players.ForEach(player =>
             {
