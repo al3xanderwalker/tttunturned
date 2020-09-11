@@ -20,7 +20,6 @@ namespace TTTUnturned.Managers
             CommandWindow.Log("RoundManager loaded");
 
             AsyncHelper.Schedule("RoundTick", RoundTick, 1000);
-
         }
 
         public static void CheckWin()

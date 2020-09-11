@@ -40,7 +40,6 @@ namespace TTTUnturned
             TTTUnturnedObject.AddComponent<LobbyManager>();
             TTTUnturnedObject.AddComponent<Managers.PlayerManager>();
             TTTUnturnedObject.AddComponent<RoundManager>();
-            TTTUnturnedObject.AddComponent<PlayerManager>();
             TTTUnturnedObject.AddComponent<RoleManager>();
 
             CommandWindow.Log("TTTUnturned by Corbyn & Alex loaded");
