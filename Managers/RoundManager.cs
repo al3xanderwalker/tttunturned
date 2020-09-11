@@ -1,6 +1,7 @@
 ﻿using SDG.Unturned;
 using Steamworks;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using TTTUnturned.Models;
@@ -50,6 +51,12 @@ namespace TTTUnturned.Managers
             lobby.RoundTime--;
             if(Main.Config.DebugMode) CommandWindow.Log(lobby.RoundTime);
 
+            lobby.Players.ForEach(async player =>
+            {
+                await SendUIEffectTextAsync(8490, player.SteamID, true, "TimeValue", ParseTime(lobby.RoundTime));
+               // await SendUIEffectAsync();
+            });
+
             if (lobby.RoundTime == 60) // Convert this to updating the time displayed on the ui once added.
             {
                 LobbyManager.Message("1 minute remaining");
@@ -65,6 +72,18 @@ namespace TTTUnturned.Managers
                 return;
             }
         }
+
+        private static async Task SendUIEffectTextAsync(short key, CSteamID steamID, bool reliable, string component, string text)
+        {
+            UnityThread.executeCoroutine(SendUIEffectTextCoroutine(key, steamID, reliable, component, text));
+        }
+
+        private static IEnumerator SendUIEffectTextCoroutine(short key, CSteamID steamID, bool reliable, string component, string text)
+        {
+            EffectManager.sendUIEffectText(key, steamID, reliable, component, text);
+            yield return null;
+        }
+
 
         public static string ParseTime(int seconds)
         {

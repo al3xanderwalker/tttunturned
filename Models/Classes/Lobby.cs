@@ -26,9 +26,6 @@ namespace TTTUnturned.Models
         {
             if (State != LobbyState.SETUP) return;
 
-            CommandWindow.Log(Provider.clients.Count);
-            CommandWindow.Log(Main.Config.MinimumPlayers);
-
             if (Provider.clients.ToList().Count >= Main.Config.MinimumPlayers)
             {
                 LobbyManager.Message("Round starting in <color=red>15</color> seconds");

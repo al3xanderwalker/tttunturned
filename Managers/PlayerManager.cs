@@ -39,7 +39,8 @@ namespace TTTUnturned.Managers
                 await Lobby.Start();
             });
 
-            EffectManager.sendUIEffect(8420, 1, steamPlayer.playerID.steamID, true);
+            EffectManager.sendUIEffect(8490, 8490, steamPlayer.playerID.steamID, true);
+            EffectManager.sendUIEffectText(8490, steamPlayer.playerID.steamID, true, "RoleValue", "WAITING");
         }
 
         public static void OnEnemyDisconnected(SteamPlayer steamPlayer)
