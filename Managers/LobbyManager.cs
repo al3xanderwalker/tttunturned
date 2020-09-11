@@ -21,20 +21,12 @@ namespace TTTUnturned.Managers
             Lobby = CreateLobbyInitial();
 
             Provider.onEnemyConnected += PlayersManager.OnEnemyConnected;
-            Provider.onEnemyDisconnected += OnEnemyDisconnected;
+            Provider.onEnemyDisconnected += PlayersManager.OnEnemyDisconnected;
 
             Commander.register(new CommandPos());
             Commander.register(new CommandDiscord());
         }
 
-        private void OnEnemyDisconnected(SteamPlayer steamPlayer)
-        {
-            LobbyPlayer lPlayer = GetLobbyPlayer(steamPlayer.playerID.steamID);
-            if (lPlayer is null) return;
-
-            Lobby.Players.Remove(lPlayer);
-            RoundManager.CheckWin();
-        }
 
         private Lobby CreateLobbyInitial()
         {

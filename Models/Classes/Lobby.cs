@@ -25,16 +25,13 @@ namespace TTTUnturned.Models
         public async Task Start()
         {
             // CHECK IF WE CAN START THE GAME
-            int playersRequired;
-            if (Main.Config.DebugMode) playersRequired = 2;
-            else playersRequired = 5;
 
             if (State != LobbyState.SETUP)
             {
                 return;
             }
 
-            if (Provider.clients.ToList().Count >= playersRequired)
+            if (Provider.clients.ToList().Count >= Main.Config.MinimumPlayers)
             {
 
                 LobbyManager.Message("Round starting in <color=red>15</color> seconds");
@@ -49,7 +46,7 @@ namespace TTTUnturned.Models
                 Players.ForEach(player =>
                 {
                     SteamPlayer steamPlayer = PlayerTool.getSteamPlayer(player.SteamID);
-                    PlayersManager.TeleportToLocation(steamPlayer, RandomSpawn(spawns));
+                    PlayersManager.TeleportToLocation(steamPlayer, PlayersManager.RandomSpawn(spawns));
                 });
 
                 // Wait 30 seconds before displaying roles and allowing damage
@@ -63,7 +60,7 @@ namespace TTTUnturned.Models
             }
             else
             {
-                LobbyManager.Message($"<color=red>{playersRequired - Provider.clients.Count}</color> more players needed to start game.");
+                LobbyManager.Message($"<color=red>{Main.Config.MinimumPlayers - Provider.clients.Count}</color> more players needed to start game.");
                 return;
             }
         }
@@ -82,20 +79,13 @@ namespace TTTUnturned.Models
                     SteamPlayer ply = PlayerTool.getSteamPlayer(player.SteamID);
                     if (ply is null) return;
                     PlayersManager.ClearInventory(ply);
-                    PlayersManager.TeleportToLocation(ply, RandomSpawn(Main.Config.LobbySpawns));
+                    PlayersManager.TeleportToLocation(ply, PlayersManager.RandomSpawn(Main.Config.LobbySpawns));
                 }
             });
 
             await Start();
             //AsyncHelper.RunAsync("RestartLobby", Start);
             // Track stats in database
-        }
-
-        public Vector3 RandomSpawn(List<Spawn> spawns)
-        {
-            System.Random rng = new System.Random();
-            int t = rng.Next(spawns.Count);
-            return new Vector3(spawns[t].X, spawns[t].Y, spawns[t].Z);
         }
 
         public List<LobbyPlayer> GetAlive(PlayerRole role)

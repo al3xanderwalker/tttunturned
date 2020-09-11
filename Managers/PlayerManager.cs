@@ -66,7 +66,7 @@ namespace TTTUnturned.Managers
             SetFlags(steamPlayer);
             ClearInventory(steamPlayer);
 
-            TeleportToLocation(steamPlayer, Lobby.RandomSpawn(Main.Config.LobbySpawns));
+            TeleportToLocation(steamPlayer, PlayersManager.RandomSpawn(Main.Config.LobbySpawns));
             LobbyManager.Message($"<color=red>{steamPlayer.playerID.playerName}</color> has joined!");
             LobbyManager.CheckStart(steamPlayer);
         }
@@ -98,6 +98,21 @@ namespace TTTUnturned.Managers
 
             player.Status = PlayerStatus.DEAD;
             RoundManager.CheckWin();
+        }
+        public static void OnEnemyDisconnected(SteamPlayer steamPlayer)
+        {
+            Lobby Lobby = LobbyManager.GetLobby();
+            LobbyPlayer lPlayer = LobbyManager.GetLobbyPlayer(steamPlayer.playerID.steamID);
+            if (lPlayer is null) return;
+
+            Lobby.Players.Remove(lPlayer);
+            RoundManager.CheckWin();
+        }
+        public static Vector3 RandomSpawn(List<Spawn> spawns)
+        {
+            System.Random rng = new System.Random();
+            int t = rng.Next(spawns.Count);
+            return new Vector3(spawns[t].X, spawns[t].Y, spawns[t].Z);
         }
     }
 }
