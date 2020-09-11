@@ -1,7 +1,5 @@
 ﻿using SDG.Unturned;
 using Steamworks;
-using UnityEngine;
-using TTTUnturned.Managers;
 
 namespace TTTUnturned.Commands
 {
