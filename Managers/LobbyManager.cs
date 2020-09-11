@@ -20,9 +20,6 @@ namespace TTTUnturned.Managers
 
             Lobby = CreateLobbyInitial();
 
-            Provider.onEnemyConnected += PlayersManager.OnEnemyConnected;
-            Provider.onEnemyDisconnected += PlayersManager.OnEnemyDisconnected;
-
             Commander.register(new CommandPos());
             Commander.register(new CommandDiscord());
         }

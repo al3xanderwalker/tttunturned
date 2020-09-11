@@ -21,9 +21,6 @@ namespace TTTUnturned.Managers
 
             AsyncHelper.Schedule("RoundTick", RoundTick, 1000);
 
-            PlayerLife.onPlayerDied += PlayersManager.OnPlayerDied;
-
-            DamageTool.damagePlayerRequested += PlayersManager.OnDamageRequested;
         }
 
         public static void CheckWin()
