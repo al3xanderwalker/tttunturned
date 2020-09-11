@@ -40,7 +40,7 @@ namespace TTTUnturned.Managers
             UnityThread.executeCoroutine(TeleportToLocationAsync(steamPlayer, location));
         }
 
-        private IEnumerator TeleportToLocationAsync(SteamPlayer steamPlayer, Vector3 location)
+        private static IEnumerator TeleportToLocationAsync(SteamPlayer steamPlayer, Vector3 location)
         {
             steamPlayer.player.teleportToLocation(location, 0f);
 
