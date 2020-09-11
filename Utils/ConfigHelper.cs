@@ -18,6 +18,8 @@ namespace TTTUnturned.Utils
         public int RoundLength { get; set; }
 
         public bool DebugMode { get; set; }
+        
+        public int MinimumPlayers { get; set; }
     }
 
     public class ConfigHelper
@@ -31,6 +33,7 @@ namespace TTTUnturned.Utils
                 JObject tttUnuturnedConfig = new JObject();
                 tttUnuturnedConfig.Add("roundLength", 600);
                 tttUnuturnedConfig.Add("debugMode", true);
+                tttUnuturnedConfig.Add("minimumPlayers", 5);
 
                 Spawn exampleSpawn = new Spawn(0, 0, 0);
                 List<Spawn> Spawns = new List<Spawn>();

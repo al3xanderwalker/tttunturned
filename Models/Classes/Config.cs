@@ -13,6 +13,8 @@ namespace TTTUnturned.Models
         public List <Map> Maps { get; set; }
         [JsonProperty("roundLength")]
         public int RoundLength { get; set; }
+        [JsonProperty("minimumPlayers")]
+        public int MinimumPlayers { get; set; }
 
     }
 }
