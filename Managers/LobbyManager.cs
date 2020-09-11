@@ -5,6 +5,7 @@ using TTTUnturned.Models;
 using Steamworks;
 using TTTUnturned.Commands;
 using TTTUnturned.Utils;
+using TTTUnturned.Managers;
 using System.Collections;
 
 namespace TTTUnturned.Managers
@@ -12,17 +13,14 @@ namespace TTTUnturned.Managers
     public class LobbyManager : MonoBehaviour
     {
         public static Lobby Lobby;
-        public static int PlayersRequired;
 
         public void Awake()
         {
             CommandWindow.Log("LobbyManager loaded");
 
             Lobby = CreateLobbyInitial();
-            if (Main.Config.DebugMode) PlayersRequired = 2;
-            else PlayersRequired = 5;
 
-            Provider.onEnemyConnected += OnEnemyConnected;
+            Provider.onEnemyConnected += PlayersManager.OnEnemyConnected;
             Provider.onEnemyDisconnected += OnEnemyDisconnected;
 
             Commander.register(new CommandPos());
@@ -36,44 +34,6 @@ namespace TTTUnturned.Managers
 
             Lobby.Players.Remove(lPlayer);
             RoundManager.CheckWin();
-        }
-
-        private void OnEnemyConnected(SteamPlayer steamPlayer)
-        {
-            steamPlayer.player.setPluginWidgetFlag(EPluginWidgetFlags.ShowFood, false);
-            steamPlayer.player.setPluginWidgetFlag(EPluginWidgetFlags.ShowWater, false);
-            steamPlayer.player.setPluginWidgetFlag(EPluginWidgetFlags.ShowVirus, false);
-            steamPlayer.player.setPluginWidgetFlag(EPluginWidgetFlags.ShowOxygen, false);
-
-            ClearInventory(steamPlayer.playerID.steamID);
-            System.Random rng = new System.Random();
-            List<Spawn> spawns = Main.Config.LobbySpawns;
-
-            int t = rng.Next(spawns.Count);
-            Vector3 spawn = new Vector3(spawns[t].X, spawns[t].Y, spawns[t].Z);
-            Lobby.TeleportToLocation(steamPlayer, spawn);
-
-            if (Lobby.State == LobbyState.SETUP)
-            {
-                if (Provider.clients.Count == PlayersRequired)
-                {
-                    Message($"<color=red>{steamPlayer.playerID.playerName}</color> has joined!");
-                    AsyncHelper.RunAsync("LobbyStart", Lobby.Start);
-                    return;
-                }
-                else if (Provider.clients.Count < PlayersRequired)
-                {
-                    Message($"<color=red>{steamPlayer.playerID.playerName}</color> has joined, <color=red>{PlayersRequired - Provider.clients.Count}</color> more players needed to start game.");
-                    return;
-                }
-            }
-
-            if (Lobby.State == LobbyState.LIVE)
-            {
-                Message($"<color=red>{steamPlayer.playerID.playerName}</color> has joined!");
-                Message($"Game is currently in progress, time left: <color=red>{RoundManager.ParseTime(Lobby.RoundTime - Main.Config.RoundLength)}</color>", steamPlayer);
-                return;
-            }
         }
 
         private Lobby CreateLobbyInitial()
@@ -102,27 +62,27 @@ namespace TTTUnturned.Managers
             ChatManager.serverSendMessage(message, Color.white, null, target, EChatMode.GLOBAL, "https://i.imgur.com/UUwQfvY.png", true);
             yield return null;
         }
-
-        public void ClearInventory(CSteamID steamID)
+        public static void CheckStart(SteamPlayer player)
         {
-            UnityThread.executeCoroutine(ClearInventoryAsync(steamID));
-        }
-
-        private IEnumerator ClearInventoryAsync(CSteamID steamID)
-        {
-            Player ply = PlayerTool.getPlayer(steamID);
-            for (byte page = 0; page < 6; page++)
+            if (Lobby.State == LobbyState.SETUP)
             {
-                for (byte i = 0; i < ply.inventory.items[page].getItemCount(); i++)
+                if (Provider.clients.Count == Main.Config.MinimumPlayers)
                 {
-                    if (ply.inventory.items[page].getItem(i) != null)
-                    {
-                        ItemJar item = ply.inventory.items[page].getItem(i);
-                        ply.inventory.removeItem(page, ply.inventory.getIndex(page, item.x, item.y));
-                    }
+                    AsyncHelper.RunAsync("LobbyStart", Lobby.Start);
+                    return;
+                }
+                else if (Provider.clients.Count < Main.Config.MinimumPlayers)
+                {
+                    Message($"<color=red>{Main.Config.MinimumPlayers - Provider.clients.Count}</color> more players needed to start game.");
+                    return;
                 }
             }
-            yield return null;
+
+            if (Lobby.State == LobbyState.LIVE)
+            {
+                Message($"Game is currently in progress, time left: <color=red>{RoundManager.ParseTime(Lobby.RoundTime - Main.Config.RoundLength)}</color>", player);
+                return;
+            }
         }
     }
 }

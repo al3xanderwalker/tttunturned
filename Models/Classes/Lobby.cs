@@ -48,10 +48,8 @@ namespace TTTUnturned.Models
                 List<Spawn> spawns = Main.Config.Maps[rng.Next(Main.Config.Maps.Count)].Spawns;
                 Players.ForEach(player =>
                 {
-                    int t = rng.Next(spawns.Count);
-                    Vector3 spawn = new Vector3(spawns[t].X, spawns[t].Y, spawns[t].Z);
                     SteamPlayer steamPlayer = PlayerTool.getSteamPlayer(player.SteamID);
-                    TeleportToLocation(steamPlayer, spawn);
+                    PlayersManager.TeleportToLocation(steamPlayer, RandomSpawn(spawns));
                 });
 
                 // Wait 30 seconds before displaying roles and allowing damage
@@ -79,7 +77,13 @@ namespace TTTUnturned.Models
             //Teleport players NOT kill them 
             Players.ForEach(player => 
             {
-                if(player.Status == PlayerStatus.ALIVE) UnityThread.executeCoroutine(ResetPlayer(player));
+                if (player.Status == PlayerStatus.ALIVE)
+                {
+                    SteamPlayer ply = PlayerTool.getSteamPlayer(player.SteamID);
+                    if (ply is null) return;
+                    PlayersManager.ClearInventory(ply);
+                    PlayersManager.TeleportToLocation(ply, RandomSpawn(Main.Config.LobbySpawns));
+                }
             });
 
             await Start();
@@ -87,45 +91,11 @@ namespace TTTUnturned.Models
             // Track stats in database
         }
 
-        public IEnumerator ResetPlayer(LobbyPlayer player)
+        public Vector3 RandomSpawn(List<Spawn> spawns)
         {
-            Player ply = PlayerTool.getPlayer(player.SteamID);
-            if (ply is null) yield return null;
-
-            ply.life.sendRevive();
-
-            for (byte page = 0; page < 6; page++)
-            {
-                for (byte i = 0; i < ply.inventory.items[page].getItemCount(); i++)
-                {
-                    if (ply.inventory.items[page].getItem(i) != null) 
-                    {
-                        ItemJar item = ply.inventory.items[page].getItem(i);
-                        ply.inventory.removeItem(page, ply.inventory.getIndex(page, item.x, item.y));
-                    }
-                }
-            }
-
             System.Random rng = new System.Random();
-            List<Spawn> spawns = Main.Config.LobbySpawns;
-
             int t = rng.Next(spawns.Count);
-            Vector3 spawn = new Vector3(spawns[t].X, spawns[t].Y, spawns[t].Z);
-            ply.teleportToLocation(spawn, 0f);
-            
-            yield return null;
-        }
-
-        public void TeleportToLocation(SteamPlayer steamPlayer, Vector3 location)
-        {
-            UnityThread.executeCoroutine(TeleportToLocationAsync(steamPlayer, location));
-        }
-
-        private IEnumerator TeleportToLocationAsync(SteamPlayer steamPlayer, Vector3 location)
-        {
-            steamPlayer.player.teleportToLocation(location, 0f);
-
-            yield return null;
+            return new Vector3(spawns[t].X, spawns[t].Y, spawns[t].Z);
         }
 
         public List<LobbyPlayer> GetAlive(PlayerRole role)

@@ -76,8 +76,10 @@
     <Compile Include="Commands\CommandDiscord.cs" />
     <Compile Include="Commands\CommandPos.cs" />
     <Compile Include="Main.cs" />
+    <Compile Include="Managers\ConfigManager.cs" />
     <Compile Include="Managers\ItemsManager.cs" />
     <Compile Include="Managers\LobbyManager.cs" />
+    <Compile Include="Managers\PlayerManager.cs" />
     <Compile Include="Managers\RoleManager.cs" />
     <Compile Include="Managers\RoundManager.cs" />
     <Compile Include="Models\Classes\Config.cs" />
