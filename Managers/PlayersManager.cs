@@ -14,6 +14,17 @@ namespace TTTUnturned.Managers
 {
     public class PlayersManager
     {
+        public void Awake()
+        {
+            CommandWindow.Log("PlayersManager loaded");
+
+            Provider.onEnemyConnected += OnEnemyConnected;
+            Provider.onEnemyDisconnected += OnEnemyDisconnected;
+            PlayerLife.onPlayerDied += OnPlayerDied;
+
+            DamageTool.damagePlayerRequested += OnDamageRequested;
+        }
+
         public static void ClearInventory(SteamPlayer player)
         {
             UnityThread.executeCoroutine(ClearInventoryAsync(player));
@@ -51,6 +62,7 @@ namespace TTTUnturned.Managers
         {
             UnityThread.executeCoroutine(SetFlagsAsync(player));
         }
+
         private static IEnumerator SetFlagsAsync(SteamPlayer player)
         {
             player.player.setPluginWidgetFlag(EPluginWidgetFlags.ShowFood, false);
@@ -60,6 +72,7 @@ namespace TTTUnturned.Managers
 
             yield return null;
         }
+
         public static void OnEnemyConnected(SteamPlayer steamPlayer)
         {
             Lobby Lobby = LobbyManager.GetLobby();
@@ -70,6 +83,7 @@ namespace TTTUnturned.Managers
             LobbyManager.Message($"<color=red>{steamPlayer.playerID.playerName}</color> has joined!");
             LobbyManager.CheckStart(steamPlayer);
         }
+
         public static void OnDamageRequested(ref DamagePlayerParameters parameters, ref bool shouldAllow)
         {
             Lobby Lobby = LobbyManager.GetLobby();
@@ -99,6 +113,7 @@ namespace TTTUnturned.Managers
             player.Status = PlayerStatus.DEAD;
             RoundManager.CheckWin();
         }
+
         public static void OnEnemyDisconnected(SteamPlayer steamPlayer)
         {
             Lobby Lobby = LobbyManager.GetLobby();
@@ -108,6 +123,7 @@ namespace TTTUnturned.Managers
             Lobby.Players.Remove(lPlayer);
             RoundManager.CheckWin();
         }
+
         public static Vector3 RandomSpawn(List<Spawn> spawns)
         {
             System.Random rng = new System.Random();
