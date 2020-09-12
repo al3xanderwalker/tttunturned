@@ -14,10 +14,13 @@ namespace TTTUnturned.Managers
 {
     public class PlayerManager : MonoBehaviour
     {
+        private static Dictionary<CSteamID, long> keyCooldowns;
 
         public void Awake()
         {
             CommandWindow.Log("PlayerManager loaded");
+
+            keyCooldowns = new Dictionary<CSteamID, long>();
 
             Provider.onEnemyConnected += OnEnemyConnected;
             Provider.onEnemyDisconnected += OnEnemyDisconnected;
@@ -57,22 +60,40 @@ namespace TTTUnturned.Managers
         private void OnPluginKeyTick(Player player, uint simulation, byte key, bool state)
         {
             if (!state || key != 0) return;
-            SteamPlayer ply = Provider.clients.ToList().Find(x => x.player == player);
-            LobbyPlayer lPlayer = LobbyManager.GetLobbyPlayer(ply.playerID.steamID);
-            if (lPlayer is null) return;
-            if (lPlayer.Status == PlayerStatus.DEAD) return;
+
+            LobbyPlayer lobbyPlayer = LobbyManager.GetLobbyPlayer(player.channel.owner.playerID.steamID);
+            if (lobbyPlayer is null) return;
+
+            if (lobbyPlayer.Status == PlayerStatus.DEAD) return;
             if (LobbyManager.GetLobby().State != LobbyState.LIVE) return;
-            if(lPlayer.Role == PlayerRole.TERRORIST )
+
+
+            if (keyCooldowns.ContainsKey(player.channel.owner.playerID.steamID))
             {
-                if (lPlayer.UIToggled)
+                long lastPressed = keyCooldowns[player.channel.owner.playerID.steamID];
+                // 1 second key cooldown on menu
+                if (DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() - lastPressed < 1000) return;
+
+                keyCooldowns.Remove(player.channel.owner.playerID.steamID);
+            }
+
+            keyCooldowns.Add(player.channel.owner.playerID.steamID, DateTimeOffset.UtcNow.ToUnixTimeMilliseconds());
+
+            if (lobbyPlayer.Role == PlayerRole.TERRORIST )
+            {
+                if (lobbyPlayer.UIToggled)
                 {
-                    lPlayer.UIToggled = false;
-                    UIManager.ClearUIEffectAsync(8501, lPlayer.SteamID);
+                    lobbyPlayer.UIToggled = false;
+                    UIManager.ClearUIEffectAsync(8501, lobbyPlayer.SteamID);
+                    player.setPluginWidgetFlag(EPluginWidgetFlags.Modal, false);
+                    player.setPluginWidgetFlag(EPluginWidgetFlags.ForceBlur, false);
                 }
                 else
                 {
-                    lPlayer.UIToggled = true;
-                    UIManager.SendUIEffectAsync(8501, 8470, lPlayer.SteamID, true);
+                    lobbyPlayer.UIToggled = true;
+                    UIManager.SendUIEffectAsync(8501, 8470, lobbyPlayer.SteamID, true);
+                    player.setPluginWidgetFlag(EPluginWidgetFlags.Modal, true);
+                    player.setPluginWidgetFlag(EPluginWidgetFlags.ForceBlur, true);
                 }
             }
         }

@@ -20,6 +20,7 @@ namespace TTTUnturned.Managers
 
             EffectManager.onEffectButtonClicked += OnEffectButtonClicked;
         }
+
         public void OnEffectButtonClicked(Player player, string buttonName)
         {
             if(buttonName.Substring(0,2) == "T_")
@@ -47,9 +48,15 @@ namespace TTTUnturned.Managers
                         SteamPlayer ply3 = Provider.clients.ToList().Find(x => x.player == player);
                         LobbyManager.Message("You redeemed LMG", ply3);
                         break;
+                    case "SupressedPistol":
+                        player.inventory.forceAddItem(new Item(126, true), true);
+                        SteamPlayer ply4 = Provider.clients.ToList().Find(x => x.player == player);
+                        LobbyManager.Message("You redeemed LMG", ply4);
+                        break;
                 }
             }
         }
+
         public static async Task SendLobbyBannerMessage(ushort id, string message, int duration, bool reliable)
         {
             Provider.clients.ToList().ForEach(async player =>
