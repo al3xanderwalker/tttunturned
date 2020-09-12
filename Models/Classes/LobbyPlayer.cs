@@ -16,6 +16,8 @@ namespace TTTUnturned.Models
         public PlayerRole Role { get; set; }
         public PlayerRank Rank { get; set; }
         public PlayerStatus Status { get; set; }
+        public bool UIToggled { get; set; }
+        public int Credits { get; set; }
 
         public LobbyPlayer(CSteamID steamID, PlayerRole role, PlayerRank rank, PlayerStatus status)
         {
@@ -23,6 +25,8 @@ namespace TTTUnturned.Models
             Role = role;
             Rank = rank;
             Status = status;
+            Credits = 0;
+            UIToggled = false;
         }
     }
 }

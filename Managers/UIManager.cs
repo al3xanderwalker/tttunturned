@@ -18,6 +18,37 @@ namespace TTTUnturned.Managers
         {
             CommandWindow.Log("UIManager loaded");
 
+            EffectManager.onEffectButtonClicked += OnEffectButtonClicked;
+        }
+        public void OnEffectButtonClicked(Player player, string buttonName)
+        {
+            if(buttonName.Substring(0,2) == "T_")
+            {
+                switch (buttonName.Remove(0, 2))
+                {
+                    case "ChargeButton":
+                        player.inventory.forceAddItem(new Item(1241, true), true);
+                        player.inventory.forceAddItem(new Item(1240, true), true);
+                        SteamPlayer ply = Provider.clients.ToList().Find(x => x.player == player);
+                        LobbyManager.Message("You redeemed C4", ply);
+                        break;
+                    case "CoughSyrupButton":
+                        player.inventory.forceAddItem(new Item(404, true), true);
+                        SteamPlayer ply1 = Provider.clients.ToList().Find(x => x.player == player);
+                        LobbyManager.Message("You redeemed Cough Syrup", ply1);
+                        break;
+                    case "KnifeButton":
+                        player.inventory.forceAddItem(new Item(140, true), true);
+                        SteamPlayer ply2 = Provider.clients.ToList().Find(x => x.player == player);
+                        LobbyManager.Message("You redeemed Knife", ply2);
+                        break;
+                    case "LMGButton":
+                        player.inventory.forceAddItem(new Item(126, true), true);
+                        SteamPlayer ply3 = Provider.clients.ToList().Find(x => x.player == player);
+                        LobbyManager.Message("You redeemed LMG", ply3);
+                        break;
+                }
+            }
         }
         public static async Task SendLobbyBannerMessage(ushort id, string message, int duration, bool reliable)
         {

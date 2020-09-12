@@ -42,15 +42,18 @@ namespace TTTUnturned.Models
                 List<Spawn> spawns = Main.Config.Maps[rng.Next(Main.Config.Maps.Count)].Spawns;
                 Players.ForEach(async player =>
                 {
+                    
+                    UIManager.ClearUIEffectAsync(8501, player.SteamID);
                     SteamPlayer steamPlayer = PlayerTool.getSteamPlayer(player.SteamID);
-                    steamPlayer.player.life.tellHealth(player.SteamID, 100);
+                    Managers.PlayerManager.ClearInventoryAsync(steamPlayer);
+                    steamPlayer.player.life.tellHealth(player.SteamID, 100); // DOES NOT WORK
                     await Managers.PlayerManager.TeleportToLocationAsync(steamPlayer, Managers.PlayerManager.GetRandomSpawn(spawns));
                 });
 
                 // Wait 30 seconds before displaying roles and allowing damage
-                LobbyManager.Message("Roles will be assigned in <color=red>30</color> seconds!");
-                UIManager.SendLobbyBannerMessage(8494, "<size=25>Roles will be assigned in <color=red>30</color> seconds!</size>", 5000, true);
-                await Task.Delay(30000);
+                LobbyManager.Message("Roles will be assigned in <color=red>15</color> seconds!");
+                UIManager.SendLobbyBannerMessage(8494, "<size=25>Roles will be assigned in <color=red>15</color> seconds!</size>", 5000, true);
+                await Task.Delay(15000);
                 Players.ForEach(p => UIManager.ClearStatusUIAsync(p));
                 RoleManager.TellRoles(this);
                 State = LobbyState.LIVE;
@@ -73,9 +76,10 @@ namespace TTTUnturned.Models
             {
                 if (player.Status == PlayerStatus.ALIVE)
                 {
+                    player.Role = PlayerRole.NONE;
                     SteamPlayer ply = PlayerTool.getSteamPlayer(player.SteamID);
                     if (ply is null) return;
-                   
+                    UIManager.ClearUIEffectAsync(8501, player.SteamID);
                     Managers.PlayerManager.ClearInventoryAsync(ply);
                     Managers.PlayerManager.TeleportToLocationAsync(ply, Managers.PlayerManager.GetRandomSpawn(Main.Config.LobbySpawns));
                 }

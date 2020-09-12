@@ -1,6 +1,8 @@
 ﻿using System.Collections;
 using SDG.Unturned;
 using TTTUnturned.Utils;
+using System.Threading.Tasks;
+using UnityEngine;
 
 namespace TTTUnturned.Managers
 {
@@ -34,6 +36,17 @@ namespace TTTUnturned.Managers
                     }
                 }
             }
+
+            yield return null;
+        }
+        public static async Task AddItemAync(SteamPlayer steamPlayer, ushort id)
+        {
+            UnityThread.executeCoroutine(AddItemCoroutine(steamPlayer, id));
+        }
+
+        private static IEnumerator AddItemCoroutine(SteamPlayer steamPlayer, ushort id)
+        {
+            steamPlayer.player.inventory.forceAddItem(new Item(id, true), true);
 
             yield return null;
         }

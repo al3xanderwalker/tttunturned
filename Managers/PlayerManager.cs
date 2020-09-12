@@ -14,6 +14,7 @@ namespace TTTUnturned.Managers
 {
     public class PlayerManager : MonoBehaviour
     {
+
         public void Awake()
         {
             CommandWindow.Log("PlayerManager loaded");
@@ -22,6 +23,58 @@ namespace TTTUnturned.Managers
             Provider.onEnemyDisconnected += OnEnemyDisconnected;
             DamageTool.damagePlayerRequested += OnDamageRequested;
             PlayerLife.onPlayerDied += OnPlayerDied;
+            PlayerInput.onPluginKeyTick += OnPluginKeyTick;
+            // UseableThrowable.onThrowableSpawned += OnThrowableSpawned;
+        }
+        /* Me experimenting with an idea but i still dont have a fucking clue how raycasting works lmao
+        private void OnThrowableSpawned(UseableThrowable useable, GameObject throwable)
+        {
+            CommandWindow.Log("Throwable lobbed");
+            RaycastInfo raycast = DamageTool.raycast(new Ray(useable.player.look.aim.position, useable.player.look.aim.forward), 500f, RayMasks.GROUND);
+            if (raycast.transform is null) return;
+            Transform target = raycast.collider?.transform;
+            if (target is null) return;
+            CommandWindow.Log(target);
+            CommandWindow.Log($"name({target.name.ToUpper()})");
+            if(target.name.ToUpper() == "GROUND")
+            {
+                CommandWindow.Log("teleported");
+                EffectManager.sendEffect(120, 30, target.position);
+                useable.player.teleportToLocation(target.position,0f);
+                
+            }
+            if (raycast.vehicle != null)
+            {
+                CommandWindow.Log($"vehicle id: {raycast.vehicle.name}");
+            }
+            else
+            {
+                CommandWindow.Log(raycast.transform.position);
+                
+            }
+        }
+        */
+        private void OnPluginKeyTick(Player player, uint simulation, byte key, bool state)
+        {
+            if (!state || key != 0) return;
+            SteamPlayer ply = Provider.clients.ToList().Find(x => x.player == player);
+            LobbyPlayer lPlayer = LobbyManager.GetLobbyPlayer(ply.playerID.steamID);
+            if (lPlayer is null) return;
+            if (lPlayer.Status == PlayerStatus.DEAD) return;
+            if (LobbyManager.GetLobby().State != LobbyState.LIVE) return;
+            if(lPlayer.Role == PlayerRole.TERRORIST )
+            {
+                if (lPlayer.UIToggled)
+                {
+                    lPlayer.UIToggled = false;
+                    UIManager.ClearUIEffectAsync(8501, lPlayer.SteamID);
+                }
+                else
+                {
+                    lPlayer.UIToggled = true;
+                    UIManager.SendUIEffectAsync(8501, 8470, lPlayer.SteamID, true);
+                }
+            }
         }
 
         #region Events
@@ -34,7 +87,6 @@ namespace TTTUnturned.Managers
             Task.Run(() =>
             {
                 UIManager.SendBannerMessage(steamPlayer.playerID.steamID, 8494, $"Welcome {steamPlayer.playerID.playerName} to <color=red>TTT</color>", 10000, true);
-                
                 UIManager.SendUIEffectAsync(8498, 8490, steamPlayer.playerID.steamID, true);
                 UIManager.SendUIEffectTextAsync(8490, steamPlayer.playerID.steamID, true, "RoleValue", "WAITING");
                 UIManager.SendUIEffectTextAsync(8490, steamPlayer.playerID.steamID, true, "TimerValue", "00:00");
@@ -108,6 +160,26 @@ namespace TTTUnturned.Managers
                     */
                 }
             }
+            System.Action removeUnequipped = () => {
+                for (byte i = 0; i < player.player.inventory.getItemCount(2); i++)
+                {
+                    player.player.inventory.removeItem(2, 0);
+                }
+            };
+            player.player.clothing.askWearBackpack(0, 0, new byte[0], true);
+            removeUnequipped();
+            player.player.clothing.askWearGlasses(0, 0, new byte[0], true);
+            removeUnequipped();
+            player.player.clothing.askWearHat(0, 0, new byte[0], true);
+            removeUnequipped();
+            player.player.clothing.askWearPants(0, 0, new byte[0], true);
+            removeUnequipped();
+            player.player.clothing.askWearMask(0, 0, new byte[0], true);
+            removeUnequipped();
+            player.player.clothing.askWearShirt(0, 0, new byte[0], true);
+            removeUnequipped();
+            player.player.clothing.askWearVest(0, 0, new byte[0], true);
+            removeUnequipped();
             yield return null;
         }
 

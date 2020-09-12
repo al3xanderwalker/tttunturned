@@ -37,8 +37,8 @@ namespace TTTUnturned.Managers
 
             System.Random rng = new System.Random();
 
-            int terroistCount = (int)Math.Floor(Provider.clients.Count / 8.0);
-            int detectiveCount = (int)Math.Floor(Provider.clients.Count / 12.0);
+            int terroistCount = (int)Math.Floor(Provider.clients.Count / 4.0);
+            int detectiveCount = (int)Math.Floor(Provider.clients.Count / 8.0);
             if (terroistCount == 0) terroistCount = 1;
             if (detectiveCount == 0) detectiveCount = 1;
 
@@ -74,12 +74,14 @@ namespace TTTUnturned.Managers
                 SteamPlayer steamPlayer = PlayerTool.getSteamPlayer(player.SteamID);
                 switch (player.Role) {
                     case PlayerRole.INNOCENT:
-                        LobbyManager.Message($"You are a <color=green>Innocent</color>", steamPlayer);
+                        LobbyManager.Message($"You are a <color=lime>Innocent</color>", steamPlayer);
                         await UIManager.SendUIEffectAsync(8497, 8490, player.SteamID, true);
                         await UIManager.SendUIEffectTextAsync(8490, player.SteamID, true, "RoleValue", "INNOCENT");
                         break;
                     case PlayerRole.DETECTIVE:
                         LobbyManager.Message($"You are a <color=blue>Detective</color>", steamPlayer);
+                        ItemManager.AddItemAync(steamPlayer, 10);
+                        CommandWindow.Log("Gave vest");
                         await UIManager.SendUIEffectAsync(8496, 8490, player.SteamID, true);
                         await UIManager.SendUIEffectTextAsync(8490, player.SteamID, true, "RoleValue", "DETECTIVE");
                         break;

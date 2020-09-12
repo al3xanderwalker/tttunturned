@@ -20,6 +20,9 @@ namespace TTTUnturned.Managers
             Provider.configData.Normal.Players.Food_Use_Ticks = uint.MaxValue;
             Provider.configData.Normal.Players.Water_Use_Ticks = uint.MaxValue;
             Provider.configData.Normal.Players.Allow_Per_Character_Saves = false;
+            Provider.configData.Normal.Items.Has_Durability = false;
+            Provider.configData.Normal.Gameplay.Allow_Static_Groups = false;
+            Provider.configData.Normal.Gameplay.Allow_Dynamic_Groups = false;
         }
     }
 }
