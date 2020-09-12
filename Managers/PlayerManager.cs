@@ -31,16 +31,19 @@ namespace TTTUnturned.Managers
             LobbyManager.Message($"<color=red>{steamPlayer.playerID.playerName}</color> has joined!");
 
             // Manually call Task.Run since we have to pass parameters
-            Task.Run(async () =>
+            Task.Run(() =>
             {
-                await DisableHUDAsync(steamPlayer);
-                await ClearInventoryAsync(steamPlayer);
-                await TeleportToLocationAsync(steamPlayer, GetRandomSpawn(Main.Config.LobbySpawns));
-                await Lobby.Start();
-            });
+                UIManager.SendBannerMessage(steamPlayer.playerID.steamID, 8494, $"Welcome {steamPlayer.playerID.playerName} to <color=red>TTT</color>", 10000, true);
+                
+                UIManager.SendUIEffectAsync(8498, 8490, steamPlayer.playerID.steamID, true);
+                UIManager.SendUIEffectTextAsync(8490, steamPlayer.playerID.steamID, true, "RoleValue", "WAITING");
+                UIManager.SendUIEffectTextAsync(8490, steamPlayer.playerID.steamID, true, "TimerValue", "00:00");
 
-            EffectManager.sendUIEffect(8490, 8490, steamPlayer.playerID.steamID, true);
-            EffectManager.sendUIEffectText(8490, steamPlayer.playerID.steamID, true, "RoleValue", "WAITING");
+                DisableHUDAsync(steamPlayer);
+                ClearInventoryAsync(steamPlayer);
+                TeleportToLocationAsync(steamPlayer, GetRandomSpawn(Main.Config.LobbySpawns));
+                Lobby.Start();
+            });
         }
 
         public static void OnEnemyDisconnected(SteamPlayer steamPlayer)
@@ -124,12 +127,14 @@ namespace TTTUnturned.Managers
         {
             UnityThread.executeCoroutine(DisableHUDCoroutine(player));
         }
+
         private static IEnumerator DisableHUDCoroutine(SteamPlayer player)
         {
             player.player.setPluginWidgetFlag(EPluginWidgetFlags.ShowFood, false);
             player.player.setPluginWidgetFlag(EPluginWidgetFlags.ShowWater, false);
             player.player.setPluginWidgetFlag(EPluginWidgetFlags.ShowVirus, false);
             player.player.setPluginWidgetFlag(EPluginWidgetFlags.ShowOxygen, false);
+            player.player.setPluginWidgetFlag(EPluginWidgetFlags.ShowStatusIcons, false);
             yield return null;
         }
 

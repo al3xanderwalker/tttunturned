@@ -69,18 +69,24 @@ namespace TTTUnturned.Managers
 
         public static void TellRoles(Lobby lobby)
         {
-            lobby.Players.ForEach(player =>
+            lobby.Players.ForEach(async player =>
             {
                 SteamPlayer steamPlayer = PlayerTool.getSteamPlayer(player.SteamID);
                 switch (player.Role) {
                     case PlayerRole.INNOCENT:
                         LobbyManager.Message($"You are a <color=green>Innocent</color>", steamPlayer);
+                        await UIManager.SendUIEffectAsync(8497, 8490, player.SteamID, true);
+                        await UIManager.SendUIEffectTextAsync(8490, player.SteamID, true, "RoleValue", "INNOCENT");
                         break;
                     case PlayerRole.DETECTIVE:
                         LobbyManager.Message($"You are a <color=blue>Detective</color>", steamPlayer);
+                        await UIManager.SendUIEffectAsync(8496, 8490, player.SteamID, true);
+                        await UIManager.SendUIEffectTextAsync(8490, player.SteamID, true, "RoleValue", "DETECTIVE");
                         break;
                     case PlayerRole.TERRORIST:
-                        LobbyManager.Message($"You are a <color=red>Terroist</color>", steamPlayer);
+                        LobbyManager.Message($"You are a <color=red>Terrorist</color>", steamPlayer);
+                        await UIManager.SendUIEffectAsync(8499, 8490, player.SteamID, true);
+                        await UIManager.SendUIEffectTextAsync(8490, player.SteamID, true, "RoleValue", "TERRORIST");
                         break;
                 }
             });

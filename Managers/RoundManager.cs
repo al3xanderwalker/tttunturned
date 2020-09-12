@@ -3,6 +3,7 @@ using Steamworks;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using TTTUnturned.Models;
 using TTTUnturned.Utils;
@@ -25,21 +26,26 @@ namespace TTTUnturned.Managers
 
         public static void CheckWin()
         {
-            if (Lobby.GetAlive(PlayerRole.TERRORIST).Count == 0)
+            Task.Run(async () =>
             {
-                CommandWindow.Log("Innocents win");
-                LobbyManager.Message("<color=lime>Innocents</color> Win!");
+                if (Lobby.GetAlive(PlayerRole.TERRORIST).Count == 0)
+                {
+                    CommandWindow.Log("Innocents win");
+                    LobbyManager.Message("<color=lime>Innocents</color> Win!");
+                    await UIManager.SendLobbyBannerMessage(8493, $"Innocents Win!", 10000, true);
+                    await Lobby.Stop();
 
-                AsyncHelper.RunAsync("LobbyStopCheckWinT", Lobby.Stop);
-                // Innocents win
-            }
-            if (Lobby.GetAlive(PlayerRole.DETECTIVE).Count == 0 && Lobby.GetAlive(PlayerRole.INNOCENT).Count == 0)
-            {
-                CommandWindow.Log("Terrorist win");
-                LobbyManager.Message("<color=red>Terroists</color> Win!");
-                AsyncHelper.RunAsync("LobbyStopCheckWinInnocent", Lobby.Stop);
-                // Terrorist win
-            }
+                    // Innocents win
+                }
+                if (Lobby.GetAlive(PlayerRole.DETECTIVE).Count == 0 && Lobby.GetAlive(PlayerRole.INNOCENT).Count == 0)
+                {
+                    CommandWindow.Log("Terrorist win");
+                    LobbyManager.Message("<color=red>Terroists</color> Win!");
+                    await UIManager.SendLobbyBannerMessage(8492, $"Terroists Win!", 10000, true);
+                    await Lobby.Stop();
+                    // Terrorist win
+                }
+            });
         }
 
         private async Task RoundTick()
@@ -53,7 +59,7 @@ namespace TTTUnturned.Managers
 
             lobby.Players.ForEach(async player =>
             {
-                await SendUIEffectTextAsync(8490, player.SteamID, true, "TimeValue", ParseTime(lobby.RoundTime));
+                await UIManager.SendUIEffectTextAsync(8490, player.SteamID, true, "TimerValue", ParseTime(lobby.RoundTime));
                // await SendUIEffectAsync();
             });
 
@@ -72,18 +78,6 @@ namespace TTTUnturned.Managers
                 return;
             }
         }
-
-        private static async Task SendUIEffectTextAsync(short key, CSteamID steamID, bool reliable, string component, string text)
-        {
-            UnityThread.executeCoroutine(SendUIEffectTextCoroutine(key, steamID, reliable, component, text));
-        }
-
-        private static IEnumerator SendUIEffectTextCoroutine(short key, CSteamID steamID, bool reliable, string component, string text)
-        {
-            EffectManager.sendUIEffectText(key, steamID, reliable, component, text);
-            yield return null;
-        }
-
 
         public static string ParseTime(int seconds)
         {
