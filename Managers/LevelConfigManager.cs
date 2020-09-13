@@ -17,6 +17,7 @@ namespace TTTUnturned.Managers
             Provider.configData.Normal.Items.Quality_Full_Chance = 1;
             Provider.configData.Normal.Gameplay.Can_Suicide = false;
             Provider.configData.Normal.Players.Can_Start_Bleeding = false;
+            Provider.configData.Normal.Players.Can_Break_Legs = false;
             Provider.configData.Normal.Players.Food_Use_Ticks = uint.MaxValue;
             Provider.configData.Normal.Players.Water_Use_Ticks = uint.MaxValue;
             Provider.configData.Normal.Players.Allow_Per_Character_Saves = false;

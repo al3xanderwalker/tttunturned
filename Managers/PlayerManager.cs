@@ -131,6 +131,23 @@ namespace TTTUnturned.Managers
 
         private void OnDamageRequested(ref DamagePlayerParameters parameters, ref bool shouldAllow)
         {
+            parameters.respectArmor = true;
+            parameters.applyGlobalArmorMultiplier = true;
+            if (parameters.damage >= parameters.player.life.health)
+            {
+                if(parameters.player.clothing.vest.ToString() == "1013")
+                {
+                    parameters.player.clothing.askWearVest(0, 0, new byte[0], true); // Doesnt work and needs fixing
+                    ExplosionParameters explodParams = new ExplosionParameters(parameters.player.transform.position, 10f, EDeathCause.KILL, CSteamID.Nil);
+                    explodParams.penetrateBuildables = true;
+                    explodParams.playerDamage = 10;
+                    explodParams.damageRadius = 32;
+                    explodParams.barricadeDamage = 1000;
+                    List<EPlayerKill> deadPlayers = new List<EPlayerKill>();
+                    EffectManager.sendEffect(45, byte.MaxValue, byte.MaxValue, byte.MaxValue, parameters.player.transform.position);
+                    DamageTool.explode(explodParams, out deadPlayers);
+                }
+            }
             Lobby Lobby = LobbyManager.GetLobby();
             if (Lobby.State != LobbyState.LIVE)
             {
@@ -140,14 +157,9 @@ namespace TTTUnturned.Managers
 
         private void OnPlayerDied(PlayerLife sender, EDeathCause cause, ELimb limb, CSteamID instigator)
         {
-            System.Random rng = new System.Random();
-            List<Spawn> spawns = Main.Config.LobbySpawns;
-            int t = rng.Next(spawns.Count);
-            Vector3 spawn = new Vector3(spawns[t].X, spawns[t].Y, spawns[t].Z);
-
             sender.channel.send("tellRevive", ESteamCall.ALL, ESteamPacket.UPDATE_RELIABLE_BUFFER, new object[] // thanks alien man
             {
-                spawn,
+                GetRandomSpawn(Main.Config.LobbySpawns),
                 (byte) 0
             });
             sender.sendRevive();

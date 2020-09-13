@@ -43,6 +43,7 @@ namespace TTTUnturned
             TTTUnturnedObject.AddComponent<RoundManager>();
             TTTUnturnedObject.AddComponent<RoleManager>();
             TTTUnturnedObject.AddComponent<DropManager>();
+            TTTUnturnedObject.AddComponent<C4Manager>();
 
             CommandWindow.Log("TTTUnturned by Corbyn & Alex loaded");
         }

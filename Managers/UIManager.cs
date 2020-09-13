@@ -19,51 +19,8 @@ namespace TTTUnturned.Managers
             CommandWindow.Log("UIManager loaded");
 
             EffectManager.onEffectButtonClicked += OnEffectButtonClicked;
-            BarricadeManager.onBarricadeSpawned += OnBarricadeSpawned;
         }
-        public void OnBarricadeSpawned(BarricadeRegion region, BarricadeDrop drop)
-        {
-            if (drop.asset.id != 1241) return;
-            CommandWindow.Log(drop.asset.id);
-            
-            Task.Run(() =>
-            {
-                C4(region,drop);
-            });
-        }
-        public async Task C4(BarricadeRegion region,BarricadeDrop drop)
-        {
-            await Task.Delay(10000);
-            SendEffectAsync(45, byte.MaxValue, byte.MaxValue, byte.MaxValue, drop.model.position);
-            ExplosionParameters parameters = new ExplosionParameters(drop.model.position,10f, EDeathCause.KILL, CSteamID.Nil);
-            parameters.penetrateBuildables = true;
-            parameters.playerDamage = 10;
-            parameters.damageRadius = 32;
-            ExplodeAsync(parameters);
-            DestroyAsync(region);
-        }
-        public void DestroyAsync(BarricadeRegion region)
-        {
-            UnityThread.executeCoroutine(DestroyCoroutine(region));
-        }
-        private static IEnumerator DestroyCoroutine(BarricadeRegion region)
-        {
-            region.destroy(); // DESTROYS IT BUT doesnt delete the in game model
-
-            yield return null;
-        }
-
-        public void ExplodeAsync(ExplosionParameters parameters)
-        {
-            UnityThread.executeCoroutine(ExplodeCoroutine(parameters));
-        }
-        private static IEnumerator ExplodeCoroutine(ExplosionParameters parameters)
-        {
-            List<EPlayerKill> deadPlayers = new List<EPlayerKill>();
-            DamageTool.explode(parameters, out deadPlayers);
-
-            yield return null;
-        }
+        
         public void SendEffectAsync(ushort id, byte x, byte y, byte z, Vector3 position)
         {
             UnityThread.executeCoroutine(SendEffectCoroutine(id, x, y, z, position));
@@ -104,7 +61,12 @@ namespace TTTUnturned.Managers
                     case "SupressedPistol":
                         player.inventory.forceAddItem(new Item(126, true), true);
                         SteamPlayer ply4 = Provider.clients.ToList().Find(x => x.player == player);
-                        LobbyManager.Message("You redeemed LMG", ply4);
+                        LobbyManager.Message("You redeemed Suppresed Pistol", ply4);
+                        break;
+                    case "BombVestButton":
+                        player.inventory.forceAddItem(new Item(1013, true), true);
+                        SteamPlayer ply5 = Provider.clients.ToList().Find(x => x.player == player);
+                        LobbyManager.Message("You redeemed Bomb Vest", ply5);
                         break;
                 }
             }

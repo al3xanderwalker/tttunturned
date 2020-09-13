@@ -76,6 +76,7 @@
     <Compile Include="Commands\CommandDiscord.cs" />
     <Compile Include="Commands\CommandPos.cs" />
     <Compile Include="Main.cs" />
+    <Compile Include="Managers\C4Manager.cs" />
     <Compile Include="Managers\DropManager.cs" />
     <Compile Include="Managers\UIManager.cs" />
     <Compile Include="Managers\LevelConfigManager.cs" />
@@ -84,6 +85,7 @@
     <Compile Include="Managers\PlayerManager.cs" />
     <Compile Include="Managers\RoleManager.cs" />
     <Compile Include="Managers\RoundManager.cs" />
+    <Compile Include="Models\Classes\C4.cs" />
     <Compile Include="Models\Classes\Config.cs" />
     <Compile Include="Models\Classes\Lobby.cs" />
     <Compile Include="Models\Classes\LobbyPlayer.cs" />
