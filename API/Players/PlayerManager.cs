@@ -36,6 +36,9 @@ namespace TTTUnturned.API.Players
         private void OnEnemyConnected(SteamPlayer steamPlayer)
         {
             InterfaceManager.DisableExtraHUD(steamPlayer.playerID.steamID);
+            InterfaceManager.SendUIEffectAsync(8498, 8490, steamPlayer.playerID.steamID, true);
+            InterfaceManager.SendUIEffectTextAsync(8490, steamPlayer.playerID.steamID, true, "RoleValue", "WAITING");
+            InterfaceManager.SendUIEffectTextAsync(8490, steamPlayer.playerID.steamID, true, "TimerValue", "00:00");
         }
 
         public static TTTPlayer GetTTTPlayer(CSteamID steamID) => RoundManager.GetPlayers().FirstOrDefault(p => p.SteamID == steamID);
@@ -84,6 +87,7 @@ namespace TTTUnturned.API.Players
         #region Events
         private void OnDamageRequested(ref DamagePlayerParameters parameters, ref bool shouldAllow)
         {
+            Player ply = parameters.player;
             parameters.respectArmor = true;
             parameters.applyGlobalArmorMultiplier = true;
             if (parameters.damage >= parameters.player.life.health)
@@ -91,6 +95,12 @@ namespace TTTUnturned.API.Players
                 if(parameters.player.clothing.vest.ToString() == "1013")
                 {
                     parameters.player.clothing.askWearVest(0, 0, new byte[0], true); // Doesnt work and needs fixing
+                    /*
+                    parameters.player.inventory.items[2].items.ForEach(item =>
+                    {
+                        if (item.item.id == 1013) ply.inventory.items[2].removeItem(ply.inventory.items[2].getIndex(item.x, item.y));
+                    });
+                    */
                     ExplosionParameters explodParams = new ExplosionParameters(parameters.player.transform.position, 10f, EDeathCause.KILL, CSteamID.Nil);
                     explodParams.penetrateBuildables = true;
                     explodParams.playerDamage = 10;
@@ -101,7 +111,6 @@ namespace TTTUnturned.API.Players
                     DamageTool.explode(explodParams, out deadPlayers);
                 }
             }
-
             if (RoundManager.GetRoundSessionState() != RoundState.LIVE)
             {
                 shouldAllow = false;

@@ -142,6 +142,7 @@ namespace TTTUnturned.API.Interface
             ply.setPluginWidgetFlag(EPluginWidgetFlags.ShowWater, false);
             ply.setPluginWidgetFlag(EPluginWidgetFlags.ShowVirus, false);
             ply.setPluginWidgetFlag(EPluginWidgetFlags.ShowOxygen, false);
+            ply.setPluginWidgetFlag(EPluginWidgetFlags.ShowStatusIcons, false);
             yield return null;
         }
     }
