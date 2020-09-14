@@ -11,6 +11,7 @@ using TTTUnturned.API.Lobby;
 using TTTUnturned.API.Players;
 using TTTUnturned.API.Round;
 using TTTUnturned.API.Roles;
+using TTTUnturned.API.Commands;
 using System;
 using System.Linq;
 using TTTUnturned.API.Core;
@@ -54,7 +55,7 @@ namespace TTTUnturned
                 var addComponentRef = methodInfo.MakeGenericMethod(component);
                 addComponentRef.Invoke(TTTUnturnedObject, null);
             }
-
+            Commander.register(new CommandPos());
             CommandWindow.Log("TTTUnturned by Corbyn & Alex loaded");
         }
 
