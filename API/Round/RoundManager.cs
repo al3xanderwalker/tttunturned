@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using TTTUnturned.API.Core;
 using TTTUnturned.API.Interface;
 using TTTUnturned.API.Lobby;
+using TTTUnturned.API.Players;
 using TTTUnturned.API.Roles;
 using TTTUnturned.Utils;
 using UnityEngine;
