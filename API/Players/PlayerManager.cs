@@ -47,41 +47,64 @@ namespace TTTUnturned.API.Players
 
         private void OnPluginKeyTick(Player player, uint simulation, byte key, bool state)
         {
-            if (!state || key != 0) return;
-
-            TTTPlayer tttPlayer = PlayerManager.GetTTTPlayer(player.channel.owner.playerID.steamID);
-            if (tttPlayer is null) return;
-
-            if (tttPlayer.Status == Status.DEAD) return;
-            if (RoundManager.GetRoundSessionState() != RoundState.LIVE) return;
-
-
-            if (keyCooldowns.ContainsKey(player.channel.owner.playerID.steamID))
+            if (!state) return;
+            if (key == 0)
             {
-                long lastPressed = keyCooldowns[player.channel.owner.playerID.steamID];
-                // 1 second key cooldown on menu
-                if (DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() - lastPressed < 1000) return;
+                TTTPlayer tttPlayer = GetTTTPlayer(player.channel.owner.playerID.steamID);
+                if (tttPlayer is null) return;
 
-                keyCooldowns.Remove(player.channel.owner.playerID.steamID);
-            }
+                if (tttPlayer.Status == Status.DEAD) return;
+                if (RoundManager.GetRoundSessionState() != RoundState.LIVE) return;
 
-            keyCooldowns.Add(player.channel.owner.playerID.steamID, DateTimeOffset.UtcNow.ToUnixTimeMilliseconds());
 
-            if (tttPlayer.Role == Role.TRAITOR )
-            {
-                if (tttPlayer.UIToggled)
+                if (keyCooldowns.ContainsKey(player.channel.owner.playerID.steamID))
                 {
-                    tttPlayer.UIToggled = false;
-                    InterfaceManager.ClearUIEffectAsync(8501, tttPlayer.SteamID);
-                    player.setPluginWidgetFlag(EPluginWidgetFlags.Modal, false);
-                    player.setPluginWidgetFlag(EPluginWidgetFlags.ForceBlur, false);
+                    long lastPressed = keyCooldowns[player.channel.owner.playerID.steamID];
+                    // 1 second key cooldown on menu
+                    if (DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() - lastPressed < 1000) return;
+
+                    keyCooldowns.Remove(player.channel.owner.playerID.steamID);
                 }
-                else
+
+                keyCooldowns.Add(player.channel.owner.playerID.steamID, DateTimeOffset.UtcNow.ToUnixTimeMilliseconds());
+
+                if (tttPlayer.Role == Role.TRAITOR)
                 {
-                    tttPlayer.UIToggled = true;
-                    InterfaceManager.SendUIEffectAsync(8501, 8470, tttPlayer.SteamID, true);
-                    player.setPluginWidgetFlag(EPluginWidgetFlags.Modal, true);
-                    player.setPluginWidgetFlag(EPluginWidgetFlags.ForceBlur, true);
+                    if (tttPlayer.UIToggled)
+                    {
+                        tttPlayer.UIToggled = false;
+                        InterfaceManager.ClearUIEffectAsync(8501, tttPlayer.SteamID);
+                        player.setPluginWidgetFlag(EPluginWidgetFlags.Modal, false);
+                        player.setPluginWidgetFlag(EPluginWidgetFlags.ForceBlur, false);
+                    }
+                    else
+                    {
+                        tttPlayer.UIToggled = true;
+                        InterfaceManager.SendUIEffectAsync(8501, 8470, tttPlayer.SteamID, true);
+                        player.setPluginWidgetFlag(EPluginWidgetFlags.Modal, true);
+                        player.setPluginWidgetFlag(EPluginWidgetFlags.ForceBlur, true);
+                    }
+                }
+            }
+            else if(key == 1)
+            {
+                if (player.clothing.vest.ToString() == "1013")
+                {
+                    player.clothing.askWearVest(0, 0, new byte[0], true); // Doesnt work and needs fixing
+                    /*
+                    parameters.player.inventory.items[2].items.ForEach(item =>
+                    {
+                        if (item.item.id == 1013) ply.inventory.items[2].removeItem(ply.inventory.items[2].getIndex(item.x, item.y));
+                    });
+                    */
+                    ExplosionParameters explodParams = new ExplosionParameters(player.transform.position, 10f, EDeathCause.KILL, CSteamID.Nil);
+                    explodParams.penetrateBuildables = true;
+                    explodParams.playerDamage = 150;
+                    explodParams.damageRadius = 32;
+                    explodParams.barricadeDamage = 1000;
+                    List<EPlayerKill> deadPlayers = new List<EPlayerKill>();
+                    EffectManager.sendEffect(45, byte.MaxValue, byte.MaxValue, byte.MaxValue, player.transform.position);
+                    DamageTool.explode(explodParams, out deadPlayers);
                 }
             }
         }
@@ -89,6 +112,7 @@ namespace TTTUnturned.API.Players
         #region Events
         private void OnDamageRequested(ref DamagePlayerParameters parameters, ref bool shouldAllow)
         {
+            if (GetTTTPlayer(parameters.player.channel.owner.playerID.steamID).Armor) parameters.damage = parameters.damage * 0.70f;
             Player ply = parameters.player;
             parameters.respectArmor = true;
             parameters.applyGlobalArmorMultiplier = true;
@@ -105,7 +129,7 @@ namespace TTTUnturned.API.Players
                     */
                     ExplosionParameters explodParams = new ExplosionParameters(parameters.player.transform.position, 10f, EDeathCause.KILL, CSteamID.Nil);
                     explodParams.penetrateBuildables = true;
-                    explodParams.playerDamage = 10;
+                    explodParams.playerDamage = 150;
                     explodParams.damageRadius = 32;
                     explodParams.barricadeDamage = 1000;
                     List<EPlayerKill> deadPlayers = new List<EPlayerKill>();

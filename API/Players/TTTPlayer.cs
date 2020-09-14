@@ -13,6 +13,7 @@ namespace TTTUnturned.API.Lobby
         public Rank Rank { get; set; }
         public bool UIToggled { get; set; }
         public int Credits { get; set; }
+        public bool Armor { get; set; }
 
         public TTTPlayer(CSteamID steamID, Role role, Rank rank, Status status)
         {
@@ -22,6 +23,7 @@ namespace TTTUnturned.API.Lobby
             Status = status;
             Credits = 0;
             UIToggled = false;
+            Armor = false;
         }
     }
 }

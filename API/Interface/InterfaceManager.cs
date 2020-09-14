@@ -8,7 +8,8 @@ using UnityEngine;
 using TTTUnturned.API.Lobby;
 using TTTUnturned.API.Core;
 using TTTUnturned.API.Round;
-
+using PlayerManager = TTTUnturned.API.Players.PlayerManager;
+using System;
 namespace TTTUnturned.API.Interface
 {
     public class InterfaceManager : MonoBehaviour, IObjectComponent
@@ -38,34 +39,36 @@ namespace TTTUnturned.API.Interface
                 {
                     case "ChargeButton":
                         player.inventory.forceAddItem(new Item(1241, true), true);
-                        player.inventory.forceAddItem(new Item(1240, true), true);
-                        SteamPlayer ply = Provider.clients.ToList().Find(x => x.player == player);
-                        RoundManager.Broadcast("You redeemed C4", ply);
+                        RoundManager.Broadcast("You redeemed C4", player.channel.owner);
                         break;
                     case "CoughSyrupButton":
                         player.inventory.forceAddItem(new Item(404, true), true);
-                        SteamPlayer ply1 = Provider.clients.ToList().Find(x => x.player == player);
-                        RoundManager.Broadcast("You redeemed Cough Syrup", ply1);
+                        RoundManager.Broadcast("You redeemed Cough Syrup", player.channel.owner);
                         break;
                     case "KnifeButton":
                         player.inventory.forceAddItem(new Item(140, true), true);
-                        SteamPlayer ply2 = Provider.clients.ToList().Find(x => x.player == player);
-                        RoundManager.Broadcast("You redeemed Knife", ply2);
+                        RoundManager.Broadcast("You redeemed Knife", player.channel.owner);
                         break;
                     case "LMGButton":
                         player.inventory.forceAddItem(new Item(126, true), true);
-                        SteamPlayer ply3 = Provider.clients.ToList().Find(x => x.player == player);
-                        RoundManager.Broadcast("You redeemed LMG", ply3);
+                        RoundManager.Broadcast("You redeemed LMG", player.channel.owner);
                         break;
                     case "SupressedPistol":
-                        player.inventory.forceAddItem(new Item(126, true), true);
-                        SteamPlayer ply4 = Provider.clients.ToList().Find(x => x.player == player);
-                        RoundManager.Broadcast("You redeemed Suppresed Pistol", ply4);
+                        Item gun = new Item(1021,true);
+                        Asset SelectAsset = Assets.find(EAssetType.ITEM, 7);
+                        ItemAsset Item = (ItemAsset)SelectAsset;
+                        byte[] ID = BitConverter.GetBytes(Item.id);
+                        Array.Copy(ID, 0, gun.state, 6, 2);
+                        player.inventory.forceAddItem(gun, true);
+                        RoundManager.Broadcast("You redeemed Suppresed Pistol", player.channel.owner);
                         break;
                     case "BombVestButton":
                         player.inventory.forceAddItem(new Item(1013, true), true);
-                        SteamPlayer ply5 = Provider.clients.ToList().Find(x => x.player == player);
-                        RoundManager.Broadcast("You redeemed Bomb Vest", ply5);
+                        RoundManager.Broadcast("You redeemed Bomb Vest", player.channel.owner);
+                        break;
+                    case "BodyArmourButton":
+                        PlayerManager.GetTTTPlayer(player.channel.owner.playerID.steamID).Armor = true;
+                        RoundManager.Broadcast("You redeemed Armor Vest", player.channel.owner);
                         break;
                 }
             }
