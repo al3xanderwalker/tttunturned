@@ -36,6 +36,8 @@ namespace TTTUnturned.API.Players
         private void OnEnemyConnected(SteamPlayer steamPlayer)
         {
             InterfaceManager.DisableExtraHUD(steamPlayer.playerID.steamID);
+            ClearInventoryAsync(steamPlayer);
+            // Heal player
             InterfaceManager.SendUIEffectAsync(8498, 8490, steamPlayer.playerID.steamID, true);
             InterfaceManager.SendUIEffectTextAsync(8490, steamPlayer.playerID.steamID, true, "RoleValue", "WAITING");
             InterfaceManager.SendUIEffectTextAsync(8490, steamPlayer.playerID.steamID, true, "TimerValue", "00:00");
