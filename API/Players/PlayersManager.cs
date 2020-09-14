@@ -11,10 +11,11 @@ using TTTUnturned.API.Lobby;
 using TTTUnturned.API.Round;
 using TTTUnturned.API.Interface;
 using TTTUnturned.API.Roles;
+using TTTUnturned.API.Core;
 
 namespace TTTUnturned.API.Players
 {
-    public class PlayersManager : MonoBehaviour
+    public class PlayersManager : MonoBehaviour, IObjectComponent
     {
         private static Dictionary<CSteamID, long> keyCooldowns;
 

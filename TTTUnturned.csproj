@@ -73,6 +73,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="API\Core\IObjectComponent.cs" />
     <Compile Include="API\Items\BarricadeItem.cs" />
     <Compile Include="API\Items\ItemsManager.cs" />
     <Compile Include="API\Commands\CommandDiscord.cs" />

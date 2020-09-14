@@ -6,10 +6,11 @@ using Steamworks;
 using System.Collections;
 using UnityEngine;
 using TTTUnturned.API.Lobby;
+using TTTUnturned.API.Core;
 
 namespace TTTUnturned.API.Interface
 {
-    public class InterfaceManager : MonoBehaviour
+    public class InterfaceManager : MonoBehaviour, IObjectComponent
     {
         public void Awake()
         {

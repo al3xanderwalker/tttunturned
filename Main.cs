@@ -11,6 +11,9 @@ using TTTUnturned.API.Lobby;
 using TTTUnturned.API.Players;
 using TTTUnturned.API.Round;
 using TTTUnturned.API.Roles;
+using System;
+using System.Linq;
+using TTTUnturned.API.Core;
 
 namespace TTTUnturned
 {
@@ -42,14 +45,15 @@ namespace TTTUnturned
             TTTUnturnedObject = new GameObject("TTTUnturned");
             DontDestroyOnLoad(TTTUnturnedObject);
 
-            // Add managers as gameObject components
-            TTTUnturnedObject.AddComponent<InterfaceManager>();
-            TTTUnturnedObject.AddComponent<LobbyManager>();
-            TTTUnturnedObject.AddComponent<PlayersManager>();
-            TTTUnturnedObject.AddComponent<RoundManager>();
-            TTTUnturnedObject.AddComponent<RoleManager>();
-            TTTUnturnedObject.AddComponent<DropManager>();
-            TTTUnturnedObject.AddComponent<C4Manager>();
+            // Dynamically add classes as a component that impliment IObjectComponent
+            var componentManagers = Assembly.GetExecutingAssembly().DefinedTypes.Where(type => type.ImplementedInterfaces.Any(inter => inter == typeof(IObjectComponent))).ToList();
+            foreach (Type component in componentManagers)
+            {
+                var methodInfo = typeof(GameObject).GetMethods().Where(x => x.IsGenericMethod)
+                     .Where(x => x.Name == "AddComponent").Single();
+                var addComponentRef = methodInfo.MakeGenericMethod(component);
+                addComponentRef.Invoke(TTTUnturnedObject, null);
+            }
 
             CommandWindow.Log("TTTUnturned by Corbyn & Alex loaded");
         }

@@ -1,10 +1,11 @@
 ﻿using SDG.Unturned;
 using Steamworks;
+using TTTUnturned.API.Core;
 using UnityEngine;
 
 namespace TTTUnturned.API.Items.C4.C4Manager
 {
-    public class C4Manager : MonoBehaviour
+    public class C4Manager : MonoBehaviour, IObjectComponent
     {
         public void Awake()
         {

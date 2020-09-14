@@ -1,6 +1,7 @@
 ﻿using SDG.Unturned;
 using System;
 using System.Threading.Tasks;
+using TTTUnturned.API.Core;
 using TTTUnturned.API.Interface;
 using TTTUnturned.API.Lobby;
 using TTTUnturned.API.Roles;
@@ -9,7 +10,7 @@ using UnityEngine;
 
 namespace TTTUnturned.API.Round
 {
-    public class RoundManager : MonoBehaviour
+    public class RoundManager : MonoBehaviour, IObjectComponent
     {
         public static LobbySession Lobby;
 

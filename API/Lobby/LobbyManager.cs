@@ -4,10 +4,11 @@ using Steamworks;
 using TTTUnturned.Utils;
 using System.Collections;
 using TTTUnturned.API.Commands;
+using TTTUnturned.API.Core;
 
 namespace TTTUnturned.API.Lobby
 {
-    public class LobbyManager : MonoBehaviour
+    public class LobbyManager : MonoBehaviour, IObjectComponent
     {
         public static LobbySession Lobby;
 

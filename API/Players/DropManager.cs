@@ -1,11 +1,12 @@
 ﻿using SDG.Unturned;
 using Steamworks;
+using TTTUnturned.API.Core;
 using TTTUnturned.API.Lobby;
 using UnityEngine;
 
 namespace TTTUnturned.API.Players
 {
-    public class DropManager : MonoBehaviour
+    public class DropManager : MonoBehaviour, IObjectComponent
     {
         public void Awake()
         {

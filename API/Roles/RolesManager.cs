@@ -8,10 +8,11 @@ using TTTUnturned.API.Players;
 using TTTUnturned.API.Round;
 using TTTUnturned.API.Interface;
 using SDG.Unturned;
+using TTTUnturned.API.Core;
 
 namespace TTTUnturned.API.Roles
 {
-    public class RoleManager : MonoBehaviour
+    public class RoleManager : MonoBehaviour, IObjectComponent
     {
         public void Awake()
         {
