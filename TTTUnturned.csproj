@@ -81,6 +81,7 @@
     <Compile Include="API\Items\C4\C4.cs" />
     <Compile Include="API\Items\Item.cs" />
     <Compile Include="API\Items\ItemType.cs" />
+    <Compile Include="API\Patches\DoDamagePatch.cs" />
     <Compile Include="API\Round\RoundSession.cs" />
     <Compile Include="Main.cs" />
     <Compile Include="API\Items\C4\C4Manager.cs" />
@@ -113,6 +114,8 @@
       <Version>2.0.2</Version>
     </PackageReference>
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <Folder Include="API\Items\BombVest\" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

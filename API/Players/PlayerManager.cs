@@ -112,10 +112,10 @@ namespace TTTUnturned.API.Players
         #region Events
         private void OnDamageRequested(ref DamagePlayerParameters parameters, ref bool shouldAllow)
         {
+            CommandWindow.Log($"OnDamageReuqested: {parameters.damage}");
+            // 30% damage reduction
             if (GetTTTPlayer(parameters.player.channel.owner.playerID.steamID).Armor) parameters.damage = parameters.damage * 0.70f;
-            Player ply = parameters.player;
-            parameters.respectArmor = true;
-            parameters.applyGlobalArmorMultiplier = true;
+
             if (parameters.damage >= parameters.player.life.health)
             {
                 if(parameters.player.clothing.vest.ToString() == "1013")
@@ -137,6 +137,7 @@ namespace TTTUnturned.API.Players
                     DamageTool.explode(explodParams, out deadPlayers);
                 }
             }
+
             if (RoundManager.GetRoundSessionState() != RoundState.LIVE)
             {
                 shouldAllow = false;

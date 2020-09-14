@@ -4,6 +4,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using TTTUnturned.Utils;
+using Item = SDG.Unturned.Item;
 
 namespace TTTUnturned.API.Items.C4
 {
@@ -19,6 +20,8 @@ namespace TTTUnturned.API.Items.C4
             Name = "item_barricade_c4";
             DisplayName = "C4";
             ItemType = ItemType.BARRICADE;
+            UnturnedItem = new SDG.Unturned.Item(1241, true);
+            Asset = (ItemAsset)Assets.find(EAssetType.ITEM, 1241);
             Region = region;
             Drop = drop;
             Defused = false;
