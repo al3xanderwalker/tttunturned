@@ -1,4 +1,4 @@
-﻿namespace TTTUnturned.Models
+﻿namespace TTTUnturned.API.Roles
 {
     public enum PlayerRole
     {

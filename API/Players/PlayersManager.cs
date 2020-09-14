@@ -1,18 +1,20 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using Steamworks;
 using SDG.Unturned;
 using TTTUnturned.Utils;
 using System.Collections;
-using TTTUnturned.Models;
 using UnityEngine;
+using TTTUnturned.API.Level;
+using TTTUnturned.API.Lobby;
+using TTTUnturned.API.Round;
+using TTTUnturned.API.Interface;
+using TTTUnturned.API.Roles;
 
-namespace TTTUnturned.Managers
+namespace TTTUnturned.API.Players
 {
-    public class PlayerManager : MonoBehaviour
+    public class PlayersManager : MonoBehaviour
     {
         private static Dictionary<CSteamID, long> keyCooldowns;
 
@@ -84,14 +86,14 @@ namespace TTTUnturned.Managers
                 if (lobbyPlayer.UIToggled)
                 {
                     lobbyPlayer.UIToggled = false;
-                    UIManager.ClearUIEffectAsync(8501, lobbyPlayer.SteamID);
+                    InterfaceManager.ClearUIEffectAsync(8501, lobbyPlayer.SteamID);
                     player.setPluginWidgetFlag(EPluginWidgetFlags.Modal, false);
                     player.setPluginWidgetFlag(EPluginWidgetFlags.ForceBlur, false);
                 }
                 else
                 {
                     lobbyPlayer.UIToggled = true;
-                    UIManager.SendUIEffectAsync(8501, 8470, lobbyPlayer.SteamID, true);
+                    InterfaceManager.SendUIEffectAsync(8501, 8470, lobbyPlayer.SteamID, true);
                     player.setPluginWidgetFlag(EPluginWidgetFlags.Modal, true);
                     player.setPluginWidgetFlag(EPluginWidgetFlags.ForceBlur, true);
                 }
@@ -101,16 +103,16 @@ namespace TTTUnturned.Managers
         #region Events
         private void OnEnemyConnected(SteamPlayer steamPlayer)
         {
-            Lobby Lobby = LobbyManager.GetLobby();
+            LobbySession Lobby = LobbyManager.GetLobby();
             LobbyManager.Message($"<color=red>{steamPlayer.playerID.playerName}</color> has joined!");
 
             // Manually call Task.Run since we have to pass parameters
             Task.Run(() =>
             {
-                UIManager.SendBannerMessage(steamPlayer.playerID.steamID, 8494, $"Welcome {steamPlayer.playerID.playerName} to <color=red>TTT</color>", 10000, true);
-                UIManager.SendUIEffectAsync(8498, 8490, steamPlayer.playerID.steamID, true);
-                UIManager.SendUIEffectTextAsync(8490, steamPlayer.playerID.steamID, true, "RoleValue", "WAITING");
-                UIManager.SendUIEffectTextAsync(8490, steamPlayer.playerID.steamID, true, "TimerValue", "00:00");
+                InterfaceManager.SendBannerMessage(steamPlayer.playerID.steamID, 8494, $"Welcome {steamPlayer.playerID.playerName} to <color=red>TTT</color>", 10000, true);
+                InterfaceManager.SendUIEffectAsync(8498, 8490, steamPlayer.playerID.steamID, true);
+                InterfaceManager.SendUIEffectTextAsync(8490, steamPlayer.playerID.steamID, true, "RoleValue", "WAITING");
+                InterfaceManager.SendUIEffectTextAsync(8490, steamPlayer.playerID.steamID, true, "TimerValue", "00:00");
 
                 DisableHUDAsync(steamPlayer);
                 ClearInventoryAsync(steamPlayer);
@@ -121,7 +123,7 @@ namespace TTTUnturned.Managers
 
         public static void OnEnemyDisconnected(SteamPlayer steamPlayer)
         {
-            Lobby Lobby = LobbyManager.GetLobby();
+            LobbySession Lobby = LobbyManager.GetLobby();
             LobbyPlayer lobbyPlayer = LobbyManager.GetLobbyPlayer(steamPlayer.playerID.steamID);
             if (lobbyPlayer is null) return;
 
@@ -148,7 +150,7 @@ namespace TTTUnturned.Managers
                     DamageTool.explode(explodParams, out deadPlayers);
                 }
             }
-            Lobby Lobby = LobbyManager.GetLobby();
+            LobbySession Lobby = LobbyManager.GetLobby();
             if (Lobby.State != LobbyState.LIVE)
             {
                 shouldAllow = false;

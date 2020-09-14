@@ -1,9 +1,9 @@
 ﻿using SDG.Unturned;
 using Steamworks;
-using TTTUnturned.Models;
+using TTTUnturned.API.Lobby;
 using UnityEngine;
 
-namespace TTTUnturned.Managers
+namespace TTTUnturned.API.Players
 {
     public class DropManager : MonoBehaviour
     {
@@ -16,7 +16,7 @@ namespace TTTUnturned.Managers
 
         private void OnPlayerDied(PlayerLife sender, EDeathCause cause, ELimb limb, CSteamID instigator)
         {
-            Lobby lobby = LobbyManager.GetLobby();
+            LobbySession lobby = LobbyManager.GetLobby();
         }
     }
 }

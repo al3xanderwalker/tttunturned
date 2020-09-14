@@ -1,14 +1,9 @@
-﻿using TTTUnturned.Models;
-using Steamworks;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Collections;
-using TTTUnturned.Utils;
+﻿using Steamworks;
+using TTTUnturned.API.Players;
+using TTTUnturned.API.Roles;
+using TTTUnturned.API.Round;
 
-namespace TTTUnturned.Models
+namespace TTTUnturned.API.Lobby
 {
     public class LobbyPlayer
     {

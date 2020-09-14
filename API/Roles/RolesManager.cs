@@ -1,12 +1,15 @@
-﻿using SDG.Unturned;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
-using TTTUnturned.Models;
 using Steamworks;
+using TTTUnturned.API.Lobby;
+using TTTUnturned.API.Players;
+using TTTUnturned.API.Round;
+using TTTUnturned.API.Interface;
+using SDG.Unturned;
 
-namespace TTTUnturned.Managers
+namespace TTTUnturned.API.Roles
 {
     public class RoleManager : MonoBehaviour
     {
@@ -67,7 +70,7 @@ namespace TTTUnturned.Managers
             return players;
         }
 
-        public static void TellRoles(Lobby lobby)
+        public static void TellRoles(LobbySession lobby)
         {
             lobby.Players.ForEach(async player =>
             {
@@ -75,20 +78,20 @@ namespace TTTUnturned.Managers
                 switch (player.Role) {
                     case PlayerRole.INNOCENT:
                         LobbyManager.Message($"You are a <color=lime>Innocent</color>", steamPlayer);
-                        await UIManager.SendUIEffectAsync(8497, 8490, player.SteamID, true);
-                        await UIManager.SendUIEffectTextAsync(8490, player.SteamID, true, "RoleValue", "INNOCENT");
+                        await InterfaceManager.SendUIEffectAsync(8497, 8490, player.SteamID, true);
+                        await InterfaceManager.SendUIEffectTextAsync(8490, player.SteamID, true, "RoleValue", "INNOCENT");
                         break;
                     case PlayerRole.DETECTIVE:
                         LobbyManager.Message($"You are a <color=blue>Detective</color>", steamPlayer);
-                        ItemManager.AddItemAync(steamPlayer, 10);
+                        Level.ItemManager.AddItemAync(steamPlayer, 10);
                         CommandWindow.Log("Gave vest");
-                        await UIManager.SendUIEffectAsync(8496, 8490, player.SteamID, true);
-                        await UIManager.SendUIEffectTextAsync(8490, player.SteamID, true, "RoleValue", "DETECTIVE");
+                        await InterfaceManager.SendUIEffectAsync(8496, 8490, player.SteamID, true);
+                        await InterfaceManager.SendUIEffectTextAsync(8490, player.SteamID, true, "RoleValue", "DETECTIVE");
                         break;
                     case PlayerRole.TERRORIST:
                         LobbyManager.Message($"You are a <color=red>Terrorist</color>", steamPlayer);
-                        await UIManager.SendUIEffectAsync(8499, 8490, player.SteamID, true);
-                        await UIManager.SendUIEffectTextAsync(8490, player.SteamID, true, "RoleValue", "TERRORIST");
+                        await InterfaceManager.SendUIEffectAsync(8499, 8490, player.SteamID, true);
+                        await InterfaceManager.SendUIEffectTextAsync(8490, player.SteamID, true, "RoleValue", "TERRORIST");
                         break;
                 }
             });

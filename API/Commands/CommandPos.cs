@@ -1,9 +1,9 @@
 ﻿using SDG.Unturned;
 using Steamworks;
 using System.Collections.Generic;
-using TTTUnturned.Managers;
+using TTTUnturned.API.Lobby;
 
-namespace TTTUnturned.Commands
+namespace TTTUnturned.API.Commands
 {
     public class CommandPos : Command
     {

@@ -1,7 +1,7 @@
 ﻿using SDG.Unturned;
 using Steamworks;
 
-namespace TTTUnturned.Commands
+namespace TTTUnturned.API.Commands
 {
     public class CommandDiscord : Command
     {

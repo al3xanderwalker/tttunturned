@@ -1,22 +1,19 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using System.Linq;
 using System.Threading.Tasks;
 using SDG.Unturned;
 using TTTUnturned.Utils;
 using Steamworks;
 using System.Collections;
 using UnityEngine;
-using TTTUnturned.Models;
+using TTTUnturned.API.Lobby;
 
-namespace TTTUnturned.Managers
+namespace TTTUnturned.API.Interface
 {
-    public class UIManager : MonoBehaviour
+    public class InterfaceManager : MonoBehaviour
     {
         public void Awake()
         {
-            CommandWindow.Log("UIManager loaded");
+            CommandWindow.Log("InterfaceManager loaded");
 
             EffectManager.onEffectButtonClicked += OnEffectButtonClicked;
         }

@@ -1,6 +1,6 @@
 ﻿using Newtonsoft.Json;
 
-namespace TTTUnturned.Models
+namespace TTTUnturned.API.Level
 {
     public class Spawn
     {

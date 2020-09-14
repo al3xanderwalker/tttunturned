@@ -2,9 +2,8 @@
 using SDG.Unturned;
 using TTTUnturned.Utils;
 using System.Threading.Tasks;
-using UnityEngine;
 
-namespace TTTUnturned.Managers
+namespace TTTUnturned.API.Level
 {
     public class ItemManager
     {

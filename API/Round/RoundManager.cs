@@ -1,19 +1,17 @@
 ﻿using SDG.Unturned;
-using Steamworks;
 using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
-using TTTUnturned.Models;
+using TTTUnturned.API.Interface;
+using TTTUnturned.API.Lobby;
+using TTTUnturned.API.Roles;
 using TTTUnturned.Utils;
 using UnityEngine;
 
-namespace TTTUnturned.Managers
+namespace TTTUnturned.API.Round
 {
     public class RoundManager : MonoBehaviour
     {
-        public static Lobby Lobby;
+        public static LobbySession Lobby;
 
         public void Awake()
         {
@@ -32,7 +30,7 @@ namespace TTTUnturned.Managers
                 {
                     CommandWindow.Log("Innocents win");
                     LobbyManager.Message("<color=lime>Innocents</color> Win!");
-                    await UIManager.SendLobbyBannerMessage(8493, $"Innocents Win!", 10000, true);
+                    await InterfaceManager.SendLobbyBannerMessage(8493, $"Innocents Win!", 10000, true);
                     await Lobby.Stop();
 
                     // Innocents win
@@ -41,7 +39,7 @@ namespace TTTUnturned.Managers
                 {
                     CommandWindow.Log("Terrorist win");
                     LobbyManager.Message("<color=red>Terroists</color> Win!");
-                    await UIManager.SendLobbyBannerMessage(8492, $"Terroists Win!", 10000, true);
+                    await InterfaceManager.SendLobbyBannerMessage(8492, $"Terroists Win!", 10000, true);
                     await Lobby.Stop();
                     // Terrorist win
                 }
@@ -50,7 +48,7 @@ namespace TTTUnturned.Managers
 
         private async Task RoundTick()
         {
-            Lobby lobby = LobbyManager.GetLobby();
+            LobbySession lobby = LobbyManager.GetLobby();
 
             if (lobby.State != LobbyState.LIVE) return;
 
@@ -59,7 +57,7 @@ namespace TTTUnturned.Managers
 
             lobby.Players.ForEach(async player =>
             {
-                await UIManager.SendUIEffectTextAsync(8490, player.SteamID, true, "TimerValue", ParseTime(lobby.RoundTime));
+                await InterfaceManager.SendUIEffectTextAsync(8490, player.SteamID, true, "TimerValue", ParseTime(lobby.RoundTime));
                // await SendUIEffectAsync();
             });
 

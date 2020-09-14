@@ -1,4 +1,4 @@
-﻿namespace TTTUnturned.Models
+﻿namespace TTTUnturned.API.Round
 {
     public enum PlayerStatus
     {

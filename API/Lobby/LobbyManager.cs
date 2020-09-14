@@ -1,18 +1,15 @@
 ﻿using SDG.Unturned;
-using System.Collections.Generic;
 using UnityEngine;
-using TTTUnturned.Models;
 using Steamworks;
-using TTTUnturned.Commands;
 using TTTUnturned.Utils;
-using TTTUnturned.Managers;
 using System.Collections;
+using TTTUnturned.API.Commands;
 
-namespace TTTUnturned.Managers
+namespace TTTUnturned.API.Lobby
 {
     public class LobbyManager : MonoBehaviour
     {
-        public static Lobby Lobby;
+        public static LobbySession Lobby;
 
         public void Awake()
         {
@@ -24,13 +21,13 @@ namespace TTTUnturned.Managers
             Commander.register(new CommandDiscord());
         }
 
-        private Lobby CreateLobbyInitial()
+        private LobbySession CreateLobbyInitial()
         {
-            Lobby createdSession = new Lobby(LobbyState.SETUP);
+            LobbySession createdSession = new LobbySession(LobbyState.SETUP);
             return createdSession;
         }
 
-        public static Lobby GetLobby()
+        public static LobbySession GetLobby()
         {
             return Lobby;
         }

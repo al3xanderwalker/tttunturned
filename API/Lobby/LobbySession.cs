@@ -2,20 +2,21 @@
 using System.Linq;
 using System.Threading.Tasks;
 using SDG.Unturned;
-using TTTUnturned.Managers;
-using TTTUnturned.Utils;
-using UnityEngine;
-using System.Collections;
+using TTTUnturned.API.Interface;
+using TTTUnturned.API.Level;
+using TTTUnturned.API.Players;
+using TTTUnturned.API.Roles;
+using TTTUnturned.API.Round;
 
-namespace TTTUnturned.Models
+namespace TTTUnturned.API.Lobby
 {
-    public class Lobby
+    public class LobbySession
     {
         public LobbyState State { get;  set; }
         public int RoundTime { get; set; }
         public List<LobbyPlayer> Players { get; set; }
 
-        public Lobby(LobbyState state)
+        public LobbySession(LobbyState state)
         {
             State = state;
             RoundTime = Main.Config.RoundLength;
@@ -31,11 +32,11 @@ namespace TTTUnturned.Models
                 State = LobbyState.WAITING;
 
                 LobbyManager.Message("Round starting in <color=red>15</color> seconds");
-                UIManager.SendLobbyBannerMessage(8494, "Round starting in <color=red>15</color> seconds", 5000, true);
+                InterfaceManager.SendLobbyBannerMessage(8494, "Round starting in <color=red>15</color> seconds", 5000, true);
                 await Task.Delay(15000);
 
                 Players = RoleManager.GeneratePlayerRoles(); // Assign all players a role
-                Managers.ItemManager.RespawnItems(); // Spawn items
+                Level.ItemManager.RespawnItems(); // Spawn items
 
                 // Teleport all players to spawn point
                 System.Random rng = new System.Random();
@@ -43,25 +44,25 @@ namespace TTTUnturned.Models
                 Players.ForEach(async player =>
                 {
                     
-                    UIManager.ClearUIEffectAsync(8501, player.SteamID);
+                    InterfaceManager.ClearUIEffectAsync(8501, player.SteamID);
                     SteamPlayer steamPlayer = PlayerTool.getSteamPlayer(player.SteamID);
-                    Managers.PlayerManager.ClearInventoryAsync(steamPlayer);
+                    PlayersManager.ClearInventoryAsync(steamPlayer);
                     steamPlayer.player.life.tellHealth(player.SteamID, 100); // DOES NOT WORK
-                    await Managers.PlayerManager.TeleportToLocationAsync(steamPlayer, Managers.PlayerManager.GetRandomSpawn(spawns));
+                    await PlayersManager.TeleportToLocationAsync(steamPlayer, PlayersManager.GetRandomSpawn(spawns));
                 });
 
                 // Wait 30 seconds before displaying roles and allowing damage
                 LobbyManager.Message("Roles will be assigned in <color=red>15</color> seconds!");
-                UIManager.SendLobbyBannerMessage(8494, "<size=25>Roles will be assigned in <color=red>15</color> seconds!</size>", 5000, true);
+                InterfaceManager.SendLobbyBannerMessage(8494, "<size=25>Roles will be assigned in <color=red>15</color> seconds!</size>", 5000, true);
                 await Task.Delay(15000);
-                Players.ForEach(p => UIManager.ClearStatusUIAsync(p));
+                Players.ForEach(p => InterfaceManager.ClearStatusUIAsync(p));
                 RoleManager.TellRoles(this);
                 State = LobbyState.LIVE;
             }
             else
             {
                 LobbyManager.Message($"<color=red>{Main.Config.MinimumPlayers - Provider.clients.Count}</color> more players needed to start game.");
-                 UIManager.SendLobbyBannerMessage(8494, $"<size=20><color=red>{Main.Config.MinimumPlayers - Provider.clients.Count}</color> more players needed to start game.</size>", 5000, true);
+                 InterfaceManager.SendLobbyBannerMessage(8494, $"<size=20><color=red>{Main.Config.MinimumPlayers - Provider.clients.Count}</color> more players needed to start game.</size>", 5000, true);
             }
         }
 
@@ -79,14 +80,14 @@ namespace TTTUnturned.Models
                     player.Role = PlayerRole.NONE;
                     SteamPlayer ply = PlayerTool.getSteamPlayer(player.SteamID);
                     if (ply is null) return;
-                    UIManager.ClearUIEffectAsync(8501, player.SteamID);
-                    Managers.PlayerManager.ClearInventoryAsync(ply);
-                    Managers.PlayerManager.TeleportToLocationAsync(ply, Managers.PlayerManager.GetRandomSpawn(Main.Config.LobbySpawns));
+                    InterfaceManager.ClearUIEffectAsync(8501, player.SteamID);
+                    PlayersManager.ClearInventoryAsync(ply);
+                    PlayersManager.TeleportToLocationAsync(ply, PlayersManager.GetRandomSpawn(Main.Config.LobbySpawns));
                 }
-                await UIManager.ClearStatusUIAsync(player);
-                await UIManager.SendUIEffectAsync(8498, 8490, player.SteamID, true);
-                await UIManager.SendUIEffectTextAsync(8490, player.SteamID, true, "RoleValue", "WAITING");
-                await UIManager.SendUIEffectTextAsync(8490, player.SteamID, true, "TimerValue", "00:00");
+                await InterfaceManager.ClearStatusUIAsync(player);
+                await InterfaceManager.SendUIEffectAsync(8498, 8490, player.SteamID, true);
+                await InterfaceManager.SendUIEffectTextAsync(8490, player.SteamID, true, "RoleValue", "WAITING");
+                await InterfaceManager.SendUIEffectTextAsync(8490, player.SteamID, true, "TimerValue", "00:00");
             });
 
             await Start();

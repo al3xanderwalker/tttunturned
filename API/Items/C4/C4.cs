@@ -1,37 +1,35 @@
-﻿using System;
+﻿using SDG.Unturned;
+using Steamworks;
+using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using TTTUnturned.Utils;
-using System.Collections;
-using SDG.Unturned;
-using Steamworks;
 
-namespace TTTUnturned.Models
+namespace TTTUnturned.API.Items.C4
 {
-   
-    public class C4
+
+    public class C4 : BarricadeItem
     {
         public bool Defused { get; set; }
         public int TimeLeft { get; set; }
-        public BarricadeRegion Region { get; set; }
-        public BarricadeDrop Drop { get; set; }
 
         public C4(BarricadeRegion region, BarricadeDrop drop, int time)
         {
-            Defused = false;
-            TimeLeft = time;
+            Id = 1;
+            Name = "item_barricade_c4";
+            DisplayName = "C4";
+            ItemType = ItemType.BARRICADE;
             Region = region;
             Drop = drop;
-            CommandWindow.Log("C4 Planted");
-            AsyncHelper.Schedule("RoundTick", C4Tick, 1000);
+            Defused = false;
+            TimeLeft = time;
+            AsyncHelper.Schedule("C4Tick", C4Tick, 1000);
         }
 
         private async Task C4Tick()
         {
             TimeLeft--;
-            if(TimeLeft == 0)
+            if (TimeLeft == 0)
             {
                 UnityThread.executeCoroutine(C4DetonateCoroutine());
             }
@@ -50,5 +48,6 @@ namespace TTTUnturned.Models
 
             yield return null;
         }
+
     }
 }

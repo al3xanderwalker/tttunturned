@@ -4,7 +4,13 @@ using SDG.Unturned;
 using System.IO;
 using System.Reflection;
 using UnityEngine;
-using TTTUnturned.Managers;
+using TTTUnturned.API.Items.C4.C4Manager;
+using TTTUnturned.API.Level;
+using TTTUnturned.API.Interface;
+using TTTUnturned.API.Lobby;
+using TTTUnturned.API.Players;
+using TTTUnturned.API.Round;
+using TTTUnturned.API.Roles;
 
 namespace TTTUnturned
 {
@@ -30,16 +36,16 @@ namespace TTTUnturned
 
             CommandWindow.Log($"DEBUG MODE: {Config.DebugMode}");
             // Level Config
-            LevelConfigManager.SetConfig();
+            LevelConfig.SetConfig();
 
             // Load our module as a gameObject
             TTTUnturnedObject = new GameObject("TTTUnturned");
             DontDestroyOnLoad(TTTUnturnedObject);
 
             // Add managers as gameObject components
-            TTTUnturnedObject.AddComponent<UIManager>();
+            TTTUnturnedObject.AddComponent<InterfaceManager>();
             TTTUnturnedObject.AddComponent<LobbyManager>();
-            TTTUnturnedObject.AddComponent<Managers.PlayerManager>();
+            TTTUnturnedObject.AddComponent<PlayersManager>();
             TTTUnturnedObject.AddComponent<RoundManager>();
             TTTUnturnedObject.AddComponent<RoleManager>();
             TTTUnturnedObject.AddComponent<DropManager>();

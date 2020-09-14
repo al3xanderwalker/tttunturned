@@ -1,7 +1,7 @@
 ﻿using Newtonsoft.Json;
 using System.Collections.Generic;
 
-namespace TTTUnturned.Models
+namespace TTTUnturned.API.Level
 {
     public class Map
     {
