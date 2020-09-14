@@ -85,7 +85,6 @@ namespace TTTUnturned.API.Roles
                     case Role.DETECTIVE:
                         RoundManager.Broadcast($"You are a <color=blue>Detective</color>", steamPlayer);
                         Level.ItemManager.AddItemAync(steamPlayer, 10);
-                        CommandWindow.Log("Gave vest");
                         await InterfaceManager.SendUIEffectAsync(8496, 8490, player.SteamID, true);
                         await InterfaceManager.SendUIEffectTextAsync(8490, player.SteamID, true, "RoleValue", "DETECTIVE");
                         break;

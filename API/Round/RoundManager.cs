@@ -81,7 +81,6 @@ namespace TTTUnturned.API.Round
             {
                 if (GetAlive(Role.TRAITOR).Count == 0)
                 {
-                    CommandWindow.Log("Innocents win");
                     Broadcast("<color=lime>Innocents</color> Win!");
                     await InterfaceManager.SendLobbyBannerMessage(8493, $"Innocents Win!", 10000, true);
                     await RoundSession.Stop();
@@ -89,7 +88,6 @@ namespace TTTUnturned.API.Round
                 }
                 if (GetAlive(Role.DETECTIVE).Count == 0 && GetAlive(Role.INNOCENT).Count == 0)
                 {
-                    CommandWindow.Log("Terrorist win");
                     Broadcast("<color=red>Terroists</color> Win!");
                     await InterfaceManager.SendLobbyBannerMessage(8492, $"Terroists Win!", 10000, true);
                     await RoundSession.Stop();
@@ -105,7 +103,6 @@ namespace TTTUnturned.API.Round
             if (RoundSession.State != RoundState.LIVE) return;
 
             RoundSession.RoundTime--;
-            if(Main.Config.DebugMode) CommandWindow.Log(RoundSession.RoundTime);
 
             RoundSession.Players.ForEach(async player =>
             {
@@ -120,7 +117,6 @@ namespace TTTUnturned.API.Round
 
             if (RoundSession.RoundTime == 0)
             {
-                CommandWindow.Log("Innocents win");
                 Broadcast("<color=lime>Innocents</color> Win!");
 
                 await RoundSession.Stop();

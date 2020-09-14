@@ -12,19 +12,17 @@ namespace TTTUnturned.API.Items.C4.C4Manager
             CommandWindow.Log("C4Manager loaded");
 
             BarricadeManager.onBarricadeSpawned += OnBarricadeSpawned;
-            BarricadeManager.onDamageBarricadeRequested += OnDamageBarricadeRequested;
+            BarricadeManager.onSalvageBarricadeRequested += OnSalvageBarricadeRequested;
         }
 
-        public void OnDamageBarricadeRequested(CSteamID instigatorSteamID, Transform barricadeTransform, ref ushort pendingTotalDamage, ref bool shouldAllow, EDamageOrigin damageOrigin)
+        public void OnSalvageBarricadeRequested(CSteamID steamID, byte x, byte y, ushort plant, ushort index, ref bool shouldAllow)
         {
-            CommandWindow.Log($"Damange origin: {damageOrigin}");
-            // if (barricadeTransform.name.ToString() == "1241") shouldAllow = false;
+            shouldAllow = false;
         }
 
         public void OnBarricadeSpawned(BarricadeRegion region, BarricadeDrop drop)
         {
             if (drop.asset.id != 1241) return;
-            CommandWindow.Log(drop.asset.id);
 
             SpawnC4Barricade(region, drop, 10);
         }

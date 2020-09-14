@@ -62,7 +62,7 @@ namespace TTTUnturned.API.Players
 
             keyCooldowns.Add(player.channel.owner.playerID.steamID, DateTimeOffset.UtcNow.ToUnixTimeMilliseconds());
 
-            if (tttPlayer.Role == Roles.Role.TRAITOR )
+            if (tttPlayer.Role == Role.TRAITOR )
             {
                 if (tttPlayer.UIToggled)
                 {
