@@ -12,10 +12,11 @@ using TTTUnturned.API.Round;
 using TTTUnturned.API.Interface;
 using TTTUnturned.API.Roles;
 using TTTUnturned.API.Core;
+using System.Linq;
 
 namespace TTTUnturned.API.Players
 {
-    public class PlayersManager : MonoBehaviour, IObjectComponent
+    public class PlayerManager : MonoBehaviour, IObjectComponent
     {
         private static Dictionary<CSteamID, long> keyCooldowns;
 
@@ -25,50 +26,29 @@ namespace TTTUnturned.API.Players
 
             keyCooldowns = new Dictionary<CSteamID, long>();
 
-            Provider.onEnemyConnected += OnEnemyConnected;
-            Provider.onEnemyDisconnected += OnEnemyDisconnected;
             DamageTool.damagePlayerRequested += OnDamageRequested;
             PlayerLife.onPlayerDied += OnPlayerDied;
             PlayerInput.onPluginKeyTick += OnPluginKeyTick;
+            Provider.onEnemyConnected += OnEnemyConnected;
             // UseableThrowable.onThrowableSpawned += OnThrowableSpawned;
         }
-        /* Me experimenting with an idea but i still dont have a fucking clue how raycasting works lmao
-        private void OnThrowableSpawned(UseableThrowable useable, GameObject throwable)
+
+        private void OnEnemyConnected(SteamPlayer steamPlayer)
         {
-            CommandWindow.Log("Throwable lobbed");
-            RaycastInfo raycast = DamageTool.raycast(new Ray(useable.player.look.aim.position, useable.player.look.aim.forward), 500f, RayMasks.GROUND);
-            if (raycast.transform is null) return;
-            Transform target = raycast.collider?.transform;
-            if (target is null) return;
-            CommandWindow.Log(target);
-            CommandWindow.Log($"name({target.name.ToUpper()})");
-            if(target.name.ToUpper() == "GROUND")
-            {
-                CommandWindow.Log("teleported");
-                EffectManager.sendEffect(120, 30, target.position);
-                useable.player.teleportToLocation(target.position,0f);
-                
-            }
-            if (raycast.vehicle != null)
-            {
-                CommandWindow.Log($"vehicle id: {raycast.vehicle.name}");
-            }
-            else
-            {
-                CommandWindow.Log(raycast.transform.position);
-                
-            }
+            InterfaceManager.DisableExtraHUD(steamPlayer.playerID.steamID);
         }
-        */
+
+        public static TTTPlayer GetTTTPlayer(CSteamID steamID) => RoundManager.GetPlayers().FirstOrDefault(p => p.SteamID == steamID);
+
         private void OnPluginKeyTick(Player player, uint simulation, byte key, bool state)
         {
             if (!state || key != 0) return;
 
-            LobbyPlayer lobbyPlayer = LobbyManager.GetLobbyPlayer(player.channel.owner.playerID.steamID);
-            if (lobbyPlayer is null) return;
+            TTTPlayer tttPlayer = PlayerManager.GetTTTPlayer(player.channel.owner.playerID.steamID);
+            if (tttPlayer is null) return;
 
-            if (lobbyPlayer.Status == PlayerStatus.DEAD) return;
-            if (LobbyManager.GetLobby().State != LobbyState.LIVE) return;
+            if (tttPlayer.Status == Status.DEAD) return;
+            if (RoundManager.GetRoundSessionState() != RoundState.LIVE) return;
 
 
             if (keyCooldowns.ContainsKey(player.channel.owner.playerID.steamID))
@@ -82,19 +62,19 @@ namespace TTTUnturned.API.Players
 
             keyCooldowns.Add(player.channel.owner.playerID.steamID, DateTimeOffset.UtcNow.ToUnixTimeMilliseconds());
 
-            if (lobbyPlayer.Role == PlayerRole.TERRORIST )
+            if (tttPlayer.Role == Roles.Role.TRAITOR )
             {
-                if (lobbyPlayer.UIToggled)
+                if (tttPlayer.UIToggled)
                 {
-                    lobbyPlayer.UIToggled = false;
-                    InterfaceManager.ClearUIEffectAsync(8501, lobbyPlayer.SteamID);
+                    tttPlayer.UIToggled = false;
+                    InterfaceManager.ClearUIEffectAsync(8501, tttPlayer.SteamID);
                     player.setPluginWidgetFlag(EPluginWidgetFlags.Modal, false);
                     player.setPluginWidgetFlag(EPluginWidgetFlags.ForceBlur, false);
                 }
                 else
                 {
-                    lobbyPlayer.UIToggled = true;
-                    InterfaceManager.SendUIEffectAsync(8501, 8470, lobbyPlayer.SteamID, true);
+                    tttPlayer.UIToggled = true;
+                    InterfaceManager.SendUIEffectAsync(8501, 8470, tttPlayer.SteamID, true);
                     player.setPluginWidgetFlag(EPluginWidgetFlags.Modal, true);
                     player.setPluginWidgetFlag(EPluginWidgetFlags.ForceBlur, true);
                 }
@@ -102,36 +82,6 @@ namespace TTTUnturned.API.Players
         }
 
         #region Events
-        private void OnEnemyConnected(SteamPlayer steamPlayer)
-        {
-            LobbySession Lobby = LobbyManager.GetLobby();
-            LobbyManager.Message($"<color=red>{steamPlayer.playerID.playerName}</color> has joined!");
-
-            // Manually call Task.Run since we have to pass parameters
-            Task.Run(() =>
-            {
-                InterfaceManager.SendBannerMessage(steamPlayer.playerID.steamID, 8494, $"Welcome {steamPlayer.playerID.playerName} to <color=red>TTT</color>", 10000, true);
-                InterfaceManager.SendUIEffectAsync(8498, 8490, steamPlayer.playerID.steamID, true);
-                InterfaceManager.SendUIEffectTextAsync(8490, steamPlayer.playerID.steamID, true, "RoleValue", "WAITING");
-                InterfaceManager.SendUIEffectTextAsync(8490, steamPlayer.playerID.steamID, true, "TimerValue", "00:00");
-
-                DisableHUDAsync(steamPlayer);
-                ClearInventoryAsync(steamPlayer);
-                TeleportToLocationAsync(steamPlayer, GetRandomSpawn(Main.Config.LobbySpawns));
-                Lobby.Start();
-            });
-        }
-
-        public static void OnEnemyDisconnected(SteamPlayer steamPlayer)
-        {
-            LobbySession Lobby = LobbyManager.GetLobby();
-            LobbyPlayer lobbyPlayer = LobbyManager.GetLobbyPlayer(steamPlayer.playerID.steamID);
-            if (lobbyPlayer is null) return;
-
-            Lobby.Players.Remove(lobbyPlayer);
-            RoundManager.CheckWin();
-        }
-
         private void OnDamageRequested(ref DamagePlayerParameters parameters, ref bool shouldAllow)
         {
             parameters.respectArmor = true;
@@ -151,8 +101,8 @@ namespace TTTUnturned.API.Players
                     DamageTool.explode(explodParams, out deadPlayers);
                 }
             }
-            LobbySession Lobby = LobbyManager.GetLobby();
-            if (Lobby.State != LobbyState.LIVE)
+
+            if (RoundManager.GetRoundSessionState() != RoundState.LIVE)
             {
                 shouldAllow = false;
             }
@@ -167,10 +117,10 @@ namespace TTTUnturned.API.Players
             });
             sender.sendRevive();
 
-            LobbyPlayer player = LobbyManager.GetLobbyPlayer(sender.channel.owner.playerID.steamID);
-            if (player is null || player.Status == PlayerStatus.DEAD) return;
+            TTTPlayer player = GetTTTPlayer(sender.channel.owner.playerID.steamID);
+            if (player is null || player.Status == Status.DEAD) return;
 
-            player.Status = PlayerStatus.DEAD;
+            player.Status = Status.DEAD;
             RoundManager.CheckWin();
         }
         #endregion

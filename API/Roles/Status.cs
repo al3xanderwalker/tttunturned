@@ -1,6 +1,6 @@
 ﻿namespace TTTUnturned.API.Round
 {
-    public enum PlayerStatus
+    public enum Status
     {
         ALIVE,
         DEAD,

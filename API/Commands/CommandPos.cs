@@ -2,6 +2,7 @@
 using Steamworks;
 using System.Collections.Generic;
 using TTTUnturned.API.Lobby;
+using TTTUnturned.API.Round;
 
 namespace TTTUnturned.API.Commands
 {
@@ -13,7 +14,7 @@ namespace TTTUnturned.API.Commands
             if (ply is null) return;
 
             CommandWindow.Log(ply.player.transform.position.ToString());
-            LobbyManager.Message(ply.player.transform.position.ToString(), ply);
+            RoundManager.Broadcast(ply.player.transform.position.ToString(), ply);
 
             List<EPlayerKill> deadPlayers = new List<EPlayerKill>();
             EffectManager.sendEffect(45, byte.MaxValue, byte.MaxValue, byte.MaxValue, ply.player.transform.position);

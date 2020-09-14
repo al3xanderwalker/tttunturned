@@ -1,10 +1,10 @@
 ﻿namespace TTTUnturned.API.Roles
 {
-    public enum PlayerRole
+    public enum Role
     {
         NONE,
         INNOCENT,
-        TERRORIST,
+        TRAITOR,
         DETECTIVE
     }
 }

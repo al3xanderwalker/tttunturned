@@ -17,7 +17,7 @@ namespace TTTUnturned.API.Players
 
         private void OnPlayerDied(PlayerLife sender, EDeathCause cause, ELimb limb, CSteamID instigator)
         {
-            LobbySession lobby = LobbyManager.GetLobby();
+
         }
     }
 }

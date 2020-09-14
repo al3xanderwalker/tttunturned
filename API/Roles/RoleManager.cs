@@ -19,10 +19,10 @@ namespace TTTUnturned.API.Roles
             CommandWindow.Log("RoleManager loaded");
         }
 
-        public static List<LobbyPlayer> GeneratePlayerRoles()
+        public static List<TTTPlayer> GeneratePlayerRoles()
         {
             List<CSteamID> tickets = new List<CSteamID>();
-            List<LobbyPlayer> players = new List<LobbyPlayer>();
+            List<TTTPlayer> players = new List<TTTPlayer>();
 
             Provider.clients.ToList().ForEach(player => // SteamPlayer
             {
@@ -49,7 +49,7 @@ namespace TTTUnturned.API.Roles
             for (var i = 0; i < terroistCount; i++)
             {
                 CSteamID test = tickets[rng.Next(tickets.Count)];
-                LobbyPlayer terroist = new LobbyPlayer(test, PlayerRole.TERRORIST, PlayerRank.NONE, PlayerStatus.ALIVE);
+                TTTPlayer terroist = new TTTPlayer(test, Role.TRAITOR, Rank.NONE, Status.ALIVE);
                 players.Add(terroist);
                 tickets.RemoveAll(x => x == test);
             }
@@ -57,40 +57,40 @@ namespace TTTUnturned.API.Roles
             for (var i = 0; i < detectiveCount; i++)
             {
                 CSteamID test = tickets[rng.Next(tickets.Count)];
-                LobbyPlayer detective = new LobbyPlayer(test, PlayerRole.DETECTIVE, PlayerRank.NONE, PlayerStatus.ALIVE);
+                TTTPlayer detective = new TTTPlayer(test, Role.DETECTIVE, Rank.NONE, Status.ALIVE);
                 players.Add(detective);
                 tickets.RemoveAll(x => x == test);
             }
 
             tickets.ToList().ForEach(ticket =>
             {
-                LobbyPlayer innocent = new LobbyPlayer(ticket, PlayerRole.INNOCENT, PlayerRank.NONE, PlayerStatus.ALIVE);
+                TTTPlayer innocent = new TTTPlayer(ticket, Role.INNOCENT, Rank.NONE, Status.ALIVE);
                 players.Add(innocent);
                 tickets.RemoveAll(x => x == ticket);
             });
             return players;
         }
 
-        public static void TellRoles(LobbySession lobby)
+        public static void TellRoles(List<TTTPlayer> players)
         {
-            lobby.Players.ForEach(async player =>
+            players.ForEach(async player =>
             {
                 SteamPlayer steamPlayer = PlayerTool.getSteamPlayer(player.SteamID);
                 switch (player.Role) {
-                    case PlayerRole.INNOCENT:
-                        LobbyManager.Message($"You are a <color=lime>Innocent</color>", steamPlayer);
+                    case Role.INNOCENT:
+                        RoundManager.Broadcast($"You are a <color=lime>Innocent</color>", steamPlayer);
                         await InterfaceManager.SendUIEffectAsync(8497, 8490, player.SteamID, true);
                         await InterfaceManager.SendUIEffectTextAsync(8490, player.SteamID, true, "RoleValue", "INNOCENT");
                         break;
-                    case PlayerRole.DETECTIVE:
-                        LobbyManager.Message($"You are a <color=blue>Detective</color>", steamPlayer);
+                    case Role.DETECTIVE:
+                        RoundManager.Broadcast($"You are a <color=blue>Detective</color>", steamPlayer);
                         Level.ItemManager.AddItemAync(steamPlayer, 10);
                         CommandWindow.Log("Gave vest");
                         await InterfaceManager.SendUIEffectAsync(8496, 8490, player.SteamID, true);
                         await InterfaceManager.SendUIEffectTextAsync(8490, player.SteamID, true, "RoleValue", "DETECTIVE");
                         break;
-                    case PlayerRole.TERRORIST:
-                        LobbyManager.Message($"You are a <color=red>Terrorist</color>", steamPlayer);
+                    case Role.TRAITOR:
+                        RoundManager.Broadcast($"You are a <color=red>Terrorist</color>", steamPlayer);
                         await InterfaceManager.SendUIEffectAsync(8499, 8490, player.SteamID, true);
                         await InterfaceManager.SendUIEffectTextAsync(8490, player.SteamID, true, "RoleValue", "TERRORIST");
                         break;

@@ -7,6 +7,7 @@ using System.Collections;
 using UnityEngine;
 using TTTUnturned.API.Lobby;
 using TTTUnturned.API.Core;
+using TTTUnturned.API.Round;
 
 namespace TTTUnturned.API.Interface
 {
@@ -39,32 +40,32 @@ namespace TTTUnturned.API.Interface
                         player.inventory.forceAddItem(new Item(1241, true), true);
                         player.inventory.forceAddItem(new Item(1240, true), true);
                         SteamPlayer ply = Provider.clients.ToList().Find(x => x.player == player);
-                        LobbyManager.Message("You redeemed C4", ply);
+                        RoundManager.Broadcast("You redeemed C4", ply);
                         break;
                     case "CoughSyrupButton":
                         player.inventory.forceAddItem(new Item(404, true), true);
                         SteamPlayer ply1 = Provider.clients.ToList().Find(x => x.player == player);
-                        LobbyManager.Message("You redeemed Cough Syrup", ply1);
+                        RoundManager.Broadcast("You redeemed Cough Syrup", ply1);
                         break;
                     case "KnifeButton":
                         player.inventory.forceAddItem(new Item(140, true), true);
                         SteamPlayer ply2 = Provider.clients.ToList().Find(x => x.player == player);
-                        LobbyManager.Message("You redeemed Knife", ply2);
+                        RoundManager.Broadcast("You redeemed Knife", ply2);
                         break;
                     case "LMGButton":
                         player.inventory.forceAddItem(new Item(126, true), true);
                         SteamPlayer ply3 = Provider.clients.ToList().Find(x => x.player == player);
-                        LobbyManager.Message("You redeemed LMG", ply3);
+                        RoundManager.Broadcast("You redeemed LMG", ply3);
                         break;
                     case "SupressedPistol":
                         player.inventory.forceAddItem(new Item(126, true), true);
                         SteamPlayer ply4 = Provider.clients.ToList().Find(x => x.player == player);
-                        LobbyManager.Message("You redeemed Suppresed Pistol", ply4);
+                        RoundManager.Broadcast("You redeemed Suppresed Pistol", ply4);
                         break;
                     case "BombVestButton":
                         player.inventory.forceAddItem(new Item(1013, true), true);
                         SteamPlayer ply5 = Provider.clients.ToList().Find(x => x.player == player);
-                        LobbyManager.Message("You redeemed Bomb Vest", ply5);
+                        RoundManager.Broadcast("You redeemed Bomb Vest", ply5);
                         break;
                 }
             }
@@ -78,7 +79,7 @@ namespace TTTUnturned.API.Interface
             });
         }
 
-        public static async Task ClearStatusUIAsync(LobbyPlayer player)
+        public static async Task ClearStatusUIAsync(TTTPlayer player)
         {
             ClearUIEffectAsync(8497, player.SteamID);
             ClearUIEffectAsync(8499, player.SteamID);
@@ -124,6 +125,23 @@ namespace TTTUnturned.API.Interface
         private static IEnumerator SendUIEffectTextCoroutine(short key, CSteamID steamID, bool reliable, string component, string text)
         {
             EffectManager.sendUIEffectText(key, steamID, reliable, component, text);
+            yield return null;
+        }
+
+        public static void DisableExtraHUD(CSteamID steamID)
+        {
+            UnityThread.executeCoroutine(DisableExtraHUDCoroutine(steamID));
+        } 
+
+        private static IEnumerator DisableExtraHUDCoroutine(CSteamID steamID)
+        {
+            Player ply = PlayerTool.getPlayer(steamID);
+            if (ply is null) yield return null;
+
+            ply.setPluginWidgetFlag(EPluginWidgetFlags.ShowFood, false);
+            ply.setPluginWidgetFlag(EPluginWidgetFlags.ShowWater, false);
+            ply.setPluginWidgetFlag(EPluginWidgetFlags.ShowVirus, false);
+            ply.setPluginWidgetFlag(EPluginWidgetFlags.ShowOxygen, false);
             yield return null;
         }
     }

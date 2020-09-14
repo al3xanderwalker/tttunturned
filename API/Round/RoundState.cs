@@ -1,9 +1,9 @@
 ﻿namespace TTTUnturned.API.Lobby
 {
-    public enum LobbyState
+    public enum RoundState
     {
-        SETUP,
         WAITING,
+        WARMUP,
         LIVE
     }
 }

@@ -1,6 +1,6 @@
 ﻿namespace TTTUnturned.API.Players
 {
-    public enum PlayerRank
+    public enum Rank
     {
         NONE,
         VIP
