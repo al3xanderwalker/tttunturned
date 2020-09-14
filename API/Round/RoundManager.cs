@@ -12,12 +12,9 @@ namespace TTTUnturned.API.Round
 {
     public class RoundManager : MonoBehaviour, IObjectComponent
     {
-        public static LobbySession Lobby;
 
         public void Awake()
         {
-            Lobby = LobbyManager.GetLobby();
-
             CommandWindow.Log("RoundManager loaded");
 
             AsyncHelper.Schedule("RoundTick", RoundTick, 1000);
@@ -25,23 +22,24 @@ namespace TTTUnturned.API.Round
 
         public static void CheckWin()
         {
+            LobbySession lobby = LobbyManager.GetLobby();
             Task.Run(async () =>
             {
-                if (Lobby.GetAlive(PlayerRole.TERRORIST).Count == 0)
+                if (lobby.GetAlive(PlayerRole.TERRORIST).Count == 0)
                 {
                     CommandWindow.Log("Innocents win");
                     LobbyManager.Message("<color=lime>Innocents</color> Win!");
                     await InterfaceManager.SendLobbyBannerMessage(8493, $"Innocents Win!", 10000, true);
-                    await Lobby.Stop();
+                    await lobby.Stop();
 
                     // Innocents win
                 }
-                if (Lobby.GetAlive(PlayerRole.DETECTIVE).Count == 0 && Lobby.GetAlive(PlayerRole.INNOCENT).Count == 0)
+                if (lobby.GetAlive(PlayerRole.DETECTIVE).Count == 0 && lobby.GetAlive(PlayerRole.INNOCENT).Count == 0)
                 {
                     CommandWindow.Log("Terrorist win");
                     LobbyManager.Message("<color=red>Terroists</color> Win!");
                     await InterfaceManager.SendLobbyBannerMessage(8492, $"Terroists Win!", 10000, true);
-                    await Lobby.Stop();
+                    await lobby.Stop();
                     // Terrorist win
                 }
             });
@@ -72,7 +70,7 @@ namespace TTTUnturned.API.Round
                 CommandWindow.Log("Innocents win");
                 LobbyManager.Message("<color=lime>Innocents</color> Win!");
 
-                await Lobby.Stop();
+                await lobby.Stop();
                 //AsyncHelper.RunAsync("LobbyStopRoundTime", Lobby.Stop);
                 return;
             }

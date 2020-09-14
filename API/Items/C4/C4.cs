@@ -45,6 +45,15 @@ namespace TTTUnturned.API.Items.C4
             List<EPlayerKill> deadPlayers = new List<EPlayerKill>();
             DamageTool.explode(parameters, out deadPlayers);
             // Region.destroy(); // DESTROYS IT BUT doesnt delete the in game model
+            byte x;
+            byte y;
+            ushort plant;
+            ushort index;
+            BarricadeRegion region;
+
+            if (!BarricadeManager.tryGetInfo(Drop.model.transform, out x, out y, out plant, out index, out region)) yield return null;
+
+            BarricadeManager.destroyBarricade(region, x, y, plant, index);
 
             yield return null;
         }
