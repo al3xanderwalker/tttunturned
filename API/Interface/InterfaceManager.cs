@@ -95,7 +95,7 @@ namespace TTTUnturned.API.Interface
             {
                 long lastPressed = keyCooldowns[player.channel.owner.playerID.steamID];
                 // 1 second key cooldown on menu
-                if (DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() - lastPressed < 1000) return;
+                if (DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() - lastPressed < 300) return;
 
                 keyCooldowns.Remove(player.channel.owner.playerID.steamID);
             }
