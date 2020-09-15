@@ -1,142 +1,42 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
+﻿using SDG.Unturned;
 using Steamworks;
-using SDG.Unturned;
-using TTTUnturned.Utils;
+using System;
 using System.Collections;
-using UnityEngine;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+using TTTUnturned.API.Core;
+using TTTUnturned.API.Interface;
 using TTTUnturned.API.Level;
 using TTTUnturned.API.Lobby;
-using TTTUnturned.API.Round;
-using TTTUnturned.API.Interface;
 using TTTUnturned.API.Roles;
-using TTTUnturned.API.Core;
-using System.Linq;
+using TTTUnturned.API.Round;
+using TTTUnturned.Utils;
+using UnityEngine;
 
 namespace TTTUnturned.API.Players
 {
     public class PlayerManager : MonoBehaviour, IObjectComponent
     {
-        private static Dictionary<CSteamID, long> keyCooldowns;
 
         public void Awake()
         {
             CommandWindow.Log("PlayerManager loaded");
 
-            keyCooldowns = new Dictionary<CSteamID, long>();
-
             DamageTool.damagePlayerRequested += OnDamageRequested;
             PlayerLife.onPlayerDied += OnPlayerDied;
-            PlayerInput.onPluginKeyTick += OnPluginKeyTick;
             Provider.onEnemyConnected += OnEnemyConnected;
-            // UseableThrowable.onThrowableSpawned += OnThrowableSpawned;
         }
-
+        #region Events
         private void OnEnemyConnected(SteamPlayer steamPlayer)
         {
-            InterfaceManager.DisableExtraHUD(steamPlayer.playerID.steamID);
             ClearInventoryAsync(steamPlayer);
-            // Heal player
-            InterfaceManager.SendUIEffectAsync(8498, 8490, steamPlayer.playerID.steamID, true);
-            InterfaceManager.SendUIEffectTextAsync(8490, steamPlayer.playerID.steamID, true, "RoleValue", "WAITING");
-            InterfaceManager.SendUIEffectTextAsync(8490, steamPlayer.playerID.steamID, true, "TimerValue", "00:00");
         }
 
-        public static TTTPlayer GetTTTPlayer(CSteamID steamID) => RoundManager.GetPlayers().FirstOrDefault(p => p.SteamID == steamID);
-
-        private void OnPluginKeyTick(Player player, uint simulation, byte key, bool state)
-        {
-            if (!state) return;
-            if (key == 0)
-            {
-                TTTPlayer tttPlayer = GetTTTPlayer(player.channel.owner.playerID.steamID);
-                if (tttPlayer is null) return;
-
-                if (tttPlayer.Status == Status.DEAD) return;
-                if (RoundManager.GetRoundSessionState() != RoundState.LIVE) return;
-
-
-                if (keyCooldowns.ContainsKey(player.channel.owner.playerID.steamID))
-                {
-                    long lastPressed = keyCooldowns[player.channel.owner.playerID.steamID];
-                    // 1 second key cooldown on menu
-                    if (DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() - lastPressed < 1000) return;
-
-                    keyCooldowns.Remove(player.channel.owner.playerID.steamID);
-                }
-
-                keyCooldowns.Add(player.channel.owner.playerID.steamID, DateTimeOffset.UtcNow.ToUnixTimeMilliseconds());
-
-                if (tttPlayer.Role == Role.TRAITOR)
-                {
-                    if (tttPlayer.UIToggled)
-                    {
-                        tttPlayer.UIToggled = false;
-                        InterfaceManager.ClearUIEffectAsync(8501, tttPlayer.SteamID);
-                        player.setPluginWidgetFlag(EPluginWidgetFlags.Modal, false);
-                        player.setPluginWidgetFlag(EPluginWidgetFlags.ForceBlur, false);
-                    }
-                    else
-                    {
-                        tttPlayer.UIToggled = true;
-                        InterfaceManager.SendUIEffectAsync(8501, 8470, tttPlayer.SteamID, true);
-                        player.setPluginWidgetFlag(EPluginWidgetFlags.Modal, true);
-                        player.setPluginWidgetFlag(EPluginWidgetFlags.ForceBlur, true);
-                    }
-                }
-            }
-            else if(key == 1)
-            {
-                if (player.clothing.vest.ToString() == "1013")
-                {
-                    player.clothing.askWearVest(0, 0, new byte[0], true); // Doesnt work and needs fixing
-                    /*
-                    parameters.player.inventory.items[2].items.ForEach(item =>
-                    {
-                        if (item.item.id == 1013) ply.inventory.items[2].removeItem(ply.inventory.items[2].getIndex(item.x, item.y));
-                    });
-                    */
-                    ExplosionParameters explodParams = new ExplosionParameters(player.transform.position, 10f, EDeathCause.KILL, CSteamID.Nil);
-                    explodParams.penetrateBuildables = true;
-                    explodParams.playerDamage = 150;
-                    explodParams.damageRadius = 32;
-                    explodParams.barricadeDamage = 1000;
-                    List<EPlayerKill> deadPlayers = new List<EPlayerKill>();
-                    EffectManager.sendEffect(45, byte.MaxValue, byte.MaxValue, byte.MaxValue, player.transform.position);
-                    DamageTool.explode(explodParams, out deadPlayers);
-                }
-            }
-        }
-
-        #region Events
         private void OnDamageRequested(ref DamagePlayerParameters parameters, ref bool shouldAllow)
         {
-            CommandWindow.Log($"OnDamageReuqested: {parameters.damage}");
             // 30% damage reduction
             if (GetTTTPlayer(parameters.player.channel.owner.playerID.steamID).Armor) parameters.damage = parameters.damage * 0.70f;
-
-            if (parameters.damage >= parameters.player.life.health)
-            {
-                if(parameters.player.clothing.vest.ToString() == "1013")
-                {
-                    parameters.player.clothing.askWearVest(0, 0, new byte[0], true); // Doesnt work and needs fixing
-                    /*
-                    parameters.player.inventory.items[2].items.ForEach(item =>
-                    {
-                        if (item.item.id == 1013) ply.inventory.items[2].removeItem(ply.inventory.items[2].getIndex(item.x, item.y));
-                    });
-                    */
-                    ExplosionParameters explodParams = new ExplosionParameters(parameters.player.transform.position, 10f, EDeathCause.KILL, CSteamID.Nil);
-                    explodParams.penetrateBuildables = true;
-                    explodParams.playerDamage = 150;
-                    explodParams.damageRadius = 32;
-                    explodParams.barricadeDamage = 1000;
-                    List<EPlayerKill> deadPlayers = new List<EPlayerKill>();
-                    EffectManager.sendEffect(45, byte.MaxValue, byte.MaxValue, byte.MaxValue, parameters.player.transform.position);
-                    DamageTool.explode(explodParams, out deadPlayers);
-                }
-            }
 
             if (RoundManager.GetRoundSessionState() != RoundState.LIVE)
             {
@@ -160,12 +60,32 @@ namespace TTTUnturned.API.Players
             RoundManager.CheckWin();
         }
         #endregion
+        #region Functions
+        public static TTTPlayer GetTTTPlayer(CSteamID steamID) => RoundManager.GetPlayers().FirstOrDefault(p => p.SteamID == steamID);
 
         public static async Task ClearInventoryAsync(SteamPlayer player)
         {
             UnityThread.executeCoroutine(ClearInventoryCoroutine(player));
         }
 
+        public static async Task TeleportToLocationAsync(SteamPlayer steamPlayer, Vector3 location)
+        {
+            UnityThread.executeCoroutine(TeleportToLocationCoroutine(steamPlayer, location));
+        }
+
+        public static async Task DisableHUDAsync(SteamPlayer player)
+        {
+            UnityThread.executeCoroutine(DisableHUDCoroutine(player));
+        }
+
+        public static Vector3 GetRandomSpawn(List<Spawn> spawns)
+        {
+            System.Random rng = new System.Random();
+            int t = rng.Next(spawns.Count);
+            return new Vector3(spawns[t].X, spawns[t].Y, spawns[t].Z);
+        }
+        #endregion
+        #region Couroutines
         private static IEnumerator ClearInventoryCoroutine(SteamPlayer player)
         {
             for (byte page = 0; page < 6; page++)
@@ -182,7 +102,8 @@ namespace TTTUnturned.API.Players
                     */
                 }
             }
-            System.Action removeUnequipped = () => {
+            System.Action removeUnequipped = () =>
+            {
                 for (byte i = 0; i < player.player.inventory.getItemCount(2); i++)
                 {
                     player.player.inventory.removeItem(2, 0);
@@ -205,21 +126,11 @@ namespace TTTUnturned.API.Players
             yield return null;
         }
 
-        public static async Task TeleportToLocationAsync(SteamPlayer steamPlayer, Vector3 location)
-        {
-            UnityThread.executeCoroutine(TeleportToLocationCoroutine(steamPlayer, location));
-        }
-
         private static IEnumerator TeleportToLocationCoroutine(SteamPlayer steamPlayer, Vector3 location)
         {
             steamPlayer.player.teleportToLocation(location, 0f);
 
             yield return null;
-        }
-
-        public static async Task DisableHUDAsync(SteamPlayer player)
-        {
-            UnityThread.executeCoroutine(DisableHUDCoroutine(player));
         }
 
         private static IEnumerator DisableHUDCoroutine(SteamPlayer player)
@@ -231,12 +142,6 @@ namespace TTTUnturned.API.Players
             player.player.setPluginWidgetFlag(EPluginWidgetFlags.ShowStatusIcons, false);
             yield return null;
         }
-
-        public static Vector3 GetRandomSpawn(List<Spawn> spawns)
-        {
-            System.Random rng = new System.Random();
-            int t = rng.Next(spawns.Count);
-            return new Vector3(spawns[t].X, spawns[t].Y, spawns[t].Z);
-        }
+        #endregion
     }
 }
