@@ -55,7 +55,8 @@ namespace TTTUnturned.API.Round
             if (tttPlayer is null) return;
 
             RoundSession.Players.Remove(tttPlayer);
-            RoundManager.CheckWin();
+
+            CheckWin();
         }
 
         public static List<TTTPlayer> GetPlayers() => RoundSession.Players;

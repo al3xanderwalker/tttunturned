@@ -27,12 +27,22 @@ namespace TTTUnturned.API.Round
             if (State != RoundState.WAITING) return;
 
             State = RoundState.WARMUP;
-
+            if (Provider.clients.Count < Main.Config.MinimumPlayers)
+            {
+                State = RoundState.WAITING;
+            }
             RoundManager.Broadcast("Round starting in <color=red>15</color> seconds");
             InterfaceManager.SendLobbyBannerMessage(8494, "Round starting in <color=red>15</color> seconds", 5000, true);
             await Task.Delay(15000);
-
+            if (Provider.clients.Count < Main.Config.MinimumPlayers)
+            {
+                State = RoundState.WAITING;
+                RoundManager.Broadcast("Round failed to start due to not enough players!");
+            }
             Players = RoleManager.GeneratePlayerRoles(); // Assign all players a role
+
+            int playerCount = Players.Count;
+
             Level.ItemManager.RespawnItems(); // Spawn items
 
             // Teleport all players to spawn point
@@ -52,7 +62,11 @@ namespace TTTUnturned.API.Round
             RoundManager.Broadcast("Roles will be assigned in <color=red>15</color> seconds!");
             InterfaceManager.SendLobbyBannerMessage(8494, "<size=25>Roles will be assigned in <color=red>15</color> seconds!</size>", 5000, true);
             await Task.Delay(15000);
+
+            if (Players.Count != playerCount) Players = RoleManager.RegeneratePlayers(Players);
+
             Players.ForEach(p => InterfaceManager.ClearStatusUIAsync(p));
+
             RoleManager.TellRoles(Players);
             State = RoundState.LIVE;
         }

@@ -70,6 +70,57 @@ namespace TTTUnturned.API.Roles
             });
             return players;
         }
+        public static List<TTTPlayer> RegeneratePlayers(List<TTTPlayer> playersOld)
+        {
+            List<CSteamID> tickets = new List<CSteamID>();
+            List<TTTPlayer> players = new List<TTTPlayer>();
+
+            playersOld.ForEach(player => // SteamPlayer
+            {
+                tickets.Add(player.SteamID);
+                /*
+                LobbyPlayer p = new LobbyPlayer(player.playerID.steamID, PlayerRole.NONE, PlayerRank.NONE, PlayerStatus.ALIVE);
+                if (p.Rank == PlayerRank.NONE) tickets.Add(p.SteamID);
+                if (p.Rank == PlayerRank.VIP)
+                {
+                    tickets.Add(p.SteamID);
+                    tickets.Add(p.SteamID);
+                }
+                players.Add(p);
+                */
+            });
+
+            System.Random rng = new System.Random();
+
+            int terroistCount = (int)Math.Floor(playersOld.Count / 4.0);
+            int detectiveCount = (int)Math.Floor(playersOld.Count / 8.0);
+            if (terroistCount == 0) terroistCount = 1;
+            if (detectiveCount == 0) detectiveCount = 1;
+
+            for (var i = 0; i < terroistCount; i++)
+            {
+                CSteamID test = tickets[rng.Next(tickets.Count)];
+                TTTPlayer terroist = new TTTPlayer(test, Role.TRAITOR, Rank.NONE, Status.ALIVE);
+                players.Add(terroist);
+                tickets.RemoveAll(x => x == test);
+            }
+
+            for (var i = 0; i < detectiveCount; i++)
+            {
+                CSteamID test = tickets[rng.Next(tickets.Count)];
+                TTTPlayer detective = new TTTPlayer(test, Role.DETECTIVE, Rank.NONE, Status.ALIVE);
+                players.Add(detective);
+                tickets.RemoveAll(x => x == test);
+            }
+
+            tickets.ToList().ForEach(ticket =>
+            {
+                TTTPlayer innocent = new TTTPlayer(ticket, Role.INNOCENT, Rank.NONE, Status.ALIVE);
+                players.Add(innocent);
+                tickets.RemoveAll(x => x == ticket);
+            });
+            return players;
+        }
 
         public static void TellRoles(List<TTTPlayer> players)
         {
