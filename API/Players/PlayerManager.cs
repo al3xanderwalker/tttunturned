@@ -55,8 +55,36 @@ namespace TTTUnturned.API.Players
 
             TTTPlayer player = GetTTTPlayer(sender.channel.owner.playerID.steamID);
             if (player is null || player.Status == Status.DEAD) return;
-
             player.Status = Status.DEAD;
+
+            if (player.Role == Role.TRAITOR) RoundManager.GetAlive(Role.DETECTIVE).ForEach(detective =>
+            {
+                detective.Credits += 1;
+                RoundManager.Broadcast("You have gained 1 credit", PlayerTool.getSteamPlayer(detective.SteamID));
+            });
+
+            TTTPlayer killer = GetTTTPlayer(instigator);
+            if(killer != null)
+            {
+                if (player.Role == Role.DETECTIVE && killer.Role == Role.TRAITOR) 
+                { 
+                    killer.Credits += 1;
+                    RoundManager.Broadcast("You have gained 1 credit", PlayerTool.getSteamPlayer(killer.SteamID));
+                }
+                if(player.Role != Role.TRAITOR && killer.Role == Role.TRAITOR)
+                {
+                    int totalCount = RoundManager.GetPlayers().Count;
+                    int alive = RoundManager.GetPlayers().FindAll(t => t.Status == Status.ALIVE).Count;
+                    if ( totalCount / (alive + 1) > 75 && totalCount / alive <= 75 || totalCount / (alive + 1) > 50 && totalCount / alive <= 50 || totalCount / (alive + 1) > 25 && totalCount / alive <= 25)
+                    {
+                        RoundManager.GetAlive(Role.TRAITOR).ForEach(traitor =>
+                        {
+                            traitor.Credits += 1;
+                            RoundManager.Broadcast("You have gained 1 credit", PlayerTool.getSteamPlayer(traitor.SteamID));
+                        });
+                    }
+                }
+            }
             RoundManager.CheckWin();
         }
         #endregion
