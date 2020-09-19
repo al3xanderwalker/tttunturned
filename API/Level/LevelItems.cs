@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 namespace TTTUnturned.API.Level
 {
-    public class ItemManager
+    public class LevelItems
     {
         public static void RespawnItems()
         {
@@ -20,13 +20,13 @@ namespace TTTUnturned.API.Level
                 for (byte y = 0; y < Regions.WORLD_SIZE; y++)
                 {
 
-                    var itemsCount = LevelItems.spawns[x, y].Count;
+                    var itemsCount = SDG.Unturned.LevelItems.spawns[x, y].Count;
                     if (itemsCount <= 0) continue;
 
                     for (var i = 0; i < itemsCount; i++)
                     {
-                        var itemSpawnpoint = LevelItems.spawns[x, y][i];
-                        var itemId = LevelItems.getItem(itemSpawnpoint);
+                        var itemSpawnpoint = SDG.Unturned.LevelItems.spawns[x, y][i];
+                        var itemId = SDG.Unturned.LevelItems.getItem(itemSpawnpoint);
 
                         if (itemId == 0) continue;
 

@@ -50,7 +50,7 @@ namespace TTTUnturned.API.Round
 
         public static List<TTTPlayer> GetAllAlivePlayers() => Round.Players.FindAll(p => p.Status == PlayerStatus.ALIVE);
 
-        public static List<TTTPlayer> GetAlivePlayers(PlayerRole role) => Round.Players.FindAll(p => p.Status == PlayerStatus.ALIVE && p.Role == role);
+        public static List<TTTPlayer> GetAlivePlayersWithRole(PlayerRole role) => Round.Players.FindAll(p => p.Status == PlayerStatus.ALIVE && p.Role == role);
 
         public static int GetTimeRemaining() => Round.RoundTime;
 
@@ -118,10 +118,13 @@ namespace TTTUnturned.API.Round
         }
 #pragma warning restore CS1998 // Async method lacks 'await' operators and will run synchronously
         #endregion
+
+        #region Coroutines
         private static IEnumerator BroadcastCoroutine(string message)
         {
             ChatManager.serverSendMessage(message, Color.white, null, null, EChatMode.GLOBAL, "https://i.imgur.com/UUwQfvY.png", true);
             yield return null;
         }
+        #endregion
     }
 }

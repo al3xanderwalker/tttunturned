@@ -67,7 +67,7 @@ namespace TTTUnturned.API.Round
             {
                 if (p.Status == PlayerStatus.ALIVE)
                 {
-                    p.TeleportToLobby();
+                    p.ReviveUnsafe();
                 }
             });
         }
@@ -75,14 +75,14 @@ namespace TTTUnturned.API.Round
         public async Task CheckWin()
         {
             CommandWindow.Log("Checking Win");
-            if (RoundManager.GetAlivePlayers(PlayerRole.TRAITOR).Count == 0)
+            if (RoundManager.GetAlivePlayersWithRole(PlayerRole.TRAITOR).Count == 0)
             {
                 CommandWindow.Log("Innocents win");
                 await Stop();
                 return;
             }
 
-            if (RoundManager.GetAlivePlayers(PlayerRole.DETECTIVE).Count == 0 && RoundManager.GetAlivePlayers(PlayerRole.INNOCENT).Count == 0)
+            if (RoundManager.GetAlivePlayersWithRole(PlayerRole.DETECTIVE).Count == 0 && RoundManager.GetAlivePlayersWithRole(PlayerRole.INNOCENT).Count == 0)
             {
                 CommandWindow.Log("Traitors win");
                 await Stop();

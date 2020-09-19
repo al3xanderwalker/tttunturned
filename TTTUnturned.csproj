@@ -94,7 +94,16 @@
   <ItemGroup>
     <Compile Include="API\Core\IObjectComponent.cs" />
     <Compile Include="API\Interface\InterfaceManager.cs" />
-    <Compile Include="API\Level\ItemManager.cs" />
+    <Compile Include="API\Items\BarricadeItem.cs" />
+    <Compile Include="API\Items\BombVest\BombVestManager.cs" />
+    <Compile Include="API\Items\BombVest\DoDamagePatch.cs" />
+    <Compile Include="API\Items\C4\C4.cs" />
+    <Compile Include="API\Items\C4\C4Manager.cs" />
+    <Compile Include="API\Items\Item.cs" />
+    <Compile Include="API\Items\ItemManager.cs" />
+    <Compile Include="API\Items\ItemType.cs" />
+    <Compile Include="API\Level\LevelItems.cs" />
+    <Compile Include="API\Level\LevelSettings.cs" />
     <Compile Include="API\Level\Map.cs" />
     <Compile Include="API\Level\Spawn.cs" />
     <Compile Include="API\Level\SpawnConfig.cs" />
@@ -117,5 +126,6 @@
     <None Include="app.config" />
     <None Include="packages.config" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

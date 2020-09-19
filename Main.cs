@@ -9,6 +9,7 @@ using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using TTTUnturned.API.Core;
+using TTTUnturned.API.Level;
 using TTTUnturned.Utils;
 using UnityEngine;
 
@@ -30,6 +31,8 @@ namespace TTTUnturned
 
             ConfigHelper.EnsureConfig($"{Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location)}{Path.DirectorySeparatorChar}config.json");
             Config = ConfigHelper.ReadConfig($"{Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location)}{Path.DirectorySeparatorChar}config.json");
+
+            LevelSettings.SetConfig();
 
             TTTUnturnedObject = new GameObject();
             var componentManagers = Assembly.GetExecutingAssembly().DefinedTypes
