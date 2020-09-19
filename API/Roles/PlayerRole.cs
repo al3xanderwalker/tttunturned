@@ -4,12 +4,13 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace TTTUnturned.API.Round
+namespace TTTUnturned.API.Roles
 {
-    public enum RoundState
+    public enum PlayerRole
     {
-        SETUP,
-        WARMUP,
-        LIVE
+        NONE,
+        INNOCENT,
+        DETECTIVE,
+        TRAITOR
     }
 }

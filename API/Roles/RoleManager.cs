@@ -3,12 +3,13 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using Steamworks;
-using TTTUnturned.API.Lobby;
 using TTTUnturned.API.Players;
 using TTTUnturned.API.Round;
-using TTTUnturned.API.Interface;
 using SDG.Unturned;
 using TTTUnturned.API.Core;
+using PlayerManager = TTTUnturned.API.Players.PlayerManager;
+using Random = System.Random;
+using System.Threading.Tasks;
 
 namespace TTTUnturned.API.Roles
 {
@@ -19,133 +20,59 @@ namespace TTTUnturned.API.Roles
             CommandWindow.Log("RoleManager loaded");
         }
 
-        public static List<TTTPlayer> GeneratePlayerRoles()
+        #region API
+        public static void GeneratePlayerRoles()
         {
-            List<CSteamID> tickets = new List<CSteamID>();
-            List<TTTPlayer> players = new List<TTTPlayer>();
-
-            Provider.clients.ToList().ForEach(player => // SteamPlayer
+            if (RoundManager.GetAllAlivePlayers().Count < Main.Config.MinimumPlayers)
             {
-                tickets.Add(player.playerID.steamID);
-                /*
-                LobbyPlayer p = new LobbyPlayer(player.playerID.steamID, PlayerRole.NONE, PlayerRank.NONE, PlayerStatus.ALIVE);
-                if (p.Rank == PlayerRank.NONE) tickets.Add(p.SteamID);
-                if (p.Rank == PlayerRank.VIP)
-                {
-                    tickets.Add(p.SteamID);
-                    tickets.Add(p.SteamID);
-                }
-                players.Add(p);
-                */
+                RoundManager.StopRound();
+                return;
+            }
+
+            Random rng = new Random();
+            List<CSteamID> tickets = new List<CSteamID>();
+
+            RoundManager.GetAllPlayers().ForEach(p =>
+            {
+                tickets.Add(p.SteamID);
             });
 
-            System.Random rng = new System.Random();
-
-            int terroistCount = (int)Math.Floor(Provider.clients.Count / 4.0);
-            int detectiveCount = (int)Math.Floor(Provider.clients.Count / 8.0);
-            if (terroistCount == 0) terroistCount = 1;
+            int traitorCount = (int)Math.Floor(RoundManager.GetAllPlayers().Count / 4.0);
+            int detectiveCount = (int)Math.Floor(RoundManager.GetAllPlayers().Count / 8.0);
+            if (traitorCount == 0) traitorCount = 1;
             if (detectiveCount == 0) detectiveCount = 1;
 
-            for (var i = 0; i < terroistCount; i++)
+            for (var i = 0; i < traitorCount; i++)
             {
-                CSteamID test = tickets[rng.Next(tickets.Count)];
-                TTTPlayer terroist = new TTTPlayer(test, Role.TRAITOR, Rank.NONE, Status.ALIVE);
-                players.Add(terroist);
-                tickets.RemoveAll(x => x == test);
+                CSteamID selectedTraitor = tickets[rng.Next(tickets.Count)];
+
+                TTTPlayer tttPlayer = PlayerManager.GetTTTPlayer(selectedTraitor);
+                tttPlayer.SetRole(PlayerRole.TRAITOR);
+                tttPlayer.SendMessageUnsafe("You are a traitor");
+
+                tickets.RemoveAll(x => x == selectedTraitor);
             }
 
             for (var i = 0; i < detectiveCount; i++)
             {
-                CSteamID test = tickets[rng.Next(tickets.Count)];
-                TTTPlayer detective = new TTTPlayer(test, Role.DETECTIVE, Rank.NONE, Status.ALIVE);
-                players.Add(detective);
-                tickets.RemoveAll(x => x == test);
+                CSteamID selectedDetective = tickets[rng.Next(tickets.Count)];
+
+                TTTPlayer tttPlayer = PlayerManager.GetTTTPlayer(selectedDetective);
+                tttPlayer.SetRole(PlayerRole.DETECTIVE);
+                tttPlayer.SendMessageUnsafe("You are a detective");
+
+                tickets.RemoveAll(x => x == selectedDetective);
             }
 
-            tickets.ToList().ForEach(ticket =>
+            tickets.ToList().ForEach(steamID =>
             {
-                TTTPlayer innocent = new TTTPlayer(ticket, Role.INNOCENT, Rank.NONE, Status.ALIVE);
-                players.Add(innocent);
-                tickets.RemoveAll(x => x == ticket);
-            });
-            return players;
-        }
-        public static List<TTTPlayer> RegeneratePlayers(List<TTTPlayer> playersOld)
-        {
-            List<CSteamID> tickets = new List<CSteamID>();
-            List<TTTPlayer> players = new List<TTTPlayer>();
+                TTTPlayer tttPlayer = PlayerManager.GetTTTPlayer(steamID);
+                tttPlayer.SetRole(PlayerRole.INNOCENT);
+                tttPlayer.SendMessageUnsafe("You are a innocent");
 
-            playersOld.ForEach(player => // SteamPlayer
-            {
-                tickets.Add(player.SteamID);
-                /*
-                LobbyPlayer p = new LobbyPlayer(player.playerID.steamID, PlayerRole.NONE, PlayerRank.NONE, PlayerStatus.ALIVE);
-                if (p.Rank == PlayerRank.NONE) tickets.Add(p.SteamID);
-                if (p.Rank == PlayerRank.VIP)
-                {
-                    tickets.Add(p.SteamID);
-                    tickets.Add(p.SteamID);
-                }
-                players.Add(p);
-                */
-            });
-
-            System.Random rng = new System.Random();
-
-            int terroistCount = (int)Math.Floor(playersOld.Count / 4.0);
-            int detectiveCount = (int)Math.Floor(playersOld.Count / 8.0);
-            if (terroistCount == 0) terroistCount = 1;
-            if (detectiveCount == 0) detectiveCount = 1;
-
-            for (var i = 0; i < terroistCount; i++)
-            {
-                CSteamID test = tickets[rng.Next(tickets.Count)];
-                TTTPlayer terroist = new TTTPlayer(test, Role.TRAITOR, Rank.NONE, Status.ALIVE);
-                players.Add(terroist);
-                tickets.RemoveAll(x => x == test);
-            }
-
-            for (var i = 0; i < detectiveCount; i++)
-            {
-                CSteamID test = tickets[rng.Next(tickets.Count)];
-                TTTPlayer detective = new TTTPlayer(test, Role.DETECTIVE, Rank.NONE, Status.ALIVE);
-                players.Add(detective);
-                tickets.RemoveAll(x => x == test);
-            }
-
-            tickets.ToList().ForEach(ticket =>
-            {
-                TTTPlayer innocent = new TTTPlayer(ticket, Role.INNOCENT, Rank.NONE, Status.ALIVE);
-                players.Add(innocent);
-                tickets.RemoveAll(x => x == ticket);
-            });
-            return players;
-        }
-
-        public static void TellRoles(List<TTTPlayer> players)
-        {
-            players.ForEach(async player =>
-            {
-                SteamPlayer steamPlayer = PlayerTool.getSteamPlayer(player.SteamID);
-                switch (player.Role) {
-                    case Role.INNOCENT:
-                        RoundManager.Broadcast($"You are a <color=lime>Innocent</color>", steamPlayer);
-                        await InterfaceManager.SendUIEffectAsync(8497, 8490, player.SteamID, true);
-                        await InterfaceManager.SendUIEffectTextAsync(8490, player.SteamID, true, "RoleValue", "INNOCENT");
-                        break;
-                    case Role.DETECTIVE:
-                        RoundManager.Broadcast($"You are a <color=blue>Detective</color>", steamPlayer);
-                        Level.ItemManager.AddItemAync(steamPlayer, 10);
-                        await InterfaceManager.SendUIEffectAsync(8496, 8490, player.SteamID, true);
-                        await InterfaceManager.SendUIEffectTextAsync(8490, player.SteamID, true, "RoleValue", "DETECTIVE");
-                        break;
-                    case Role.TRAITOR:
-                        RoundManager.Broadcast($"You are a <color=red>Terrorist</color>", steamPlayer);
-                        await InterfaceManager.SendUIEffectAsync(8499, 8490, player.SteamID, true);
-                        await InterfaceManager.SendUIEffectTextAsync(8490, player.SteamID, true, "RoleValue", "TERRORIST");
-                        break;
-                }
+                tickets.RemoveAll(x => x == steamID);
             });
         }
+        #endregion
     }
 }

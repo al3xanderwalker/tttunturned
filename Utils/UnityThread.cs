@@ -1,6 +1,6 @@
 ﻿#define ENABLE_UPDATE_FUNCTION_CALLBACK
-#define ENABLE_LATEUPDATE_FUNCTION_CALLBACK
-#define ENABLE_FIXEDUPDATE_FUNCTION_CALLBACK
+//#define ENABLE_LATEUPDATE_FUNCTION_CALLBACK
+//#define ENABLE_FIXEDUPDATE_FUNCTION_CALLBACK
 
 using System;
 using System.Collections;
@@ -34,7 +34,7 @@ namespace TTTUnturned.Utils
         List<System.Action> actionCopiedQueueLateUpdateFunc = new List<System.Action>();
 
         // Used to know if whe have new Action function to execute. This prevents the use of the lock keyword every frame
-        private volatile static bool noActionQueueToExecuteLateUpdateFunc = true;
+        //private volatile static bool noActionQueueToExecuteLateUpdateFunc = true;
 
 
 
@@ -46,7 +46,7 @@ namespace TTTUnturned.Utils
         List<System.Action> actionCopiedQueueFixedUpdateFunc = new List<System.Action>();
 
         // Used to know if whe have new Action function to execute. This prevents the use of the lock keyword every frame
-        private volatile static bool noActionQueueToExecuteFixedUpdateFunc = true;
+        //private volatile static bool noActionQueueToExecuteFixedUpdateFunc = true;
 
 
         //Used to initialize UnityThread. Call once before any function here

@@ -5,167 +5,155 @@ using System.Collections;
 using System.Linq;
 using System.Threading.Tasks;
 using TTTUnturned.API.Core;
-using TTTUnturned.API.Lobby;
-using TTTUnturned.API.Round;
-using TTTUnturned.Utils;
 using UnityEngine;
-using PlayerManager = TTTUnturned.API.Players.PlayerManager;
 using System.Collections.Generic;
 using TTTUnturned.API.Players;
+using PlayerManager = TTTUnturned.API.Players.PlayerManager;
+using TTTUnturned.API.Round;
 using TTTUnturned.API.Roles;
-using TTTUnturned.API.Items.SilencedPistol;
+using TTTUnturned.Utils;
+
 namespace TTTUnturned.API.Interface
 {
     public class InterfaceManager : MonoBehaviour, IObjectComponent
     {
-        private static Dictionary<CSteamID, long> keyCooldowns;
+        private static Dictionary<CSteamID, long> KeyCooldowns;
+        private static List<CSteamID> UIToggled;
 
         public void Awake()
         {
             CommandWindow.Log("InterfaceManager loaded");
 
-            keyCooldowns = new Dictionary<CSteamID, long>();
+            KeyCooldowns = new Dictionary<CSteamID, long>();
+            UIToggled = new List<CSteamID>();
 
-            EffectManager.onEffectButtonClicked += OnEffectButtonClicked;
+            //EffectManager.onEffectButtonClicked += OnEffectButtonClicked;
             PlayerInput.onPluginKeyTick += OnPluginKeyTick;
             Provider.onEnemyConnected += OnEnemyConnected;
         }
 
-        public void SendEffectAsync(ushort id, byte x, byte y, byte z, Vector3 position)
+        #region API
+        public static async Task SendBannerMessage(CSteamID steamId, ushort id, string message, int duration, bool reliable)
         {
-            UnityThread.executeCoroutine(SendEffectCoroutine(id, x, y, z, position));
+             SendUIEffectUnsafe(id, 8480, steamId, reliable);
+            SendUIEffectTextUnsafe(8480, steamId, true, "RoleValue", message);
+            await Task.Delay(duration);
+            ClearUIEffectUnsafe(id, steamId);
         }
 
-        private void OnEnemyConnected(SteamPlayer steamPlayer)
+        public static void ClearUIEffectUnsafe(ushort id, CSteamID steamID)
         {
-            DisableExtraHUD(steamPlayer.playerID.steamID);
-            SendUIEffectAsync(8498, 8490, steamPlayer.playerID.steamID, true);
-            SendUIEffectTextAsync(8490, steamPlayer.playerID.steamID, true, "RoleValue", "WAITING");
-            SendUIEffectTextAsync(8490, steamPlayer.playerID.steamID, true, "TimerValue", "00:00");
+            UnityThread.executeCoroutine(ClearUIEffectCoroutine(id, steamID));
         }
 
+        public static void SendUIEffectUnsafe(ushort id, short key, CSteamID steamID, bool reliable)
+        {
+            UnityThread.executeCoroutine(SendUIEffectCoroutine(id, key, steamID, reliable));
+        }
+
+        public static void SendUIEffectTextUnsafe(short key, CSteamID steamID, bool reliable, string component, string text)
+        {
+            UnityThread.executeCoroutine(SendUIEffectTextCoroutine(key, steamID, reliable, component, text));
+        }
+
+        public static void DisableHUDUnsafe(CSteamID steamID)
+        {
+            UnityThread.executeCoroutine(DisableHUDCoroutine(steamID));
+        }
+
+        #endregion
+
+        #region Events
         public void OnEffectButtonClicked(Player player, string buttonName)
         {
+            TTTPlayer tttPlayer = PlayerManager.GetTTTPlayer(player.channel.owner.playerID.steamID);
             if (buttonName.Substring(0, 2) == "T_")
             {
                 switch (buttonName.Remove(0, 2))
                 {
                     case "ChargeButton":
                         player.inventory.forceAddItem(new Item(1241, true), true);
-                        RoundManager.Broadcast("You redeemed C4", player.channel.owner);
+                        tttPlayer.SendMessage("You redeemed C4");
                         break;
                     case "CoughSyrupButton":
-                        player.inventory.forceAddItem(new Item(404, true), true);
-                        RoundManager.Broadcast("You redeemed Cough Syrup", player.channel.owner);
+                        player.inventory.forceAddItem(new Item(15, true), true);
+                        tttPlayer.SendMessage("You redeemed Medkit");
                         break;
                     case "KnifeButton":
                         player.inventory.forceAddItem(new Item(140, true), true);
-                        RoundManager.Broadcast("You redeemed Knife", player.channel.owner);
+                        tttPlayer.SendMessage("You redeemed Knife");
                         break;
                     case "LMGButton":
                         player.inventory.forceAddItem(new Item(126, true), true);
-                        RoundManager.Broadcast("You redeemed LMG", player.channel.owner);
+                        tttPlayer.SendMessage("You redeemed LMG");
                         break;
                     case "SupressedPistol":
-                        player.inventory.forceAddItem(SilencedPistol.Create(), true);
-                        RoundManager.Broadcast("You redeemed Suppresed Pistol", player.channel.owner);
+                        //player.inventory.forceAddItem(SilencedPistol.Create(), true);
+                        tttPlayer.SendMessage("You redeemed Suppresed Pistol");
                         break;
                     case "BombVestButton":
                         player.inventory.forceAddItem(new Item(1013, true), true);
-                        RoundManager.Broadcast("You redeemed Bomb Vest", player.channel.owner);
+                        tttPlayer.SendMessage("You redeemed Bomb Vest");
                         break;
                     case "BodyArmourButton":
                         PlayerManager.GetTTTPlayer(player.channel.owner.playerID.steamID).Armor = true;
-                        RoundManager.Broadcast("You redeemed Armor Vest", player.channel.owner);
+                        tttPlayer.SendMessage("You redeemed Armor Vest");
                         break;
                 }
             }
         }
+
+        private void OnEnemyConnected(SteamPlayer steamPlayer)
+        {
+            DisableHUDUnsafe(steamPlayer.playerID.steamID);
+            SendUIEffectUnsafe(8498, 8490, steamPlayer.playerID.steamID, true);
+            SendUIEffectTextUnsafe(8490, steamPlayer.playerID.steamID, true, "RoleValue", "WAITING");
+            SendUIEffectTextUnsafe(8490, steamPlayer.playerID.steamID, true, "TimerValue", "00:00");
+        }
+
         private void OnPluginKeyTick(Player player, uint simulation, byte key, bool state)
         {
             if (!state || key != 0) return;
             TTTPlayer tttPlayer = PlayerManager.GetTTTPlayer(player.channel.owner.playerID.steamID);
             if (tttPlayer is null) return;
 
-            if (tttPlayer.Status == Status.DEAD) return;
-            if (RoundManager.GetRoundSessionState() != RoundState.LIVE) return;
+            if (tttPlayer.GetStatus() == PlayerStatus.DEAD) return;
+            if (RoundManager.GetState() != RoundState.LIVE) return;
 
 
-            if (keyCooldowns.ContainsKey(player.channel.owner.playerID.steamID))
+            if (KeyCooldowns.ContainsKey(player.channel.owner.playerID.steamID))
             {
-                long lastPressed = keyCooldowns[player.channel.owner.playerID.steamID];
+                long lastPressed = KeyCooldowns[player.channel.owner.playerID.steamID];
                 // 1 second key cooldown on menu
                 if (DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() - lastPressed < 300) return;
 
-                keyCooldowns.Remove(player.channel.owner.playerID.steamID);
+                KeyCooldowns.Remove(player.channel.owner.playerID.steamID);
             }
 
-            keyCooldowns.Add(player.channel.owner.playerID.steamID, DateTimeOffset.UtcNow.ToUnixTimeMilliseconds());
+            KeyCooldowns.Add(player.channel.owner.playerID.steamID, DateTimeOffset.UtcNow.ToUnixTimeMilliseconds());
 
-            if (tttPlayer.Role == Role.TRAITOR)
+            if (tttPlayer.Role == PlayerRole.TRAITOR)
             {
-                if (tttPlayer.UIToggled)
+                if (UIToggled.Contains(tttPlayer.SteamID))
                 {
-                    tttPlayer.UIToggled = false;
-                    ClearUIEffectAsync(8501, tttPlayer.SteamID);
+                    UIToggled.Remove(tttPlayer.SteamID);
+                    ClearUIEffectUnsafe(8501, tttPlayer.SteamID);
                     player.setPluginWidgetFlag(EPluginWidgetFlags.Modal, false);
                     player.setPluginWidgetFlag(EPluginWidgetFlags.ForceBlur, false);
                 }
                 else
                 {
-                    tttPlayer.UIToggled = true;
-                    SendUIEffectAsync(8501, 8470, tttPlayer.SteamID, true);
+                    UIToggled.Add(tttPlayer.SteamID);
+                    SendUIEffectUnsafe(8501, 8470, tttPlayer.SteamID, true);
                     player.setPluginWidgetFlag(EPluginWidgetFlags.Modal, true);
                     player.setPluginWidgetFlag(EPluginWidgetFlags.ForceBlur, true);
                 }
 
             }
         }
-        #region Functions
-        public static async Task SendLobbyBannerMessage(ushort id, string message, int duration, bool reliable)
-        {
-            Provider.clients.ToList().ForEach(async player =>
-            {
-                Task.Run(async () => { await SendBannerMessage(player.playerID.steamID, id, message, duration, reliable); });
-            });
-        }
 
-        public static async Task ClearStatusUIAsync(TTTPlayer player)
-        {
-            ClearUIEffectAsync(8497, player.SteamID);
-            ClearUIEffectAsync(8499, player.SteamID);
-            ClearUIEffectAsync(8496, player.SteamID);
-            ClearUIEffectAsync(8498, player.SteamID);
-        }
-
-        public static async Task SendBannerMessage(CSteamID steamId, ushort id, string message, int duration, bool reliable)
-        {
-            await SendUIEffectAsync(id, 8480, steamId, reliable);
-            await SendUIEffectTextAsync(8480, steamId, true, "RoleValue", message);
-            await Task.Delay(duration);
-            await ClearUIEffectAsync(id, steamId);
-        }
-
-        public static async Task ClearUIEffectAsync(ushort id, CSteamID steamID)
-        {
-            UnityThread.executeCoroutine(ClearUIEffectCoroutine(id, steamID));
-        }
-
-        public static async Task SendUIEffectAsync(ushort id, short key, CSteamID steamID, bool reliable)
-        {
-            UnityThread.executeCoroutine(SendUIEffectCoroutine(id, key, steamID, reliable));
-        }
-
-        public static async Task SendUIEffectTextAsync(short key, CSteamID steamID, bool reliable, string component, string text)
-        {
-            UnityThread.executeCoroutine(SendUIEffectTextCoroutine(key, steamID, reliable, component, text));
-        }
-
-        public static void DisableExtraHUD(CSteamID steamID)
-        {
-            UnityThread.executeCoroutine(DisableExtraHUDCoroutine(steamID));
-        }
         #endregion
+
         #region Coroutines
         private static IEnumerator SendEffectCoroutine(ushort id, byte x, byte y, byte z, Vector3 position)
         {
@@ -187,7 +175,7 @@ namespace TTTUnturned.API.Interface
             EffectManager.sendUIEffect(id, key, steamID, reliable);
             yield return null;
         }
-        private static IEnumerator DisableExtraHUDCoroutine(CSteamID steamID)
+        private static IEnumerator DisableHUDCoroutine(CSteamID steamID)
         {
             Player ply = PlayerTool.getPlayer(steamID);
             if (ply is null) yield return null;
