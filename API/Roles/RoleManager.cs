@@ -10,6 +10,7 @@ using TTTUnturned.API.Core;
 using PlayerManager = TTTUnturned.API.Players.PlayerManager;
 using Random = System.Random;
 using System.Threading.Tasks;
+using TTTUnturned.API.Interface;
 
 namespace TTTUnturned.API.Roles
 {
@@ -50,6 +51,9 @@ namespace TTTUnturned.API.Roles
                 tttPlayer.SetRole(PlayerRole.TRAITOR);
                 tttPlayer.SendMessageUnsafe("You are a traitor");
 
+                InterfaceManager.SendUIEffectUnsafe(8499, 8490, tttPlayer.SteamID, true);
+                InterfaceManager.SendUIEffectTextUnsafe(8490, tttPlayer.SteamID, true, "RoleValue", "TRAITOR");
+
                 tickets.RemoveAll(x => x == selectedTraitor);
             }
 
@@ -61,6 +65,9 @@ namespace TTTUnturned.API.Roles
                 tttPlayer.SetRole(PlayerRole.DETECTIVE);
                 tttPlayer.SendMessageUnsafe("You are a detective");
 
+                InterfaceManager.SendUIEffectUnsafe(8496, 8490, tttPlayer.SteamID, true);
+                InterfaceManager.SendUIEffectTextUnsafe(8490, tttPlayer.SteamID, true, "RoleValue", "DETECTIVE");
+
                 tickets.RemoveAll(x => x == selectedDetective);
             }
 
@@ -69,6 +76,9 @@ namespace TTTUnturned.API.Roles
                 TTTPlayer tttPlayer = PlayerManager.GetTTTPlayer(steamID);
                 tttPlayer.SetRole(PlayerRole.INNOCENT);
                 tttPlayer.SendMessageUnsafe("You are a innocent");
+
+                InterfaceManager.SendUIEffectUnsafe(8497, 8490, tttPlayer.SteamID, true);
+                InterfaceManager.SendUIEffectTextUnsafe(8490, tttPlayer.SteamID, true, "RoleValue", "INNOCENT");
 
                 tickets.RemoveAll(x => x == steamID);
             });

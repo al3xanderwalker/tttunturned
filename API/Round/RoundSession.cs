@@ -5,9 +5,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using TTTUnturned.API.Interface;
 using TTTUnturned.API.Players;
 using TTTUnturned.API.Roles;
-using ItemManager = TTTUnturned.API.Level.ItemManager;
+using ItemManager = TTTUnturned.API.Level.LevelItems;
 namespace TTTUnturned.API.Round
 {
     public class RoundSession
@@ -33,8 +34,11 @@ namespace TTTUnturned.API.Round
             try
             {
                 CommandWindow.Log("Warmup Starting");
+                State = RoundState.WARMUP;
 
                 ItemManager.RespawnItems();
+
+                await Task.Delay(6000);
 
                 Players.ToList().ForEach(p =>
                 {
@@ -42,8 +46,6 @@ namespace TTTUnturned.API.Round
                     p.TeleportToMapUnsafe();
                     TTTPlayer.ClearInventoryUnsafe(PlayerTool.getSteamPlayer(p.SteamID));
                 });
-
-                State = RoundState.WARMUP;
 
                 await Task.Delay(15000);
 
@@ -73,6 +75,8 @@ namespace TTTUnturned.API.Round
                     p.ReviveUnsafe();
                 }
             });
+
+            await Task.Delay(6000);
         }
 
         public async Task CheckWin()
@@ -81,6 +85,7 @@ namespace TTTUnturned.API.Round
             if (RoundManager.GetAlivePlayersWithRole(PlayerRole.TRAITOR).Count == 0)
             {
                 CommandWindow.Log("Innocents win");
+                Players.ToList().ForEach(p => Task.Run(async () => await InterfaceManager.SendBannerMessage(p.SteamID, 8493, "Innocents win!", 6000, true)));
                 await Stop();
                 return;
             }
@@ -88,6 +93,7 @@ namespace TTTUnturned.API.Round
             if (RoundManager.GetAlivePlayersWithRole(PlayerRole.DETECTIVE).Count == 0 && RoundManager.GetAlivePlayersWithRole(PlayerRole.INNOCENT).Count == 0)
             {
                 CommandWindow.Log("Traitors win");
+                Players.ToList().ForEach(p => Task.Run(async () => await InterfaceManager.SendBannerMessage(p.SteamID, 8492, "Traitors win!", 6000, true)));
                 await Stop();
                 return;
             }

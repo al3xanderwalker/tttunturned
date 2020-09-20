@@ -7,6 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using TTTUnturned.API.Core;
+using TTTUnturned.API.Interface;
 using TTTUnturned.API.Players;
 using TTTUnturned.API.Roles;
 using TTTUnturned.Utils;
@@ -68,6 +69,8 @@ namespace TTTUnturned.API.Round
             Round.AddPlayer(createdPlayer);
 
             createdPlayer.Revive();
+
+            Task.Run(async () => await InterfaceManager.SendBannerMessage(createdPlayer.SteamID, 8494, $"Welcome {steamPlayer.playerID.characterName}", 5000, true));
         }
 
         private void OnEnemyDisconnected(SteamPlayer steamPlayer)
@@ -100,6 +103,11 @@ namespace TTTUnturned.API.Round
                 shouldAllow = false;
             }
         }
+        public static string ParseTime(int seconds)
+        {
+            TimeSpan t = TimeSpan.FromSeconds(seconds);
+            return t.ToString(@"mm\:ss");
+        }
         #endregion
 
         #region Threading
@@ -114,7 +122,11 @@ namespace TTTUnturned.API.Round
             }
 
             if (GetState() == RoundState.LIVE)
+            {
+                Round.Players.ToList().ForEach(p => InterfaceManager.SendUIEffectTextUnsafe(8490, p.SteamID, true, "TimerValue", ParseTime(Round.RoundTime)));
+                
                 Round.RoundTime--;
+            }
         }
 #pragma warning restore CS1998 // Async method lacks 'await' operators and will run synchronously
         #endregion

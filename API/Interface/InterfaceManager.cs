@@ -27,7 +27,7 @@ namespace TTTUnturned.API.Interface
             KeyCooldowns = new Dictionary<CSteamID, long>();
             UIToggled = new List<CSteamID>();
 
-            //EffectManager.onEffectButtonClicked += OnEffectButtonClicked;
+            EffectManager.onEffectButtonClicked += OnEffectButtonClicked;
             PlayerInput.onPluginKeyTick += OnPluginKeyTick;
             Provider.onEnemyConnected += OnEnemyConnected;
         }
