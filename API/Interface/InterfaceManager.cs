@@ -35,7 +35,7 @@ namespace TTTUnturned.API.Interface
         #region API
         public static async Task SendBannerMessage(CSteamID steamId, ushort id, string message, int duration, bool reliable)
         {
-             SendUIEffectUnsafe(id, 8480, steamId, reliable);
+            SendUIEffectUnsafe(id, 8480, steamId, reliable);
             SendUIEffectTextUnsafe(8480, steamId, true, "RoleValue", message);
             await Task.Delay(duration);
             ClearUIEffectUnsafe(id, steamId);

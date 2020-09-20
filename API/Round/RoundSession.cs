@@ -7,7 +7,7 @@ using System.Text;
 using System.Threading.Tasks;
 using TTTUnturned.API.Players;
 using TTTUnturned.API.Roles;
-
+using ItemManager = TTTUnturned.API.Level.ItemManager;
 namespace TTTUnturned.API.Round
 {
     public class RoundSession
@@ -34,10 +34,13 @@ namespace TTTUnturned.API.Round
             {
                 CommandWindow.Log("Warmup Starting");
 
+                ItemManager.RespawnItems();
+
                 Players.ToList().ForEach(p =>
                 {
                     p.SetStatus(PlayerStatus.ALIVE);
                     p.TeleportToMapUnsafe();
+                    TTTPlayer.ClearInventoryUnsafe(PlayerTool.getSteamPlayer(p.SteamID));
                 });
 
                 State = RoundState.WARMUP;
