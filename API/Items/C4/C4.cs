@@ -1,14 +1,15 @@
 ﻿using SDG.Unturned;
 using Steamworks;
+using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
 using TTTUnturned.Utils;
-using Item = SDG.Unturned.Item;
 
 namespace TTTUnturned.API.Items.C4
 {
-
     public class C4 : BarricadeItem
     {
         public bool Defused { get; set; }
@@ -29,14 +30,23 @@ namespace TTTUnturned.API.Items.C4
             AsyncHelper.Schedule("C4Tick", C4Tick, 1000);
         }
 
+        #region Threading
+#pragma warning disable CS1998 // Async method lacks 'await' operators and will run synchronously
         private async Task C4Tick()
         {
-            TimeLeft--;
-            if (TimeLeft == 0)
+            if (!Defused)
             {
-                UnityThread.executeCoroutine(C4DetonateCoroutine());
+                TimeLeft--;
+                if (TimeLeft == 0)
+                {
+                    UnityThread.executeCoroutine(C4DetonateCoroutine());
+                }
             }
         }
+#pragma warning restore CS1998 // Async method lacks 'await' operators and will run synchronously
+        #endregion
+
+        #region Coroutines
         private IEnumerator C4DetonateCoroutine()
         {
             EffectManager.sendEffect(45, byte.MaxValue, byte.MaxValue, byte.MaxValue, Drop.model.position);
@@ -47,7 +57,7 @@ namespace TTTUnturned.API.Items.C4
             parameters.barricadeDamage = 1000;
             List<EPlayerKill> deadPlayers = new List<EPlayerKill>();
             DamageTool.explode(parameters, out deadPlayers);
-            // Region.destroy(); // DESTROYS IT BUT doesnt delete the in game model
+
             byte x;
             byte y;
             ushort plant;
@@ -60,6 +70,6 @@ namespace TTTUnturned.API.Items.C4
 
             yield return null;
         }
-
+        #endregion
     }
 }

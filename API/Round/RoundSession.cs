@@ -1,106 +1,114 @@
 ﻿using SDG.Unturned;
+using Steamworks;
+using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
 using TTTUnturned.API.Interface;
-using TTTUnturned.API.Level;
-using TTTUnturned.API.Lobby;
 using TTTUnturned.API.Players;
 using TTTUnturned.API.Roles;
-using PlayerManager = TTTUnturned.API.Players.PlayerManager;
-
+using LevelManager = TTTUnturned.API.Level.LevelManager;
 namespace TTTUnturned.API.Round
 {
     public class RoundSession
     {
-        public RoundState State { get; set; }
-        public int RoundTime { get; set; }
-        public List<TTTPlayer> Players { get; set; }
+        public RoundState State;
+        public int RoundTime;
+        public List<TTTPlayer> Players;
 
         public RoundSession()
         {
-            State = RoundState.WAITING;
-            RoundTime = Main.Config.RoundLength;
+            State = RoundState.SETUP;
+            RoundTime = 600;
+            Players = new List<TTTPlayer>();
         }
+
+        #region API
+        public void AddPlayer(TTTPlayer player) => Players.Add(player);
+
+        public void RemovePlayer(TTTPlayer player) => Players.Remove(player);
 
         public async Task Start()
         {
-            if (State != RoundState.WAITING) return;
-
-            State = RoundState.WARMUP;
-            if (Provider.clients.Count < Main.Config.MinimumPlayers)
+            try
             {
-                State = RoundState.WAITING;
+                CommandWindow.Log("Warmup Starting");
+                State = RoundState.WARMUP;
+
+                LevelManager.RespawnItems();
+
+                await Task.Delay(6000);
+
+                Players.ToList().ForEach(p =>
+                {
+                    p.SetStatus(PlayerStatus.ALIVE);
+                    p.TeleportToMapUnsafe();
+                    TTTPlayer.ClearInventoryUnsafe(PlayerTool.getSteamPlayer(p.SteamID));
+                });
+
+                await Task.Delay(15000);
+
+                CommandWindow.Log("Round is live");
+
+                RoleManager.GeneratePlayerRoles();
+
+                Players.ToList().ForEach(p =>
+                {
+                    if (p.GetRole() == PlayerRole.TRAITOR || p.GetRole() == PlayerRole.DETECTIVE)
+                    {
+                        p.SetCredits(2);
+                    }
+                });
+
+                State = RoundState.LIVE;
+            } catch (Exception ex)
+            {
+                CommandWindow.Log(ex);
             }
-            RoundManager.Broadcast("Round starting in <color=red>15</color> seconds");
-            InterfaceManager.SendLobbyBannerMessage(8494, "Round starting in <color=red>15</color> seconds", 5000, true);
-            await Task.Delay(15000);
-            if (Provider.clients.Count < Main.Config.MinimumPlayers)
-            {
-                State = RoundState.WAITING;
-                RoundManager.Broadcast("Round failed to start due to not enough players!");
-            }
-            Players = RoleManager.GeneratePlayerRoles(); // Assign all players a role
-
-            int playerCount = Players.Count;
-
-            Level.ItemManager.RespawnItems(); // Spawn items
-
-            // Teleport all players to spawn point
-            System.Random rng = new System.Random();
-            List<Spawn> spawns = Main.Config.Maps[rng.Next(Main.Config.Maps.Count)].Spawns;
-            Players.ForEach(async player =>
-            {
-
-                InterfaceManager.ClearUIEffectAsync(8501, player.SteamID);
-                SteamPlayer steamPlayer = PlayerTool.getSteamPlayer(player.SteamID);
-                PlayerManager.ClearInventoryAsync(steamPlayer);
-                steamPlayer.player.life.tellHealth(player.SteamID, 100); // DOES NOT WORK
-                await PlayerManager.TeleportToLocationAsync(steamPlayer, PlayerManager.GetRandomSpawn(spawns));
-            });
-
-            // Wait 30 seconds before displaying roles and allowing damage
-            RoundManager.Broadcast("Roles will be assigned in <color=red>15</color> seconds!");
-            InterfaceManager.SendLobbyBannerMessage(8494, "<size=25>Roles will be assigned in <color=red>15</color> seconds!</size>", 5000, true);
-            await Task.Delay(15000);
-
-            if (Players.Count != playerCount) Players = RoleManager.RegeneratePlayers(Players);
-
-            Players.ForEach(p => InterfaceManager.ClearStatusUIAsync(p));
-
-            RoleManager.TellRoles(Players);
-            State = RoundState.LIVE;
         }
 
         public async Task Stop()
         {
-            State = RoundState.WAITING; // Set game state to setup
-            RoundTime = Main.Config.RoundLength; // Reset round timer
+            CommandWindow.Log("Stopping round");
+            RoundTime = 600;
 
-            await Task.Delay(10000);
-            //Teleport players NOT kill them 
-            Players.ForEach(async player =>
+            await Task.Delay(6000);
+
+            Players.ToList().ForEach(p =>
             {
-                if (player.Status == Status.ALIVE)
+                if (p.Status == PlayerStatus.ALIVE)
                 {
-                    player.Role = Roles.Role.NONE;
-                    SteamPlayer ply = PlayerTool.getSteamPlayer(player.SteamID);
-                    if (ply is null) return;
-                    InterfaceManager.ClearUIEffectAsync(8501, player.SteamID);
-                    PlayerManager.ClearInventoryAsync(ply);
-                    PlayerManager.TeleportToLocationAsync(ply, PlayerManager.GetRandomSpawn(Main.Config.LobbySpawns));
+                    p.ReviveUnsafe();
                 }
-                await InterfaceManager.ClearStatusUIAsync(player);
-                await InterfaceManager.SendUIEffectAsync(8498, 8490, player.SteamID, true);
-                await InterfaceManager.SendUIEffectTextAsync(8490, player.SteamID, true, "RoleValue", "WAITING");
-                await InterfaceManager.SendUIEffectTextAsync(8490, player.SteamID, true, "TimerValue", "00:00");
             });
 
-            await Start();
+            await Task.Delay(6000);
+
+            State = RoundState.SETUP;
+
+            LevelManager.ClearBarricadesUnsafe();
         }
 
-        public List<TTTPlayer> GetAlive(Roles.Role role)
+        public async Task CheckWin()
         {
-            return Players.FindAll(player => player.Role == role && player.Status == Status.ALIVE);
+            CommandWindow.Log("Checking Win");
+            if (RoundManager.GetAlivePlayersWithRole(PlayerRole.TRAITOR).Count == 0)
+            {
+                CommandWindow.Log("Innocents win");
+                Players.ToList().ForEach(p => Task.Run(async () => await InterfaceManager.SendBannerMessage(p.SteamID, 8493, "Innocents win!", 6000, true)));
+                await Stop();
+                return;
+            }
+
+            if (RoundManager.GetAlivePlayersWithRole(PlayerRole.DETECTIVE).Count == 0 && RoundManager.GetAlivePlayersWithRole(PlayerRole.INNOCENT).Count == 0)
+            {
+                CommandWindow.Log("Traitors win");
+                Players.ToList().ForEach(p => Task.Run(async () => await InterfaceManager.SendBannerMessage(p.SteamID, 8492, "Traitors win!", 6000, true)));
+                await Stop();
+                return;
+            }
         }
+        #endregion
     }
 }

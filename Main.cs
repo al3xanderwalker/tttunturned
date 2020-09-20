@@ -1,67 +1,55 @@
-﻿using TTTUnturned.Utils;
+﻿using Nito.AsyncEx;
 using SDG.Framework.Modules;
 using SDG.Unturned;
-using System.IO;
-using System.Reflection;
-using UnityEngine;
-using TTTUnturned.API.Items.C4.C4Manager;
-using TTTUnturned.API.Level;
-using TTTUnturned.API.Interface;
-using TTTUnturned.API.Lobby;
-using TTTUnturned.API.Players;
-using TTTUnturned.API.Round;
-using TTTUnturned.API.Roles;
-using TTTUnturned.API.Commands;
 using System;
+using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Reflection;
+using System.Text;
+using System.Threading.Tasks;
 using TTTUnturned.API.Core;
+using TTTUnturned.API.Level;
+using TTTUnturned.Utils;
+using UnityEngine;
 
 namespace TTTUnturned
 {
     public class Main : MonoBehaviour, IModuleNexus
     {
-        private static GameObject TTTUnturnedObject;
-        public static Main Instance;
+        private GameObject TTTUnturnedObject;
         public static Config Config;
 
         public void initialize()
         {
-            Instance = this;
+            CommandWindow.Log("TTTUnturned loaded");
 
-            Patcher patch = new Patcher(); // Create patcher object and call PatchAll
+            UnityThread.initUnityThread();
+
+            Patcher patch = new Patcher();
             Patcher.DoPatching();
 
-            UnityThread.initUnityThread(); // Init UnityThread helper
+            ConfigHelper.EnsureConfig($"{Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location)}{Path.DirectorySeparatorChar}config.json");
+            Config = ConfigHelper.ReadConfig($"{Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location)}{Path.DirectorySeparatorChar}config.json");
 
-            // Generate config
-            string path = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
-            ConfigHelper.EnsureConfig($"{path}{Path.DirectorySeparatorChar}config.json");
-            Config = ConfigHelper.ReadConfig($"{path}{Path.DirectorySeparatorChar}config.json");
+            LevelSettings.SetConfig();
 
-            CommandWindow.Log($"DEBUG MODE: {Config.DebugMode}");
-            // Level Config
-            LevelConfig.SetConfig();
-
-            // Load our module as a gameObject
-            TTTUnturnedObject = new GameObject("TTTUnturned");
-            DontDestroyOnLoad(TTTUnturnedObject);
-
-            // Dynamically add classes as a component that impliment IObjectComponent
-            var componentManagers = Assembly.GetExecutingAssembly().DefinedTypes.Where(type => type.ImplementedInterfaces.Any(inter => inter == typeof(IObjectComponent))).ToList();
-            foreach (Type component in componentManagers)
+            TTTUnturnedObject = new GameObject();
+            var componentManagers = Assembly.GetExecutingAssembly().DefinedTypes
+                .Where(type => type.ImplementedInterfaces.Any(inter => inter == typeof(IObjectComponent))).ToList();
+            componentManagers.ForEach(c =>
             {
-                var methodInfo = typeof(GameObject).GetMethods().Where(x => x.IsGenericMethod)
-                     .Where(x => x.Name == "AddComponent").Single();
-                var addComponentRef = methodInfo.MakeGenericMethod(component);
+                MethodInfo methodInfo = typeof(GameObject).GetMethods()
+                    .Where(x => x.IsGenericMethod)
+                    .Where(x => x.Name == "AddComponent").Single();
+                MethodInfo addComponentRef = methodInfo.MakeGenericMethod(c);
                 addComponentRef.Invoke(TTTUnturnedObject, null);
-            }
-            Commander.register(new CommandPos());
-            CommandWindow.Log("TTTUnturned by Corbyn & Alex loaded");
+            });
         }
 
         public void shutdown()
         {
-            Instance = null;
+
         }
     }
 }

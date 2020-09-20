@@ -18,7 +18,7 @@ namespace TTTUnturned.Utils
         public int RoundLength { get; set; }
 
         public bool DebugMode { get; set; }
-        
+
         public int MinimumPlayers { get; set; }
     }
 

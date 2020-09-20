@@ -1,6 +1,10 @@
 ﻿using SDG.Unturned;
 using Steamworks;
+using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 using TTTUnturned.API.Core;
 using UnityEngine;
 
@@ -23,6 +27,12 @@ namespace TTTUnturned.API.Items.BombVest
             {
                 // Refactor this into explode function
                 player.clothing.askWearVest(0, 0, new byte[0], true);
+
+                InventorySearch foundVest = player.inventory.has(1013);
+                if (foundVest is null) return;
+
+                player.inventory.removeItem(foundVest.page, player.inventory.getIndex(foundVest.page, foundVest.jar.x, foundVest.jar.y));
+
                 ExplosionParameters explodParams = new ExplosionParameters(player.transform.position, 10f, EDeathCause.KILL, CSteamID.Nil);
                 explodParams.penetrateBuildables = true;
                 explodParams.playerDamage = 150;
@@ -32,7 +42,6 @@ namespace TTTUnturned.API.Items.BombVest
                 EffectManager.sendEffect(45, byte.MaxValue, byte.MaxValue, byte.MaxValue, player.transform.position);
                 DamageTool.explode(explodParams, out deadPlayers);
             }
-
         }
     }
 }

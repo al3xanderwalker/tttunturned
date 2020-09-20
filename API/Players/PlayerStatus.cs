@@ -4,12 +4,11 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace TTTUnturned.API.Items
+namespace TTTUnturned.API.Players
 {
-    public enum ItemType
+    public enum PlayerStatus
     {
-        BARRICADE,
-        WEAPON,
-        WEARABLE
+        ALIVE,
+        DEAD
     }
 }

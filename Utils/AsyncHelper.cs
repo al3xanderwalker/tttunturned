@@ -1,7 +1,10 @@
 ﻿using Nito.AsyncEx;
 using SDG.Unturned;
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
+using System.Text;
 using System.Threading.Tasks;
 
 namespace TTTUnturned.Utils
@@ -62,12 +65,6 @@ namespace TTTUnturned.Utils
             AsyncContext.Run(action);
         }
 
-        /// <summary>
-        ///    Schedules a task on a different thread (fire and forget)
-        /// </summary>
-        /// <param name="name">The name of the task.</param>
-        /// <param name="task">The task to run.</param>
-        /// <param name="exceptionHandler">The optional exception handler.</param>
         public static void Schedule(string name, Func<Task> task, int interval, Action<Exception> exceptionHandler = null)
         {
             Task.Run(async () =>
@@ -88,35 +85,7 @@ namespace TTTUnturned.Utils
                     }
                     else
                     {
-                        CommandWindow.Log($"Exception occured in task \"{name}\"\n{e}");
-                    }
-                }
-            });
-        }
-
-        /// <summary>
-        ///     Fire and forget an async task
-        /// </summary>
-        /// <param name="name">The name of the task.</param>
-        /// <param name="task">The task to run.</param>
-        /// <param name="exceptionHandler">The optional exception handler.</param>
-        public static void RunAsync(string name, Func<Task> task, Action<Exception> exceptionHandler = null)
-        {
-            Task.Run(async () =>
-            {
-                try
-                {
-                    await task();
-                }
-                catch (Exception e)
-                {
-                    if (exceptionHandler != null)
-                    {
-                        exceptionHandler(e);
-                    }
-                    else
-                    {
-                        CommandWindow.Log($"Exception occured in task \"{name}\"\n{e}");
+                        CommandWindow.Log($"{e} Exception occured in task \"{name}\"\n");
                     }
                 }
             });

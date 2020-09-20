@@ -4,12 +4,13 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace TTTUnturned.API.Items
+namespace TTTUnturned.API.Roles
 {
-    public enum ItemType
+    public enum PlayerRole
     {
-        BARRICADE,
-        WEAPON,
-        WEARABLE
+        NONE,
+        INNOCENT,
+        DETECTIVE,
+        TRAITOR
     }
 }

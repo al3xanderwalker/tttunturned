@@ -5,11 +5,22 @@ using System.Threading.Tasks;
 
 namespace TTTUnturned.API.Level
 {
-    public class ItemManager
+    public class LevelManager
     {
         public static void RespawnItems()
         {
             UnityThread.executeCoroutine(RespawnItemsAsync());
+        }
+
+        public static void ClearBarricadesUnsafe()
+        {
+            UnityThread.executeCoroutine(ClearBarricadesEnumerator());   
+        }
+        
+        private static IEnumerator ClearBarricadesEnumerator()
+        {
+            BarricadeManager.askClearAllBarricades();
+            yield return null;
         }
 
         private static IEnumerator RespawnItemsAsync()
@@ -20,13 +31,13 @@ namespace TTTUnturned.API.Level
                 for (byte y = 0; y < Regions.WORLD_SIZE; y++)
                 {
 
-                    var itemsCount = LevelItems.spawns[x, y].Count;
+                    var itemsCount = SDG.Unturned.LevelItems.spawns[x, y].Count;
                     if (itemsCount <= 0) continue;
 
                     for (var i = 0; i < itemsCount; i++)
                     {
-                        var itemSpawnpoint = LevelItems.spawns[x, y][i];
-                        var itemId = LevelItems.getItem(itemSpawnpoint);
+                        var itemSpawnpoint = SDG.Unturned.LevelItems.spawns[x, y][i];
+                        var itemId = SDG.Unturned.LevelItems.getItem(itemSpawnpoint);
 
                         if (itemId == 0) continue;
 
@@ -35,17 +46,6 @@ namespace TTTUnturned.API.Level
                     }
                 }
             }
-
-            yield return null;
-        }
-        public static async Task AddItemAync(SteamPlayer steamPlayer, ushort id)
-        {
-            UnityThread.executeCoroutine(AddItemCoroutine(steamPlayer, id));
-        }
-
-        private static IEnumerator AddItemCoroutine(SteamPlayer steamPlayer, ushort id)
-        {
-            steamPlayer.player.inventory.forceAddItem(new Item(id, true), true);
 
             yield return null;
         }

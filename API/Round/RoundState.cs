@@ -1,8 +1,14 @@
-﻿namespace TTTUnturned.API.Lobby
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace TTTUnturned.API.Round
 {
     public enum RoundState
     {
-        WAITING,
+        SETUP,
         WARMUP,
         LIVE
     }

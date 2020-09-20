@@ -1,12 +1,13 @@
 ﻿using SDG.Unturned;
+using Steamworks;
 using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
 using TTTUnturned.API.Core;
 using TTTUnturned.API.Interface;
-using TTTUnturned.API.Lobby;
 using TTTUnturned.API.Players;
 using TTTUnturned.API.Roles;
 using TTTUnturned.Utils;
@@ -17,119 +18,125 @@ namespace TTTUnturned.API.Round
 {
     public class RoundManager : MonoBehaviour, IObjectComponent
     {
-        private static RoundSession RoundSession;
+        private static RoundSession Round;
 
         public void Awake()
         {
-            RoundSession = CreateRoundSessionInitial();
             CommandWindow.Log("RoundManager loaded");
 
-            AsyncHelper.Schedule("RoundTick", RoundTick, 1000);
+            Round = CreateSession();
+            AsyncHelper.Schedule("RoundTimeThread", RoundTimeTick, 1000);
 
             Provider.onEnemyConnected += OnEnemyConnected;
             Provider.onEnemyDisconnected += OnEnemyDisconnected;
+
+            PlayerLife.onPlayerDied += OnPlayerDied;
+            DamageTool.damagePlayerRequested += OnDamagePlayerRequested;
         }
 
+        #region API
+        private RoundSession CreateSession() => new RoundSession();
+
+        public static RoundSession GetSession() => Round;
+
+        private static void StartRound() => Task.Run(async () => await Round.Start());
+
+        public static void StopRound() => Task.Run(async () => await Round.Stop());
+
+        public static RoundState GetState() => Round.State;
+
+        public static void SetState(RoundState state) => Round.State = state;
+
+        public static List<TTTPlayer> GetAllPlayers() => Round.Players;
+
+        public static List<TTTPlayer> GetAllAlivePlayers() => Round.Players.FindAll(p => p.Status == PlayerStatus.ALIVE);
+
+        public static List<TTTPlayer> GetAlivePlayersWithRole(PlayerRole role) => Round.Players.FindAll(p => p.Status == PlayerStatus.ALIVE && p.Role == role);
+
+        public static int GetTimeRemaining() => Round.RoundTime;
+
+        public static void SetTimeRemaining(int time) => Round.RoundTime = time;
+
+        public static void CheckWin() => Task.Run(async () => await Round.CheckWin());
+
+        public static void Broadcast(string message) => UnityThread.executeCoroutine(BroadcastCoroutine(message));
+        #endregion
+
+        #region Events
         private void OnEnemyConnected(SteamPlayer steamPlayer)
         {
-            if (RoundSession.State == RoundState.LIVE || RoundSession.State == RoundState.WARMUP)
-            {
-                PlayerManager.TeleportToLocationAsync(steamPlayer, PlayerManager.GetRandomSpawn(Main.Config.LobbySpawns));
-                return;
-            }
+            TTTPlayer createdPlayer = PlayerManager.CreateTTTPlayer(steamPlayer.playerID.steamID, PlayerRole.NONE, PlayerStatus.DEAD);
+            Round.AddPlayer(createdPlayer);
 
-            if (Provider.clients.ToList().Count >= Main.Config.MinimumPlayers)
-            {
-                AsyncHelper.RunAsync("RoundStart", RoundSession.Start);
-            }
-            else
-            {
-                Broadcast($"<color=red>{Main.Config.MinimumPlayers - Provider.clients.Count}</color> more players needed to start game.");
-                InterfaceManager.SendLobbyBannerMessage(8494, $"<size=20><color=red>{Main.Config.MinimumPlayers - Provider.clients.Count}</color> more players needed to start game.</size>", 5000, true);
-            }
+            createdPlayer.Revive();
+
+            Task.Run(async () => await InterfaceManager.SendBannerMessage(createdPlayer.SteamID, 8494, $"Welcome {steamPlayer.playerID.characterName}", 5000, true));
         }
 
-        public static void OnEnemyDisconnected(SteamPlayer steamPlayer)
+        private void OnEnemyDisconnected(SteamPlayer steamPlayer)
         {
-            TTTPlayer tttPlayer = PlayerManager.GetTTTPlayer(steamPlayer.playerID.steamID);
-            if (tttPlayer is null) return;
+            Round.RemovePlayer(PlayerManager.GetTTTPlayer(steamPlayer.playerID.steamID));
 
-            RoundSession.Players.Remove(tttPlayer);
-
-            CheckWin();
-        }
-
-        public static List<TTTPlayer> GetPlayers() => RoundSession.Players;
-
-        public static void Broadcast(string message, SteamPlayer toPlayer = null) => UnityThread.executeCoroutine(BroadcastCoroutine(message, toPlayer));
-
-        private static IEnumerator BroadcastCoroutine(string message, SteamPlayer toPlayer = null)
-        {
-            ChatManager.serverSendMessage(message, Color.white, null, toPlayer, EChatMode.GLOBAL, "https://i.imgur.com/UUwQfvY.png", true);
-            yield return null;
-        } 
-
-        public static RoundState GetRoundSessionState()
-        {
-            return RoundSession.State;
-        }
-
-        public static List<TTTPlayer> GetAlive(Role role) => RoundSession.Players.FindAll(p => p.Role == role && p.Status == Status.ALIVE);
-
-        public static void CheckWin()
-        {
-            Task.Run(async () =>
+            if (GetState() == RoundState.LIVE)
             {
-                if (GetAlive(Role.TRAITOR).Count == 0)
-                {
-                    Broadcast("<color=lime>Innocents</color> Win!");
-                    await InterfaceManager.SendLobbyBannerMessage(8493, $"Innocents Win!", 10000, true);
-                    await RoundSession.Stop();
-                    // Innocents win
-                }
-                if (GetAlive(Role.DETECTIVE).Count == 0 && GetAlive(Role.INNOCENT).Count == 0)
-                {
-                    Broadcast("<color=red>Terroists</color> Win!");
-                    await InterfaceManager.SendLobbyBannerMessage(8492, $"Terroists Win!", 10000, true);
-                    await RoundSession.Stop();
-                    // Terrorist win
-                }
-            });
-        }
-
-        private RoundSession CreateRoundSessionInitial() => new RoundSession();
-
-        private async Task RoundTick()
-        {
-            if (RoundSession.State != RoundState.LIVE) return;
-
-            RoundSession.RoundTime--;
-
-            RoundSession.Players.ForEach(async player =>
-            {
-                await InterfaceManager.SendUIEffectTextAsync(8490, player.SteamID, true, "TimerValue", ParseTime(RoundSession.RoundTime));
-               // await SendUIEffectAsync();
-            });
-
-            if (RoundSession.RoundTime == 60) // Convert this to updating the time displayed on the ui once added.
-            {
-                Broadcast("1 minute remaining");
-            }
-
-            if (RoundSession.RoundTime == 0)
-            {
-                Broadcast("<color=lime>Innocents</color> Win!");
-
-                await RoundSession.Stop();
-                //AsyncHelper.RunAsync("LobbyStopRoundTime", Lobby.Stop);
-                return;
+                CheckWin();
             }
         }
 
+        private void OnPlayerDied(PlayerLife sender, EDeathCause cause, ELimb limb, CSteamID instigator)
+        {
+            TTTPlayer tttPly = PlayerManager.GetTTTPlayer(sender.channel.owner.playerID.steamID);
+
+            if (GetState() == RoundState.LIVE && tttPly.GetStatus() == PlayerStatus.ALIVE)
+            {
+                CheckWin();
+            }
+
+            tttPly.SetStatus(PlayerStatus.DEAD);
+            tttPly.Revive();
+        }
+
+        private void OnDamagePlayerRequested(ref DamagePlayerParameters parameters, ref bool shouldAllow)
+        {
+            if (GetState() != RoundState.LIVE)
+            {
+                shouldAllow = false;
+            }
+        }
         public static string ParseTime(int seconds)
         {
             TimeSpan t = TimeSpan.FromSeconds(seconds);
             return t.ToString(@"mm\:ss");
         }
+        #endregion
+
+        #region Threading
+#pragma warning disable CS1998 // Async method lacks 'await' operators and will run synchronously
+        private async Task RoundTimeTick()
+
+        {
+            if (GetState() == RoundState.SETUP && GetAllPlayers().Count >= Main.Config.MinimumPlayers)
+            {
+                CommandWindow.Log("Enough players, attempting start");
+                StartRound();
+            }
+
+            if (GetState() == RoundState.LIVE)
+            {
+                Round.Players.ToList().ForEach(p => InterfaceManager.SendUIEffectTextUnsafe(8490, p.SteamID, true, "TimerValue", ParseTime(Round.RoundTime)));
+                
+                Round.RoundTime--;
+            }
+        }
+#pragma warning restore CS1998 // Async method lacks 'await' operators and will run synchronously
+        #endregion
+
+        #region Coroutines
+        private static IEnumerator BroadcastCoroutine(string message)
+        {
+            ChatManager.serverSendMessage(message, Color.white, null, null, EChatMode.GLOBAL, "https://i.imgur.com/UUwQfvY.png", true);
+            yield return null;
+        }
+        #endregion
     }
 }
