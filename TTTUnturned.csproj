@@ -92,6 +92,8 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="API\Commands\CommandDiscord.cs" />
+    <Compile Include="API\Commands\CommandManager.cs" />
     <Compile Include="API\Core\IObjectComponent.cs" />
     <Compile Include="API\Interface\InterfaceManager.cs" />
     <Compile Include="API\Items\BarricadeItem.cs" />
@@ -107,6 +109,8 @@
     <Compile Include="API\Level\Map.cs" />
     <Compile Include="API\Level\Spawn.cs" />
     <Compile Include="API\Level\SpawnConfig.cs" />
+    <Compile Include="API\Players\CreditsManager.cs" />
+    <Compile Include="API\Players\DeathboxManager.cs" />
     <Compile Include="API\Players\PlayerManager.cs" />
     <Compile Include="API\Players\PlayerStatus.cs" />
     <Compile Include="API\Players\TTTPlayer.cs" />

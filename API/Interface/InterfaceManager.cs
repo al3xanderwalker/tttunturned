@@ -74,32 +74,39 @@ namespace TTTUnturned.API.Interface
                     case "ChargeButton":
                         player.inventory.forceAddItem(new Item(1241, true), true);
                         tttPlayer.SendMessage("You redeemed C4");
+                        tttPlayer.RemoveCredits(1);
                         break;
                     case "CoughSyrupButton":
                         player.inventory.forceAddItem(new Item(15, true), true);
                         tttPlayer.SendMessage("You redeemed Medkit");
+                        tttPlayer.RemoveCredits(1);
                         break;
                     case "KnifeButton":
                         player.inventory.forceAddItem(new Item(140, true), true);
                         tttPlayer.SendMessage("You redeemed Knife");
+                        tttPlayer.RemoveCredits(1);
                         break;
                     case "LMGButton":
                         player.inventory.forceAddItem(new Item(126, true), true);
                         tttPlayer.SendMessage("You redeemed LMG");
+                        tttPlayer.RemoveCredits(1);
                         break;
                     case "SupressedPistol":
                         //player.inventory.forceAddItem(SilencedPistol.Create(), true);
-                        tttPlayer.SendMessage("You redeemed Suppresed Pistol");
+                        //tttPlayer.SendMessage("You redeemed Suppresed Pistol");
                         break;
                     case "BombVestButton":
                         player.inventory.forceAddItem(new Item(1013, true), true);
                         tttPlayer.SendMessage("You redeemed Bomb Vest");
+                        tttPlayer.RemoveCredits(1);
                         break;
                     case "BodyArmourButton":
                         PlayerManager.GetTTTPlayer(player.channel.owner.playerID.steamID).Armor = true;
                         tttPlayer.SendMessage("You redeemed Armor Vest");
+                        tttPlayer.RemoveCredits(1);
                         break;
                 }
+                CommandWindow.Log(tttPlayer.GetCredits());
             }
         }
 

@@ -16,6 +16,7 @@ namespace TTTUnturned.API.Players
         public PlayerRole Role;
         public PlayerStatus Status;
         public bool Armor;
+        public int Credits;
 
         public TTTPlayer(CSteamID steamID, PlayerRole role, PlayerStatus status)
         {
@@ -23,14 +24,25 @@ namespace TTTUnturned.API.Players
             Role = role;
             Status = status;
             Armor = false;
+            Credits = 0;
         }
 
         #region API
         public void SetRole(PlayerRole role) => Role = role;
 
+        public PlayerRole GetRole() => Role;
+
         public PlayerStatus GetStatus() => Status;
 
         public void SetStatus(PlayerStatus status) => Status = status;
+
+        public int GetCredits() => Credits;
+
+        public void AddCredits(int credits) => Credits += credits;
+
+        public void RemoveCredits(int credits) => Credits -= credits;
+
+        public void SetCredits(int credits) => Credits = credits;
 
         public void Revive()
         {

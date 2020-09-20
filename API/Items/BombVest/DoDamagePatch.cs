@@ -22,6 +22,10 @@ namespace TTTUnturned.API.Items.BombVest
             if (amount >= ply.life.health && ply.clothing.vest == 1013)
             {
                 ply.clothing.askWearVest(0, 0, new byte[0], true);
+                InventorySearch foundVest = ply.inventory.has(1013);
+                if (foundVest is null) return;
+
+                ply.inventory.removeItem(foundVest.page, ply.inventory.getIndex(foundVest.page, foundVest.jar.x, foundVest.jar.y));
 
                 ExplosionParameters explodParams = new ExplosionParameters(ply.transform.position, 10f, EDeathCause.KILL, CSteamID.Nil);
                 explodParams.penetrateBuildables = true;

@@ -53,6 +53,14 @@ namespace TTTUnturned.API.Round
 
                 RoleManager.GeneratePlayerRoles();
 
+                Players.ToList().ForEach(p =>
+                {
+                    if (p.GetRole() == PlayerRole.TRAITOR || p.GetRole() == PlayerRole.DETECTIVE)
+                    {
+                        p.SetCredits(2);
+                    }
+                });
+
                 State = RoundState.LIVE;
             } catch (Exception ex)
             {
@@ -63,7 +71,6 @@ namespace TTTUnturned.API.Round
         public async Task Stop()
         {
             CommandWindow.Log("Stopping round");
-            State = RoundState.SETUP;
             RoundTime = 600;
 
             await Task.Delay(6000);
@@ -77,6 +84,8 @@ namespace TTTUnturned.API.Round
             });
 
             await Task.Delay(6000);
+
+            State = RoundState.SETUP;
         }
 
         public async Task CheckWin()
