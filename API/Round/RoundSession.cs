@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 using TTTUnturned.API.Interface;
 using TTTUnturned.API.Players;
 using TTTUnturned.API.Roles;
-using ItemManager = TTTUnturned.API.Level.LevelItems;
+using LevelManager = TTTUnturned.API.Level.LevelManager;
 namespace TTTUnturned.API.Round
 {
     public class RoundSession
@@ -36,7 +36,7 @@ namespace TTTUnturned.API.Round
                 CommandWindow.Log("Warmup Starting");
                 State = RoundState.WARMUP;
 
-                ItemManager.RespawnItems();
+                LevelManager.RespawnItems();
 
                 await Task.Delay(6000);
 
@@ -86,6 +86,8 @@ namespace TTTUnturned.API.Round
             await Task.Delay(6000);
 
             State = RoundState.SETUP;
+
+            LevelManager.ClearBarricadesUnsafe();
         }
 
         public async Task CheckWin()

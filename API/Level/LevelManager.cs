@@ -5,11 +5,22 @@ using System.Threading.Tasks;
 
 namespace TTTUnturned.API.Level
 {
-    public class LevelItems
+    public class LevelManager
     {
         public static void RespawnItems()
         {
             UnityThread.executeCoroutine(RespawnItemsAsync());
+        }
+
+        public static void ClearBarricadesUnsafe()
+        {
+            UnityThread.executeCoroutine(ClearBarricadesEnumerator());   
+        }
+        
+        private static IEnumerator ClearBarricadesEnumerator()
+        {
+            BarricadeManager.askClearAllBarricades();
+            yield return null;
         }
 
         private static IEnumerator RespawnItemsAsync()

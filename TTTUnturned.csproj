@@ -104,7 +104,7 @@
     <Compile Include="API\Items\Item.cs" />
     <Compile Include="API\Items\ItemManager.cs" />
     <Compile Include="API\Items\ItemType.cs" />
-    <Compile Include="API\Level\LevelItems.cs" />
+    <Compile Include="API\Level\LevelManager.cs" />
     <Compile Include="API\Level\LevelSettings.cs" />
     <Compile Include="API\Level\Map.cs" />
     <Compile Include="API\Level\Spawn.cs" />
