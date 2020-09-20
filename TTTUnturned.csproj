@@ -83,10 +83,6 @@
     <Reference Include="UnityEngine">
       <HintPath>D:\Unturned\Unturned_Data\Managed\UnityEngine.dll</HintPath>
     </Reference>
-    <Reference Include="UnityEngine.AnimationModule, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>D:\Unturned\Unturned_Data\Managed\UnityEngine.AnimationModule.dll</HintPath>
-    </Reference>
     <Reference Include="UnityEngine.CoreModule">
       <HintPath>D:\Unturned\Unturned_Data\Managed\UnityEngine.CoreModule.dll</HintPath>
     </Reference>
@@ -95,6 +91,7 @@
     <Compile Include="API\Core\IObjectComponent.cs" />
     <Compile Include="API\Interface\InterfaceManager.cs" />
     <Compile Include="API\Level\ItemManager.cs" />
+    <Compile Include="API\Level\LevelConfig.cs" />
     <Compile Include="API\Level\Map.cs" />
     <Compile Include="API\Level\Spawn.cs" />
     <Compile Include="API\Level\SpawnConfig.cs" />
