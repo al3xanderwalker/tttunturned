@@ -31,9 +31,6 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="0Harmony, Version=2.0.2.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>packages\Lib.Harmony.2.0.2\lib\net472\0Harmony.dll</HintPath>
-    </Reference>
     <Reference Include="Assembly-CSharp">
       <HintPath>D:\Unturned\Unturned_Data\Managed\Assembly-CSharp.dll</HintPath>
     </Reference>
@@ -96,6 +93,7 @@
     <Compile Include="API\Commands\CommandManager.cs" />
     <Compile Include="API\Core\IObjectComponent.cs" />
     <Compile Include="API\Interface\InterfaceManager.cs" />
+    <Compile Include="API\Items\ArmorVest\ArmorVestManager.cs" />
     <Compile Include="API\Items\BarricadeItem.cs" />
     <Compile Include="API\Items\BombVest\BombVestManager.cs" />
     <Compile Include="API\Items\BombVest\DoDamagePatch.cs" />

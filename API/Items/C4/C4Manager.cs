@@ -6,6 +6,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using TTTUnturned.API.Core;
+using PlayerManager = TTTUnturned.API.Players.PlayerManager;
+using TTTUnturned.API.Players;
+using TTTUnturned.Utils;
+using TTTUnturned.API.Interface;
 using UnityEngine;
 
 namespace TTTUnturned.API.Items.C4
@@ -20,6 +24,7 @@ namespace TTTUnturned.API.Items.C4
 
             ActiveC4 = new List<C4>();
 
+            
             BarricadeManager.onBarricadeSpawned += OnBarricadeSpawned;
             BarricadeManager.onSalvageBarricadeRequested += OnSalvageBarricadeRequested;
         }
@@ -28,18 +33,20 @@ namespace TTTUnturned.API.Items.C4
         {
             ActiveC4.ForEach(c4 =>
             {
+                CommandWindow.Log(c4.TimeLeft);
                 byte itemX;
                 byte itemY;
                 ushort itemPlant;
                 ushort itemIndex;
                 BarricadeRegion region;
 
-                if (!BarricadeManager.tryGetInfo(c4.Drop.model.transform, out itemX, out itemY, out itemPlant, out itemIndex, out region)) return;
+                BarricadeManager.tryGetInfo(c4.Drop.model.transform, out itemX, out itemY, out itemPlant, out itemIndex, out region);
 
                 if (itemX == x && itemY == y)
                 {
-                    CommandWindow.Log("C4 Defused");
                     c4.Defused = true;
+                    UnityThread.executeCoroutine(C4.SendEffectLocation(61, c4.Drop.model.position));
+                    InterfaceManager.SendBannerMessage(steamID, 8494, "Bomb Defused", 3000, true);
                 }
 
             });
@@ -51,7 +58,7 @@ namespace TTTUnturned.API.Items.C4
         {
             if (drop.asset.id != 1241) return;
 
-            ActiveC4.Add(SpawnC4Barricade(region, drop, 10));
+            ActiveC4.Add(SpawnC4Barricade(region, drop, 20000));
         }
 
         static public C4 SpawnC4Barricade(BarricadeRegion region, BarricadeDrop drop, int time) => new C4(region, drop, time);

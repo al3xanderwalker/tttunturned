@@ -30,6 +30,7 @@ namespace TTTUnturned.API.Players
         #region Events
         private void OnEnemyConnected(SteamPlayer steamPlayer)
         {
+            TTTPlayer.ClearInventoryUnsafe(steamPlayer);
             Player ply = steamPlayer.player;
             ply.life.serverModifyHealth(100.0f);
             ply.life.serverModifyStamina(100.0f);

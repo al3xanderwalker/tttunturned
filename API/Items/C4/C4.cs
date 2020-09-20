@@ -7,6 +7,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using TTTUnturned.Utils;
+using UnityEngine;
+using TTTUnturned.API.Interface;
 
 namespace TTTUnturned.API.Items.C4
 {
@@ -14,6 +16,7 @@ namespace TTTUnturned.API.Items.C4
     {
         public bool Defused { get; set; }
         public int TimeLeft { get; set; }
+        public int Length { get; set; }
 
         public C4(BarricadeRegion region, BarricadeDrop drop, int time)
         {
@@ -26,8 +29,9 @@ namespace TTTUnturned.API.Items.C4
             Region = region;
             Drop = drop;
             Defused = false;
+            Length = time;
             TimeLeft = time;
-            AsyncHelper.Schedule("C4Tick", C4Tick, 1000);
+            AsyncHelper.Schedule("C4Tick", C4Tick, 500);
         }
 
         #region Threading
@@ -36,17 +40,24 @@ namespace TTTUnturned.API.Items.C4
         {
             if (!Defused)
             {
-                TimeLeft--;
-                if (TimeLeft == 0)
-                {
-                    UnityThread.executeCoroutine(C4DetonateCoroutine());
-                }
+                TimeLeft -= 500;
+
+                beepCheck();
+
+                if (TimeLeft == 0) UnityThread.executeCoroutine(C4DetonateCoroutine());
             }
         }
 #pragma warning restore CS1998 // Async method lacks 'await' operators and will run synchronously
         #endregion
 
         #region Coroutines
+        public static IEnumerator SendEffectLocation(ushort id, Vector3 position)
+        {
+            EffectManager.sendEffect(id, byte.MaxValue, byte.MaxValue, byte.MaxValue, position);
+
+            yield return null;
+        }
+
         private IEnumerator C4DetonateCoroutine()
         {
             EffectManager.sendEffect(45, byte.MaxValue, byte.MaxValue, byte.MaxValue, Drop.model.position);
@@ -67,8 +78,25 @@ namespace TTTUnturned.API.Items.C4
             if (!BarricadeManager.tryGetInfo(Drop.model.transform, out x, out y, out plant, out index, out region)) yield return null;
 
             BarricadeManager.destroyBarricade(region, x, y, plant, index);
+            Defused = true; // quick fix to prevent time ticking
 
             yield return null;
+        }
+        #endregion
+        #region functions
+        public void beepCheck()
+        {
+            if (TimeLeft > Length / 2 && TimeLeft % 4000 == 0) // first half of time
+                UnityThread.executeCoroutine(SendEffectLocation(56, Drop.model.position));
+
+            if (TimeLeft < Length / 2 && TimeLeft > Length / 4 && TimeLeft % 2000 == 0) // third quarter of time
+                UnityThread.executeCoroutine(SendEffectLocation(56, Drop.model.position));
+
+            if (TimeLeft < Length / 4 && TimeLeft > Length / 8 && TimeLeft % 1000 == 0) // seventh eigth of time
+                UnityThread.executeCoroutine(SendEffectLocation(56, Drop.model.position));
+
+            if (TimeLeft < Length / 8 && TimeLeft % 500 == 0) // last eight of time
+                UnityThread.executeCoroutine(SendEffectLocation(56, Drop.model.position));
         }
         #endregion
     }

@@ -100,16 +100,16 @@ namespace TTTUnturned.API.Players
             UnityThread.executeCoroutine(ClearInventoryCoroutine(player));
         }
 
-        public static void AddItemUnsafe(SteamPlayer steamPlayer, ushort id)
+        public void AddItemUnsafe(ushort id)
         {
-            UnityThread.executeCoroutine(AddItemCoroutine(steamPlayer, id));
+            UnityThread.executeCoroutine(AddItemCoroutine(id));
         }
         #endregion
 
         #region Enumerators
-        private static IEnumerator AddItemCoroutine(SteamPlayer steamPlayer, ushort id)
+        private IEnumerator AddItemCoroutine(ushort id)
         {
-            steamPlayer.player.inventory.forceAddItem(new Item(id, true), true);
+            PlayerTool.getPlayer(SteamID).inventory.forceAddItem(new Item(id, true), true);
 
             yield return null;
         }

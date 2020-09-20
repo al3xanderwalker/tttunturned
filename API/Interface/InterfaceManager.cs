@@ -74,39 +74,25 @@ namespace TTTUnturned.API.Interface
                     case "ChargeButton":
                         player.inventory.forceAddItem(new Item(1241, true), true);
                         tttPlayer.SendMessage("You redeemed C4");
-                        tttPlayer.RemoveCredits(1);
-                        break;
-                    case "CoughSyrupButton":
-                        player.inventory.forceAddItem(new Item(15, true), true);
-                        tttPlayer.SendMessage("You redeemed Medkit");
-                        tttPlayer.RemoveCredits(1);
-                        break;
-                    case "KnifeButton":
-                        player.inventory.forceAddItem(new Item(140, true), true);
-                        tttPlayer.SendMessage("You redeemed Knife");
-                        tttPlayer.RemoveCredits(1);
+                        tttPlayer.RemoveCredits(4);
                         break;
                     case "LMGButton":
                         player.inventory.forceAddItem(new Item(126, true), true);
                         tttPlayer.SendMessage("You redeemed LMG");
-                        tttPlayer.RemoveCredits(1);
-                        break;
-                    case "SupressedPistol":
-                        //player.inventory.forceAddItem(SilencedPistol.Create(), true);
-                        //tttPlayer.SendMessage("You redeemed Suppresed Pistol");
+                        tttPlayer.RemoveCredits(3);
                         break;
                     case "BombVestButton":
                         player.inventory.forceAddItem(new Item(1013, true), true);
                         tttPlayer.SendMessage("You redeemed Bomb Vest");
-                        tttPlayer.RemoveCredits(1);
+                        tttPlayer.RemoveCredits(5);
                         break;
                     case "BodyArmourButton":
                         PlayerManager.GetTTTPlayer(player.channel.owner.playerID.steamID).Armor = true;
                         tttPlayer.SendMessage("You redeemed Armor Vest");
-                        tttPlayer.RemoveCredits(1);
+                        tttPlayer.RemoveCredits(2);
                         break;
                 }
-                CommandWindow.Log(tttPlayer.GetCredits());
+                SendUIEffectTextUnsafe(8470, tttPlayer.SteamID, true, "CreditsValue", $"Credits: {tttPlayer.Credits}");
             }
         }
 
@@ -152,6 +138,7 @@ namespace TTTUnturned.API.Interface
                 {
                     UIToggled.Add(tttPlayer.SteamID);
                     SendUIEffectUnsafe(8501, 8470, tttPlayer.SteamID, true);
+                    SendUIEffectTextUnsafe(8470, tttPlayer.SteamID, true, "CreditsValue", $"Credits: {tttPlayer.Credits}");
                     player.setPluginWidgetFlag(EPluginWidgetFlags.Modal, true);
                     player.setPluginWidgetFlag(EPluginWidgetFlags.ForceBlur, true);
                 }

@@ -64,6 +64,7 @@ namespace TTTUnturned.API.Roles
                 TTTPlayer tttPlayer = PlayerManager.GetTTTPlayer(selectedDetective);
                 tttPlayer.SetRole(PlayerRole.DETECTIVE);
                 tttPlayer.SendMessageUnsafe("You are a detective");
+                tttPlayer.AddItemUnsafe(10);
 
                 InterfaceManager.SendUIEffectUnsafe(8496, 8490, tttPlayer.SteamID, true);
                 InterfaceManager.SendUIEffectTextUnsafe(8490, tttPlayer.SteamID, true, "RoleValue", "DETECTIVE");
