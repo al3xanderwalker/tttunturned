@@ -20,6 +20,14 @@ namespace TTTUnturned.API.Level
             Provider.configData.Normal.Items.Gun_Bullets_Full_Chance = 1;
             Provider.configData.Normal.Items.Quality_Full_Chance = 1;
             Provider.configData.Normal.Items.Has_Durability = false;
+            Provider.configData.Normal.Players.Lose_Clothes_PvE = false;
+            Provider.configData.Normal.Players.Lose_Clothes_PvP = false;
+            Provider.configData.Normal.Players.Lose_Items_PvE = 0.0f;
+            Provider.configData.Normal.Players.Lose_Items_PvP = 0.0f;
+            Provider.configData.Normal.Players.Lose_Skills_PvE = 0.0f;
+            Provider.configData.Normal.Players.Lose_Skills_PvP = 0.0f;
+            Provider.configData.Normal.Players.Lose_Weapons_PvE = false;
+            Provider.configData.Normal.Players.Lose_Weapons_PvP = false;
 
             Provider.configData.Normal.Players.Can_Start_Bleeding = false;
             Provider.configData.Normal.Players.Can_Break_Legs = false;

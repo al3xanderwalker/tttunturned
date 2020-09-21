@@ -79,11 +79,13 @@ namespace TTTUnturned.API.Items.C4
 
             BarricadeManager.destroyBarricade(region, x, y, plant, index);
             Defused = true; // quick fix to prevent time ticking
+            C4Manager.ActiveC4.Remove(this);
 
             yield return null;
         }
         #endregion
-        #region functions
+
+        #region API
         public void beepCheck()
         {
             if (TimeLeft > Length / 2 && TimeLeft % 4000 == 0) // first half of time

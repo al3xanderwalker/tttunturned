@@ -16,7 +16,7 @@ namespace TTTUnturned.API.Items.C4
 {
     public class C4Manager : MonoBehaviour, IObjectComponent
     {
-        private List<C4> ActiveC4;
+        public static List<C4> ActiveC4;
 
         public void Awake()
         {
@@ -24,34 +24,9 @@ namespace TTTUnturned.API.Items.C4
 
             ActiveC4 = new List<C4>();
 
-            
+
             BarricadeManager.onBarricadeSpawned += OnBarricadeSpawned;
-            BarricadeManager.onSalvageBarricadeRequested += OnSalvageBarricadeRequested;
-        }
-
-        public void OnSalvageBarricadeRequested(CSteamID steamID, byte x, byte y, ushort plant, ushort index, ref bool shouldAllow)
-        {
-            ActiveC4.ForEach(c4 =>
-            {
-                CommandWindow.Log(c4.TimeLeft);
-                byte itemX;
-                byte itemY;
-                ushort itemPlant;
-                ushort itemIndex;
-                BarricadeRegion region;
-
-                BarricadeManager.tryGetInfo(c4.Drop.model.transform, out itemX, out itemY, out itemPlant, out itemIndex, out region);
-
-                if (itemX == x && itemY == y)
-                {
-                    c4.Defused = true;
-                    UnityThread.executeCoroutine(C4.SendEffectLocation(61, c4.Drop.model.position));
-                    InterfaceManager.SendBannerMessage(steamID, 8494, "Bomb Defused", 3000, true);
-                }
-
-            });
-
-            shouldAllow = false;
+            BarricadeManager.onDamageBarricadeRequested += OnDamageBarricadeRequest;
         }
 
         public void OnBarricadeSpawned(BarricadeRegion region, BarricadeDrop drop)
@@ -59,6 +34,11 @@ namespace TTTUnturned.API.Items.C4
             if (drop.asset.id != 1241) return;
 
             ActiveC4.Add(SpawnC4Barricade(region, drop, 20000));
+        }
+
+        private void OnDamageBarricadeRequest(CSteamID instigatorSteamID, Transform barricadeTransform, ref ushort pendingTotalDamage, ref bool shouldAllow, EDamageOrigin damageOrigin)
+        {
+            shouldAllow = false;
         }
 
         static public C4 SpawnC4Barricade(BarricadeRegion region, BarricadeDrop drop, int time) => new C4(region, drop, time);

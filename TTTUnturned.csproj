@@ -31,6 +31,10 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="0Harmony, Version=2.0.2.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>Lib\0Harmony.dll</HintPath>
+    </Reference>
     <Reference Include="Assembly-CSharp">
       <HintPath>D:\Unturned\Unturned_Data\Managed\Assembly-CSharp.dll</HintPath>
     </Reference>
@@ -97,8 +101,10 @@
     <Compile Include="API\Items\BarricadeItem.cs" />
     <Compile Include="API\Items\BombVest\BombVestManager.cs" />
     <Compile Include="API\Items\BombVest\DoDamagePatch.cs" />
+    <Compile Include="API\Items\C4\AskSalvageBarricadePatch.cs" />
     <Compile Include="API\Items\C4\C4.cs" />
     <Compile Include="API\Items\C4\C4Manager.cs" />
+    <Compile Include="API\Items\C4\TellGesturePatch.cs" />
     <Compile Include="API\Items\Item.cs" />
     <Compile Include="API\Items\ItemManager.cs" />
     <Compile Include="API\Items\ItemType.cs" />
