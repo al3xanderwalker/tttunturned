@@ -32,7 +32,7 @@ namespace TTTUnturned.API.Players
         {
             TTTPlayer.ClearInventoryUnsafe(steamPlayer);
             Player ply = steamPlayer.player;
-            ply.life.serverModifyHealth(100.0f);
+            ply.life.serverModifyHealth(100.0f); // Change this
             ply.life.serverModifyStamina(100.0f);
         }
         #endregion

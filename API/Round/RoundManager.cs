@@ -120,6 +120,7 @@ namespace TTTUnturned.API.Round
                 isVisible = false;
             }
         }
+        
         public static string ParseTime(int seconds)
         {
             TimeSpan t = TimeSpan.FromSeconds(seconds);

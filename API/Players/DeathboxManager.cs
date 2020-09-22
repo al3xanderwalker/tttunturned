@@ -30,7 +30,7 @@ namespace TTTUnturned.API.Players
 
             if (amount >= ply.life.health)
             {
-                Transform deathboxTransform = BarricadeManager.dropBarricade(new Barricade(366),ply.transform, ply.transform.position, 0f, 0f, 0f, (ulong) ply.channel.owner.playerID.steamID, 0UL);
+                Transform deathboxTransform = BarricadeManager.dropBarricade(new Barricade(1283),ply.transform, ply.transform.position, 0f, 0f, 0f, (ulong) ply.channel.owner.playerID.steamID, 0UL);
                 byte x;
                 byte y;
                 ushort plant;
@@ -50,6 +50,7 @@ namespace TTTUnturned.API.Players
                         storage.items.tryAddItem(item.item);
                     }
                 }
+                TTTPlayer.ClearInventoryUnsafe(__instance.channel.owner); // Clears clothing to prevent players aqquiring detective vest ect.
             }
         }
     }

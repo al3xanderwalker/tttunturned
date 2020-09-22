@@ -46,6 +46,7 @@ namespace TTTUnturned.API.Interface
             UnityThread.executeCoroutine(ClearUIEffectCoroutine(id, steamID));
         }
 
+
         public static void SendUIEffectUnsafe(ushort id, short key, CSteamID steamID, bool reliable)
         {
             UnityThread.executeCoroutine(SendUIEffectCoroutine(id, key, steamID, reliable));
@@ -69,6 +70,7 @@ namespace TTTUnturned.API.Interface
             TTTPlayer tttPlayer = PlayerManager.GetTTTPlayer(player.channel.owner.playerID.steamID);
             if (buttonName.Substring(0, 2) == "T_")
             {
+                if (tttPlayer.Role != PlayerRole.TRAITOR) return;
                 switch (buttonName.Remove(0, 2))
                 {
                     case "ChargeButton":
@@ -87,12 +89,40 @@ namespace TTTUnturned.API.Interface
                         tttPlayer.RemoveCredits(5);
                         break;
                     case "BodyArmourButton":
-                        PlayerManager.GetTTTPlayer(player.channel.owner.playerID.steamID).Armor = true;
+                        tttPlayer.Armor = true;
                         tttPlayer.SendMessage("You redeemed Armor Vest");
                         tttPlayer.RemoveCredits(2);
                         break;
                 }
-                SendUIEffectTextUnsafe(8470, tttPlayer.SteamID, true, "CreditsValue", $"Credits: {tttPlayer.Credits}");
+                SendUIEffectTextUnsafe(8470, tttPlayer.SteamID, true, "CreditsValue", tttPlayer.Credits.ToString());
+            }
+            else if (buttonName.Substring(0, 2) == "D_")
+            {
+                if (tttPlayer.Role != PlayerRole.DETECTIVE) return;
+                switch (buttonName.Remove(0, 2))
+                {
+                    case "HealthStationButton":
+                        player.inventory.forceAddItem(new Item(1050, true), true);
+                        tttPlayer.SendMessage("You redeemed a Health Station");
+                        tttPlayer.RemoveCredits(4);
+                        break;
+                    case "PrototypeButton":
+                        player.inventory.forceAddItem(new Item(1447, true), true);
+                        tttPlayer.SendMessage("You redeemed Prototype Scalar");
+                        tttPlayer.RemoveCredits(5);
+                        break;
+                    case "DefuserButton":
+                        tttPlayer.Defuser = true;
+                        tttPlayer.SendMessage("You redeemed a Defuser");
+                        tttPlayer.RemoveCredits(3);
+                        break;
+                    case "BodyArmourButton":
+                        tttPlayer.Armor = true;
+                        tttPlayer.SendMessage("You redeemed Armor Vest");
+                        tttPlayer.RemoveCredits(2);
+                        break;
+                }
+                SendUIEffectTextUnsafe(8470, tttPlayer.SteamID, true, "CreditsValue", tttPlayer.Credits.ToString());
             }
         }
 
@@ -127,22 +157,34 @@ namespace TTTUnturned.API.Interface
 
             if (tttPlayer.Role == PlayerRole.TRAITOR)
             {
-                if (UIToggled.Contains(tttPlayer.SteamID))
-                {
-                    UIToggled.Remove(tttPlayer.SteamID);
-                    ClearUIEffectUnsafe(8501, tttPlayer.SteamID);
-                    player.setPluginWidgetFlag(EPluginWidgetFlags.Modal, false);
-                    player.setPluginWidgetFlag(EPluginWidgetFlags.ForceBlur, false);
-                }
-                else
-                {
-                    UIToggled.Add(tttPlayer.SteamID);
-                    SendUIEffectUnsafe(8501, 8470, tttPlayer.SteamID, true);
-                    SendUIEffectTextUnsafe(8470, tttPlayer.SteamID, true, "CreditsValue", $"Credits: {tttPlayer.Credits}");
-                    player.setPluginWidgetFlag(EPluginWidgetFlags.Modal, true);
-                    player.setPluginWidgetFlag(EPluginWidgetFlags.ForceBlur, true);
-                }
+                ToggleShop(player, tttPlayer, 8501);
+            }
+            else if (tttPlayer.Role == PlayerRole.DETECTIVE)
+            {
+                ToggleShop(player, tttPlayer, 8502);
+            }
+        }
 
+        #endregion
+
+        #region Functions
+
+        public void ToggleShop(Player player, TTTPlayer tttPlayer, ushort effectID)
+        {
+            if (UIToggled.Contains(tttPlayer.SteamID))
+            {
+                UIToggled.Remove(tttPlayer.SteamID);
+                ClearUIEffectUnsafe(effectID, tttPlayer.SteamID);
+                player.setPluginWidgetFlag(EPluginWidgetFlags.Modal, false);
+                player.setPluginWidgetFlag(EPluginWidgetFlags.ForceBlur, false);
+            }
+            else
+            {
+                UIToggled.Add(tttPlayer.SteamID);
+                SendUIEffectUnsafe(effectID, 8470, tttPlayer.SteamID, true);
+                SendUIEffectTextUnsafe(8470, tttPlayer.SteamID, true, "CreditsValue", tttPlayer.Credits.ToString());
+                player.setPluginWidgetFlag(EPluginWidgetFlags.Modal, true);
+                player.setPluginWidgetFlag(EPluginWidgetFlags.ForceBlur, true);
             }
         }
 

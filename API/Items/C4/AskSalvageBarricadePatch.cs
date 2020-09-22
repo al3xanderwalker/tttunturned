@@ -17,26 +17,19 @@ namespace TTTUnturned.API.Items.C4
     {
         public static bool Prefix(CSteamID steamID, byte x, byte y, ushort plant, ushort index, BarricadeManager __instance)
         {
+            BarricadeRegion region;
+            BarricadeManager.tryGetRegion(x, y, plant, out region);
+            uint UID = region.barricades[index].instanceID;
             C4Manager.ActiveC4.ToList().ForEach(c4 =>
             {
-                CommandWindow.Log(c4.TimeLeft);
-                byte itemX;
-                byte itemY;
-                ushort itemPlant;
-                ushort itemIndex;
-                BarricadeRegion region;
-
-                if (!BarricadeManager.tryGetInfo(c4.Drop.model.transform, out itemX, out itemY, out itemPlant, out itemIndex, out region)) return;
-
-                if (itemX == x && itemY == y)
+                if(c4.Drop.instanceID == UID)
                 {
                     c4.Defused = true;
                     UnityThread.executeCoroutine(C4.SendEffectLocation(61, c4.Drop.model.position));
-                    BarricadeManager.destroyBarricade(region, itemX, itemY, itemPlant, itemIndex);
+                    BarricadeManager.destroyBarricade(region, x, y, plant, index);
                     C4Manager.ActiveC4.Remove(c4);
                 }
             });
-
             return false;
         }
     }

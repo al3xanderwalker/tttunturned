@@ -34,15 +34,19 @@ namespace TTTUnturned.API.Players
             TTTPlayer killer = PlayerManager.GetTTTPlayer(instigator);
             if (killer is null) return;
 
-            if (killer.GetRole() == PlayerRole.DETECTIVE && victim.GetRole() == PlayerRole.TRAITOR)
+            if (victim.GetRole() == PlayerRole.TRAITOR)
             {
-                killer.AddCredits(1);
+                RoundManager.GetAlivePlayersWithRole(PlayerRole.DETECTIVE).ForEach(p => {
+                    p.AddCredits(1);
+                    p.SendMessage("You have gained 1 credit");
+                });
                 return;
             }
 
             if (killer.GetRole() == PlayerRole.TRAITOR && victim.GetRole() != PlayerRole.TRAITOR)
             {
                 killer.AddCredits(1);
+                killer.SendMessage("You have gained 1 credit");
                 return;
             }
             // Gets a list of all players in the round that arent traitors

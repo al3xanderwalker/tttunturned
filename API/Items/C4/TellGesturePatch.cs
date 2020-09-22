@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using PlayerManager = TTTUnturned.API.Players.PlayerManager;
 using UnityEngine;
 
 namespace TTTUnturned.API.Items.C4
@@ -22,14 +23,12 @@ namespace TTTUnturned.API.Items.C4
             RaycastInfo traceResult = TraceRay(ply, 10f, RayMasks.BARRICADE_INTERACT);
             if (traceResult is null)
             {
-                CommandWindow.Log("Result is nulll");
                 return;
             }
 
             InteractableCharge charge = traceResult.transform.gameObject.GetComponent<InteractableCharge>();
             if (charge is null)
             {
-                CommandWindow.Log("Charge is null");
                 return;
             }
 
@@ -41,7 +40,6 @@ namespace TTTUnturned.API.Items.C4
 
             if (!BarricadeManager.tryGetInfo(charge.transform, out x, out y, out plant, out index, out region))
             {
-                CommandWindow.Log("Couldnt get charge transform thing");
                 return;
             }
 
@@ -54,6 +52,14 @@ namespace TTTUnturned.API.Items.C4
                 (ulong) ply.channel.owner.playerID.steamID,
                 (ulong) 0
             });
+            if(PlayerManager.GetTTTPlayer(__instance.channel.owner.playerID.steamID).Defuser)
+            {
+                __instance.channel.owner.player.interact.sendSalvageTimeOverride(8f);
+            }
+            else
+            {
+                __instance.channel.owner.player.interact.sendSalvageTimeOverride(16f);
+            }
             //CSteamID steamID, byte x, byte y, ushort plant, ushort index, ulong newOwner, ulong newGroup
 
         }

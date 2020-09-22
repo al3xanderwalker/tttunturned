@@ -16,6 +16,7 @@ namespace TTTUnturned.API.Players
         public PlayerRole Role;
         public PlayerStatus Status;
         public bool Armor;
+        public bool Defuser;
         public int Credits;
 
         public TTTPlayer(CSteamID steamID, PlayerRole role, PlayerStatus status)
@@ -24,6 +25,7 @@ namespace TTTUnturned.API.Players
             Role = role;
             Status = status;
             Armor = false;
+            Defuser = false;
             Credits = 0;
         }
 

@@ -105,9 +105,14 @@
     <Compile Include="API\Items\C4\C4.cs" />
     <Compile Include="API\Items\C4\C4Manager.cs" />
     <Compile Include="API\Items\C4\TellGesturePatch.cs" />
+    <Compile Include="API\Items\HealthStation\HealthStation.cs" />
+    <Compile Include="API\Items\HealthStation\HealthStationManager.cs" />
     <Compile Include="API\Items\Item.cs" />
     <Compile Include="API\Items\ItemManager.cs" />
     <Compile Include="API\Items\ItemType.cs" />
+    <Compile Include="API\Items\TrackerGun\TrackerGunManager.cs" />
+    <Compile Include="API\Items\TrackerGun\TrackerGun.cs" />
+    <Compile Include="API\Items\WeaponItem.cs" />
     <Compile Include="API\Level\LevelManager.cs" />
     <Compile Include="API\Level\LevelSettings.cs" />
     <Compile Include="API\Level\Map.cs" />
@@ -135,6 +140,5 @@
     <None Include="app.config" />
     <None Include="packages.config" />
   </ItemGroup>
-  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
