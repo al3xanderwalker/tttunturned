@@ -11,6 +11,8 @@ using PlayerManager = TTTUnturned.API.Players.PlayerManager;
 using Random = System.Random;
 using System.Threading.Tasks;
 using TTTUnturned.API.Interface;
+using System.Collections;
+using TTTUnturned.Utils;
 
 namespace TTTUnturned.API.Roles
 {
@@ -43,13 +45,25 @@ namespace TTTUnturned.API.Roles
             if (traitorCount == 0) traitorCount = 1;
             if (detectiveCount == 0) detectiveCount = 1;
 
+            GroupInfo oldTraitorGroup = GroupManager.getGroupInfo((CSteamID)1);
+            if (!(oldTraitorGroup is null))
+            {
+                UnityThread.executeCoroutine(DeleteTraitorGroup());
+            }
+
+            UnityThread.executeCoroutine(CreateTraitorGroup());
+
             for (var i = 0; i < traitorCount; i++)
             {
                 CSteamID selectedTraitor = tickets[rng.Next(tickets.Count)];
 
                 TTTPlayer tttPlayer = PlayerManager.GetTTTPlayer(selectedTraitor);
+                if (tttPlayer is null) return;
+
                 tttPlayer.SetRole(PlayerRole.TRAITOR);
                 tttPlayer.SendMessageUnsafe("You are a traitor");
+
+                UnityThread.executeCoroutine(SetSteamGroupEnumerator(tttPlayer.SteamID));
 
                 InterfaceManager.SendUIEffectUnsafe(8499, 8490, tttPlayer.SteamID, true);
                 InterfaceManager.SendUIEffectTextUnsafe(8490, tttPlayer.SteamID, true, "RoleValue", "TRAITOR");
@@ -83,6 +97,33 @@ namespace TTTUnturned.API.Roles
 
                 tickets.RemoveAll(x => x == steamID);
             });
+        }
+        #endregion
+
+        #region Enumerators
+        private static IEnumerator CreateTraitorGroup()
+        {
+            GroupManager.addGroup((CSteamID)1, "Traitors");
+            yield return null;
+        }
+
+        private static IEnumerator DeleteTraitorGroup()
+        {
+            GroupManager.deleteGroup((CSteamID) 1);
+            yield return null;
+        }
+
+        private static IEnumerator SetSteamGroupEnumerator(CSteamID steamID)
+        {
+            Player ply = PlayerTool.getPlayer(steamID);
+            if (ply is null) yield return null;
+
+            ply.quests.channel.send("tellSetGroup", ESteamCall.ALL, ESteamPacket.UPDATE_RELIABLE_BUFFER, new object[]
+            {
+                    (CSteamID) 1,
+                    (byte) EPlayerGroupRank.MEMBER
+            });
+            yield return null;
         }
         #endregion
     }

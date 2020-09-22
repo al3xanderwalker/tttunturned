@@ -32,6 +32,8 @@ namespace TTTUnturned.API.Round
 
             PlayerLife.onPlayerDied += OnPlayerDied;
             DamageTool.damagePlayerRequested += OnDamagePlayerRequested;
+
+            ChatManager.onChatted += OnChatted;
         }
 
         #region API
@@ -94,6 +96,9 @@ namespace TTTUnturned.API.Round
 
             tttPly.SetStatus(PlayerStatus.DEAD);
             tttPly.Revive();
+
+            InterfaceManager.SendUIEffectTextUnsafe(8490, tttPly.SteamID, true, "RoleValue", "WAITING");
+            InterfaceManager.SendUIEffectTextUnsafe(8490, tttPly.SteamID, true, "TimerValue", "00:00");
         }
 
         private void OnDamagePlayerRequested(ref DamagePlayerParameters parameters, ref bool shouldAllow)
@@ -101,6 +106,18 @@ namespace TTTUnturned.API.Round
             if (GetState() != RoundState.LIVE)
             {
                 shouldAllow = false;
+            }
+        }
+
+        private void OnChatted(SteamPlayer player, EChatMode mode, ref Color chatted, ref bool isRich, string text, ref bool isVisible)
+        {
+            TTTPlayer tttPlayer = PlayerManager.GetTTTPlayer(player.playerID.steamID);
+            if (tttPlayer is null) return;
+
+            if (mode == EChatMode.GLOBAL && GetState() != RoundState.SETUP && !player.isAdmin)
+            {
+                tttPlayer.SendMessage("Global chat is disabled during rounds, press K for area");
+                isVisible = false;
             }
         }
         public static string ParseTime(int seconds)

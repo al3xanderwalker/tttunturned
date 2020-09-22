@@ -115,6 +115,7 @@
     <Compile Include="API\Level\SpawnConfig.cs" />
     <Compile Include="API\Players\CreditsManager.cs" />
     <Compile Include="API\Players\DeathboxManager.cs" />
+    <Compile Include="API\Players\HandleValidateAuthTicketResponsePatch.cs" />
     <Compile Include="API\Players\PlayerManager.cs" />
     <Compile Include="API\Players\PlayerStatus.cs" />
     <Compile Include="API\Players\TTTPlayer.cs" />
