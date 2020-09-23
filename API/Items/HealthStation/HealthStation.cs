@@ -30,6 +30,7 @@ namespace TTTUnturned.API.Items.HealhStation
             Expired = false;
             TimeLeft = time;
             AsyncHelper.Schedule("HealthStationTick", HealthStationTick, 500);
+            InterfaceManager.SendEffectLocation(2000, drop.model.position);
         }
 
         #region Threading
@@ -49,12 +50,6 @@ namespace TTTUnturned.API.Items.HealhStation
         #endregion
 
         #region Coroutines
-        public static IEnumerator SendEffectLocation(ushort id, Vector3 position)
-        {
-            EffectManager.sendEffect(id, byte.MaxValue, byte.MaxValue, byte.MaxValue, position);
-
-            yield return null;
-        }
 
         private IEnumerator HealPlayer(Player player)
         {

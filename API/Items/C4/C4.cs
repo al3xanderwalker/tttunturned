@@ -51,12 +51,6 @@ namespace TTTUnturned.API.Items.C4
         #endregion
 
         #region Coroutines
-        public static IEnumerator SendEffectLocation(ushort id, Vector3 position)
-        {
-            EffectManager.sendEffect(id, byte.MaxValue, byte.MaxValue, byte.MaxValue, position);
-
-            yield return null;
-        }
 
         private IEnumerator C4DetonateCoroutine()
         {
@@ -88,17 +82,18 @@ namespace TTTUnturned.API.Items.C4
         #region API
         public void beepCheck()
         {
-            if (TimeLeft > Length / 2 && TimeLeft % 4000 == 0) // first half of time
-                UnityThread.executeCoroutine(SendEffectLocation(56, Drop.model.position));
+            if (TimeLeft > Length / 2 && TimeLeft % 4000 == 0) Beep();
 
-            if (TimeLeft < Length / 2 && TimeLeft > Length / 4 && TimeLeft % 2000 == 0) // third quarter of time
-                UnityThread.executeCoroutine(SendEffectLocation(56, Drop.model.position));
+            if (TimeLeft < Length / 2 && TimeLeft > Length / 4 && TimeLeft % 2000 == 0) Beep();
 
-            if (TimeLeft < Length / 4 && TimeLeft > Length / 8 && TimeLeft % 1000 == 0) // seventh eigth of time
-                UnityThread.executeCoroutine(SendEffectLocation(56, Drop.model.position));
+            if (TimeLeft < Length / 4 && TimeLeft > Length / 8 && TimeLeft % 1000 == 0) Beep();
 
-            if (TimeLeft < Length / 8 && TimeLeft % 500 == 0) // last eight of time
-                UnityThread.executeCoroutine(SendEffectLocation(56, Drop.model.position));
+            if (TimeLeft < Length / 8 && TimeLeft % 500 == 0) Beep();
+        }
+
+        private void Beep()
+        {
+            InterfaceManager.SendEffectLocation(56, Drop.model.position);
         }
         #endregion
     }

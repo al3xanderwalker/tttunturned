@@ -62,6 +62,19 @@ namespace TTTUnturned.API.Interface
             UnityThread.executeCoroutine(DisableHUDCoroutine(steamID));
         }
 
+        public static void ClearAllUI(CSteamID steamId)
+        {
+            for (int i = 0; i < 12; i++)
+            {
+                int id = 8491 + i;
+                ClearUIEffectUnsafe((ushort)id, steamId);
+            }
+        }
+        public static void SendEffectLocation(ushort id, Vector3 position)
+        {
+            UnityThread.executeCoroutine(SendEffectLocationCoroutine(id, position));
+        }
+
         #endregion
 
         #region Events
@@ -74,24 +87,44 @@ namespace TTTUnturned.API.Interface
                 switch (buttonName.Remove(0, 2))
                 {
                     case "ChargeButton":
-                        player.inventory.forceAddItem(new Item(1241, true), true);
-                        tttPlayer.SendMessage("You redeemed C4");
-                        tttPlayer.RemoveCredits(4);
+                        if (tttPlayer.Credits >= 4)
+                        {
+                            player.inventory.forceAddItem(new Item(1241, true), true);
+                            tttPlayer.SendMessage("You redeemed C4");
+                            tttPlayer.RemoveCredits(4);
+                        }
+                        else tttPlayer.SendMessage("You do not have enough credits");
                         break;
                     case "LMGButton":
-                        player.inventory.forceAddItem(new Item(126, true), true);
-                        tttPlayer.SendMessage("You redeemed LMG");
-                        tttPlayer.RemoveCredits(3);
+                        if (tttPlayer.Credits >= 3)
+                        {
+                            player.inventory.forceAddItem(new Item(126, true), true);
+                            tttPlayer.SendMessage("You redeemed LMG");
+                            tttPlayer.RemoveCredits(3);
+                        }
+                        else tttPlayer.SendMessage("You do not have enough credits");
                         break;
                     case "BombVestButton":
-                        player.inventory.forceAddItem(new Item(1013, true), true);
-                        tttPlayer.SendMessage("You redeemed Bomb Vest");
-                        tttPlayer.RemoveCredits(5);
+                        if (tttPlayer.Credits >= 5)
+                        {
+                            player.inventory.forceAddItem(new Item(1013, true), true);
+                            tttPlayer.SendMessage("You redeemed Bomb Vest");
+                            tttPlayer.RemoveCredits(5);
+                        }
+                        else tttPlayer.SendMessage("You do not have enough credits");
                         break;
                     case "BodyArmourButton":
-                        tttPlayer.Armor = true;
-                        tttPlayer.SendMessage("You redeemed Armor Vest");
-                        tttPlayer.RemoveCredits(2);
+                        if (tttPlayer.Armor == false)
+                        {
+                            if (tttPlayer.Credits >= 2)
+                            {
+                                tttPlayer.Armor = true;
+                                tttPlayer.SendMessage("You redeemed Armor Vest");
+                                tttPlayer.RemoveCredits(2);
+                            }
+                            else tttPlayer.SendMessage("You do not have enough credits");
+                        }
+                        else tttPlayer.SendMessage("You already have Armor Vest");
                         break;
                 }
                 SendUIEffectTextUnsafe(8470, tttPlayer.SteamID, true, "CreditsValue", tttPlayer.Credits.ToString());
@@ -102,24 +135,48 @@ namespace TTTUnturned.API.Interface
                 switch (buttonName.Remove(0, 2))
                 {
                     case "HealthStationButton":
-                        player.inventory.forceAddItem(new Item(1050, true), true);
-                        tttPlayer.SendMessage("You redeemed a Health Station");
-                        tttPlayer.RemoveCredits(4);
+                        if (tttPlayer.Credits >= 4)
+                        {
+                            player.inventory.forceAddItem(new Item(1050, true), true);
+                            tttPlayer.SendMessage("You redeemed a Health Station");
+                            tttPlayer.RemoveCredits(4);
+                        }
+                        else tttPlayer.SendMessage("You do not have enough credits");
                         break;
                     case "PrototypeButton":
-                        player.inventory.forceAddItem(new Item(1447, true), true);
-                        tttPlayer.SendMessage("You redeemed Prototype Scalar");
-                        tttPlayer.RemoveCredits(5);
-                        break;
+                        if (tttPlayer.Credits >= 5)
+                        {
+                            player.inventory.forceAddItem(new Item(1447, true), true);
+                            tttPlayer.SendMessage("You redeemed Prototype Scalar");
+                            tttPlayer.RemoveCredits(5);
+                        }
+                        else tttPlayer.SendMessage("You do not have enough credits");
+                            break;
                     case "DefuserButton":
-                        tttPlayer.Defuser = true;
-                        tttPlayer.SendMessage("You redeemed a Defuser");
-                        tttPlayer.RemoveCredits(3);
+                        if (tttPlayer.Defuser == false)
+                        {
+                            if (tttPlayer.Credits >= 3)
+                            {
+                                tttPlayer.Defuser = true;
+                                tttPlayer.SendMessage("You redeemed a Defuser");
+                                tttPlayer.RemoveCredits(3);
+                            }
+                            else tttPlayer.SendMessage("You do not have enough credits");
+                        }
+                        else tttPlayer.SendMessage("You already have a Defuser");
                         break;
                     case "BodyArmourButton":
-                        tttPlayer.Armor = true;
-                        tttPlayer.SendMessage("You redeemed Armor Vest");
-                        tttPlayer.RemoveCredits(2);
+                        if (tttPlayer.Armor == false)
+                        {
+                            if (tttPlayer.Credits >= 2)
+                            {
+                                tttPlayer.Armor = true;
+                                tttPlayer.SendMessage("You redeemed Armor Vest");
+                                tttPlayer.RemoveCredits(2);
+                            }
+                            else tttPlayer.SendMessage("You do not have enough credits");
+                        }
+                        else tttPlayer.SendMessage("You already have Armor Vest");
                         break;
                 }
                 SendUIEffectTextUnsafe(8470, tttPlayer.SteamID, true, "CreditsValue", tttPlayer.Credits.ToString());
@@ -191,11 +248,6 @@ namespace TTTUnturned.API.Interface
         #endregion
 
         #region Coroutines
-        private static IEnumerator SendEffectCoroutine(ushort id, byte x, byte y, byte z, Vector3 position)
-        {
-            EffectManager.sendEffect(id, x, y, z, position);
-            yield return null;
-        }
         private static IEnumerator SendUIEffectTextCoroutine(short key, CSteamID steamID, bool reliable, string component, string text)
         {
             EffectManager.sendUIEffectText(key, steamID, reliable, component, text);
@@ -221,6 +273,12 @@ namespace TTTUnturned.API.Interface
             ply.setPluginWidgetFlag(EPluginWidgetFlags.ShowVirus, false);
             ply.setPluginWidgetFlag(EPluginWidgetFlags.ShowOxygen, false);
             ply.setPluginWidgetFlag(EPluginWidgetFlags.ShowStatusIcons, false);
+            yield return null;
+        }
+        public static IEnumerator SendEffectLocationCoroutine(ushort id, Vector3 position)
+        {
+            EffectManager.sendEffect(id, byte.MaxValue, byte.MaxValue, byte.MaxValue, position);
+
             yield return null;
         }
         #endregion

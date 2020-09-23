@@ -33,7 +33,7 @@ namespace TTTUnturned.API.Items.C4
         {
             if (drop.asset.id != 1241) return;
 
-            ActiveC4.Add(SpawnC4Barricade(region, drop, 20000));
+            ActiveC4.Add(SpawnC4Barricade(region, drop, 30000));
         }
 
         private void OnDamageBarricadeRequest(CSteamID instigatorSteamID, Transform barricadeTransform, ref ushort pendingTotalDamage, ref bool shouldAllow, EDamageOrigin damageOrigin)

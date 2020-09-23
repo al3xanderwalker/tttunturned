@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using TTTUnturned.API.Interface;
 using TTTUnturned.API.Players;
 using TTTUnturned.API.Roles;
+using TTTUnturned.API.Items.C4;
 using LevelManager = TTTUnturned.API.Level.LevelManager;
 namespace TTTUnturned.API.Round
 {
@@ -37,6 +38,7 @@ namespace TTTUnturned.API.Round
                 State = RoundState.WARMUP;
 
                 LevelManager.RespawnItems();
+                Players.ToList().ForEach(p => InterfaceManager.ClearAllUI(p.SteamID));
 
                 await Task.Delay(6000);
 
@@ -80,6 +82,7 @@ namespace TTTUnturned.API.Round
                 if (p.Status == PlayerStatus.ALIVE)
                 {
                     p.ReviveUnsafe();
+                    TTTPlayer.ClearInventoryUnsafe(PlayerTool.getSteamPlayer(p.SteamID));
                 }
             });
 
@@ -88,6 +91,8 @@ namespace TTTUnturned.API.Round
             State = RoundState.SETUP;
 
             LevelManager.ClearBarricadesUnsafe();
+            C4Manager.ActiveC4.ForEach(c4 => c4.Defused = true);
+            C4Manager.ActiveC4.Clear();
         }
 
         public async Task CheckWin()

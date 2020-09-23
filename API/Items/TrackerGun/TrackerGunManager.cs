@@ -16,22 +16,25 @@ namespace TTTUnturned.API.Items.TrackerGun
 {
     public class TrackerGunManager : MonoBehaviour, IObjectComponent
     {
-        /*
+
         public void Awake()
         {
             CommandWindow.Log("TrackerGunManager loaded");
-
-            ChatManager.onChatted += OnChatted;
+            
+            DamageTool.damagePlayerRequested += OnDamagePlayerRequested;
         }
-
-        private void OnChatted(SteamPlayer player, EChatMode mode, ref Color chatted, ref bool isRich, string text, ref bool isVisible)
+        
+        private void OnDamagePlayerRequested(ref DamagePlayerParameters parameters, ref bool shouldAllow)
         {
-            Player ply = PlayerTool.getPlayer(player.playerID.steamID);
-            if (ply is null) return;
-            CommandWindow.Log(ply.equipment.asset);
+            if (parameters.player is null) return;
+            if (parameters.player.equipment.asset is null) return;
+            if (parameters.player.equipment.asset.id != 1447) return;
+            SpawnTrackerGun(parameters.player.channel.owner);
         }
+
 
         //ItemJar item = base.player.inventory.getItem(b, 0);
-        */
+
+        static public TrackerGun SpawnTrackerGun(SteamPlayer player) => new TrackerGun(player);
     }
 }
