@@ -15,6 +15,8 @@ namespace TTTUnturned.API.Commands
         {
             CommandWindow.Log("CommandManager loaded");
             ChatManager.onCheckPermissions += OnCheckPermissions;
+            Commander.register(new CommandDiscord());
+            Commander.register(new CommandMenu());
         }
 
         #region Events

@@ -169,7 +169,7 @@ namespace TTTUnturned.API.Interface
 
         #region Functions
 
-        public void ToggleShop(Player player, TTTPlayer tttPlayer, ushort effectID)
+        public static void ToggleShop(Player player, TTTPlayer tttPlayer, ushort effectID)
         {
             if (UIToggled.Contains(tttPlayer.SteamID))
             {
