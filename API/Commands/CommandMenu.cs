@@ -7,6 +7,7 @@ using System.Text;
 using System.Threading.Tasks;
 using TTTUnturned.API.Players;
 using TTTUnturned.API.Roles;
+using TTTUnturned.API.Items.TrackerGun;
 using TTTUnturned.API.Interface;
 using PlayerManager = TTTUnturned.API.Players.PlayerManager;
 

@@ -31,6 +31,7 @@ namespace TTTUnturned.API.Players
         private void OnEnemyConnected(SteamPlayer steamPlayer)
         {
             TTTPlayer.ClearInventoryUnsafe(steamPlayer);
+            steamPlayer.player.interact.sendSalvageTimeOverride(16f);
             Player ply = steamPlayer.player;
             ply.life.serverModifyHealth(100.0f); // Change this
             ply.life.serverModifyStamina(100.0f);

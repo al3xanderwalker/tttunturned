@@ -5,7 +5,9 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using TTTUnturned.API.Players;
 using System.Threading.Tasks;
+using TTTUnturned.API.Roles;
 using PlayerManager = TTTUnturned.API.Players.PlayerManager;
 using UnityEngine;
 
@@ -19,6 +21,9 @@ namespace TTTUnturned.API.Items.C4
         {
             Player ply = __instance.channel.owner.player;
             if (ply is null) return;
+            TTTPlayer tttplayer = PlayerManager.GetTTTPlayer(ply.channel.owner.playerID.steamID);
+            if (tttplayer is null) return;
+            if (tttplayer.Role == PlayerRole.TRAITOR) return;
 
             RaycastInfo traceResult = TraceRay(ply, 10f, RayMasks.BARRICADE_INTERACT);
             if (traceResult is null)

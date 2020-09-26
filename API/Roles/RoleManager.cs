@@ -61,7 +61,7 @@ namespace TTTUnturned.API.Roles
                 if (tttPlayer is null) return;
 
                 tttPlayer.SetRole(PlayerRole.TRAITOR);
-                tttPlayer.SendMessageUnsafe("You are a traitor");
+                tttPlayer.SendMessageUnsafe("You are a <color=#C72D35>Traitor</color>");
 
                 UnityThread.executeCoroutine(SetSteamGroupEnumerator(tttPlayer.SteamID));
 
@@ -77,7 +77,7 @@ namespace TTTUnturned.API.Roles
 
                 TTTPlayer tttPlayer = PlayerManager.GetTTTPlayer(selectedDetective);
                 tttPlayer.SetRole(PlayerRole.DETECTIVE);
-                tttPlayer.SendMessageUnsafe("You are a detective");
+                tttPlayer.SendMessageUnsafe("You are a <color=#2263A9>Detective</color>");
                 tttPlayer.AddItemUnsafe(10);
 
                 InterfaceManager.SendUIEffectUnsafe(8496, 8490, tttPlayer.SteamID, true);
@@ -90,7 +90,7 @@ namespace TTTUnturned.API.Roles
             {
                 TTTPlayer tttPlayer = PlayerManager.GetTTTPlayer(steamID);
                 tttPlayer.SetRole(PlayerRole.INNOCENT);
-                tttPlayer.SendMessageUnsafe("You are a innocent");
+                tttPlayer.SendMessageUnsafe("You are a <color=#24B938>Innocent</color>");
 
                 InterfaceManager.SendUIEffectUnsafe(8497, 8490, tttPlayer.SteamID, true);
                 InterfaceManager.SendUIEffectTextUnsafe(8490, tttPlayer.SteamID, true, "RoleValue", "INNOCENT");
