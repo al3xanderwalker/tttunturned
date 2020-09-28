@@ -16,25 +16,67 @@ namespace TTTUnturned.API.Items.TrackerGun
 {
     public class TrackerGunManager : MonoBehaviour, IObjectComponent
     {
+        private static Dictionary<CSteamID, long> TrackedPlayers;
 
         public void Awake()
         {
             CommandWindow.Log("TrackerGunManager loaded");
-            
+
+            TrackedPlayers = new Dictionary<CSteamID, long>();
+
             DamageTool.damagePlayerRequested += OnDamagePlayerRequested;
+            AsyncHelper.Schedule("TrackerGunTick", TrackerGunTick, 500);
         }
-        
+
         private void OnDamagePlayerRequested(ref DamagePlayerParameters parameters, ref bool shouldAllow)
         {
-            if (parameters.player is null) return;
-            if (parameters.player.equipment.asset is null) return;
-            if (parameters.player.equipment.asset.id != 1447) return;
-            SpawnTrackerGun(parameters.player.channel.owner);
+            Player killerPlayer = PlayerTool.getPlayer(parameters.killer);
+            if (killerPlayer is null) return;
+            if (killerPlayer.equipment.asset is null) return;
+            if (killerPlayer.equipment.asset.id != 1447) return;
+
+            CSteamID playerId = parameters.player.channel.owner.playerID.steamID;
+
+            parameters.damage = 0;
+
+            if (!TrackedPlayers.ContainsKey(playerId))
+            {
+                AddTrackedPlayer(playerId);
+            }
+            else
+            {
+                TrackedPlayers[playerId] = 30000;
+            }
         }
+
+        #region Threading
+#pragma warning disable CS1998 // Async method lacks 'await' operators and will run synchronously
+        private async Task TrackerGunTick()
+        {
+            foreach (KeyValuePair<CSteamID, long> pair in TrackedPlayers.Keys.ToDictionary(_ => _, _ => TrackedPlayers[_]))
+            {
+                TrackedPlayers[pair.Key] -= 500;
+                if (pair.Value % 5000 == 0)
+                {
+                    Player ply = PlayerTool.getPlayer(pair.Key);
+                    InterfaceManager.SendEffectLocationUnsafe(107, ply.transform.position);
+                }
+                if(pair.Value == 0)
+                {
+                    RemoveTrackedPlayer(pair.Key);
+                }
+            }
+        }
+#pragma warning restore CS1998 // Async method lacks 'await' operators and will run synchronously
+        #endregion
 
 
         //ItemJar item = base.player.inventory.getItem(b, 0);
 
-        static public TrackerGun SpawnTrackerGun(SteamPlayer player) => new TrackerGun(player);
+        public static void AddTrackedPlayer(CSteamID steamID) => TrackedPlayers.Add(steamID, 30000);
+
+        public static void RemoveTrackedPlayer(CSteamID steamID) => TrackedPlayers.Remove(steamID);
+
+        public static void ClearTrackedPlayers() => TrackedPlayers.Clear();
     }
 }

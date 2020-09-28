@@ -10,6 +10,7 @@ namespace TTTUnturned.API.Round
     {
         SETUP,
         WARMUP,
-        LIVE
+        LIVE,
+        INTERMISSION
     }
 }

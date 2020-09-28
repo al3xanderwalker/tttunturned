@@ -12,6 +12,7 @@ using TTTUnturned.API.Core;
 using TTTUnturned.API.Level;
 using TTTUnturned.Utils;
 using UnityEngine;
+using Steamworks;
 
 namespace TTTUnturned
 {
@@ -33,6 +34,7 @@ namespace TTTUnturned
             Config = ConfigHelper.ReadConfig($"{Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location)}{Path.DirectorySeparatorChar}config.json");
 
             LevelSettings.SetConfig();
+            //Level.onPostLevelLoaded += OnLevelLoaded;
 
             TTTUnturnedObject = new GameObject();
             var componentManagers = Assembly.GetExecutingAssembly().DefinedTypes
@@ -45,6 +47,11 @@ namespace TTTUnturned
                 MethodInfo addComponentRef = methodInfo.MakeGenericMethod(c);
                 addComponentRef.Invoke(TTTUnturnedObject, null);
             });
+        }
+
+        private void OnLevelLoaded(int level)
+        {
+            SteamGameServer.SetKeyValue("Browser_Config_Count", "0");
         }
 
         public void shutdown()

@@ -30,7 +30,7 @@ namespace TTTUnturned.API.Items.HealhStation
             Expired = false;
             TimeLeft = time;
             AsyncHelper.Schedule("HealthStationTick", HealthStationTick, 500);
-            InterfaceManager.SendEffectLocation(2000, drop.model.position);
+            InterfaceManager.SendEffectLocationUnsafe(2000, drop.model.position);
         }
 
         #region Threading

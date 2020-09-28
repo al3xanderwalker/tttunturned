@@ -70,7 +70,7 @@ namespace TTTUnturned.API.Interface
                 ClearUIEffectUnsafe((ushort)id, steamId);
             }
         }
-        public static void SendEffectLocation(ushort id, Vector3 position)
+        public static void SendEffectLocationUnsafe(ushort id, Vector3 position)
         {
             UnityThread.executeCoroutine(SendEffectLocationCoroutine(id, position));
         }

@@ -25,7 +25,7 @@ namespace TTTUnturned.API.Items.C4
                 if(c4.Drop.instanceID == UID)
                 {
                     c4.Defused = true;
-                    InterfaceManager.SendEffectLocation(61, c4.Drop.model.position);
+                    InterfaceManager.SendEffectLocationUnsafe(61, c4.Drop.model.position);
                     BarricadeManager.destroyBarricade(region, x, y, plant, index);
                     C4Manager.ActiveC4.Remove(c4);
                 }

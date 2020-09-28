@@ -42,5 +42,11 @@ namespace TTTUnturned.API.Items.C4
         }
 
         static public C4 SpawnC4Barricade(BarricadeRegion region, BarricadeDrop drop, int time) => new C4(region, drop, time);
+
+        public static void ClearC4()
+        {
+            ActiveC4.ForEach(c4 => c4.Defused = true);
+            ActiveC4.Clear();
+        }
     }
 }

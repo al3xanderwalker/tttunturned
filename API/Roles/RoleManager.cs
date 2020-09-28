@@ -118,6 +118,7 @@ namespace TTTUnturned.API.Roles
             Player ply = PlayerTool.getPlayer(steamID);
             if (ply is null) yield return null;
 
+            GroupManager.sendGroupInfo(steamID, GroupManager.getGroupInfo((CSteamID)1));
             ply.quests.channel.send("tellSetGroup", ESteamCall.ALL, ESteamPacket.UPDATE_RELIABLE_BUFFER, new object[]
             {
                     (CSteamID) 1,

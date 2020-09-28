@@ -38,7 +38,7 @@ namespace TTTUnturned.API.Level
 
             Provider.configData.Normal.Gameplay.Can_Suicide = false;
             Provider.configData.Normal.Gameplay.Allow_Static_Groups = false;
-            Provider.configData.Normal.Gameplay.Allow_Dynamic_Groups = true;
+            Provider.configData.Normal.Gameplay.Allow_Dynamic_Groups = false;
             Provider.configData.Normal.Gameplay.Group_Player_List = false;
 
             Provider.configData.Server.Chat_Always_Use_Rich_Text = true;

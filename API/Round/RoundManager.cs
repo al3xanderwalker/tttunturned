@@ -59,7 +59,6 @@ namespace TTTUnturned.API.Round
 
         public static void SetTimeRemaining(int time) => Round.RoundTime = time;
 
-        public static void CheckWin() => Task.Run(async () => await Round.CheckWin());
 
         public static void Broadcast(string message) => UnityThread.executeCoroutine(BroadcastCoroutine(message));
         #endregion
@@ -72,27 +71,19 @@ namespace TTTUnturned.API.Round
 
             createdPlayer.Revive();
 
-            Task.Run(async () => await InterfaceManager.SendBannerMessage(createdPlayer.SteamID, 8494, $"Welcome {steamPlayer.playerID.characterName}", 5000, true));
+            createdPlayer.SendMessage($"Welcome {steamPlayer.playerID.playerName} to TTTUnturned");
         }
 
         private void OnEnemyDisconnected(SteamPlayer steamPlayer)
         {
             Round.RemovePlayer(PlayerManager.GetTTTPlayer(steamPlayer.playerID.steamID));
 
-            if (GetState() == RoundState.LIVE)
-            {
-                CheckWin();
-            }
         }
 
         private void OnPlayerDied(PlayerLife sender, EDeathCause cause, ELimb limb, CSteamID instigator)
         {
             TTTPlayer tttPly = PlayerManager.GetTTTPlayer(sender.channel.owner.playerID.steamID);
 
-            if (GetState() == RoundState.LIVE && tttPly.GetStatus() == PlayerStatus.ALIVE)
-            {
-                CheckWin();
-            }
 
             tttPly.SetStatus(PlayerStatus.DEAD);
             tttPly.Revive();
@@ -144,6 +135,22 @@ namespace TTTUnturned.API.Round
                 Round.Players.ToList().ForEach(p => InterfaceManager.SendUIEffectTextUnsafe(8490, p.SteamID, true, "TimerValue", ParseTime(Round.RoundTime)));
                 
                 Round.RoundTime--;
+
+                if (GetAlivePlayersWithRole(PlayerRole.TRAITOR).Count == 0)
+                {
+                    CommandWindow.Log("Innocents win");
+                    Round.Players.ToList().ForEach(p => Task.Run(async () => await InterfaceManager.SendBannerMessage(p.SteamID, 8493, "Innocents win!", 6000, true)));
+                    await Round.Stop();
+                    return;
+                }
+
+                if (GetAlivePlayersWithRole(PlayerRole.DETECTIVE).Count == 0 && RoundManager.GetAlivePlayersWithRole(PlayerRole.INNOCENT).Count == 0)
+                {
+                    CommandWindow.Log("Traitors win");
+                    Round.Players.ToList().ForEach(p => Task.Run(async () => await InterfaceManager.SendBannerMessage(p.SteamID, 8492, "Traitors win!", 6000, true)));
+                    await Round.Stop();
+                    return;
+                }
             }
         }
 #pragma warning restore CS1998 // Async method lacks 'await' operators and will run synchronously

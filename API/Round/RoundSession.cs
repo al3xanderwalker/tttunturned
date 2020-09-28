@@ -10,6 +10,8 @@ using TTTUnturned.API.Players;
 using TTTUnturned.API.Roles;
 using TTTUnturned.API.Items.C4;
 using LevelManager = TTTUnturned.API.Level.LevelManager;
+using TTTUnturned.API.Items.TrackerGun;
+
 namespace TTTUnturned.API.Round
 {
     public class RoundSession
@@ -35,6 +37,7 @@ namespace TTTUnturned.API.Round
             try
             {
                 CommandWindow.Log("Warmup Starting");
+                RoundManager.Broadcast("Warmup Starting");
                 State = RoundState.WARMUP;
 
                 LevelManager.RespawnItems();
@@ -52,6 +55,7 @@ namespace TTTUnturned.API.Round
                 await Task.Delay(15000);
 
                 CommandWindow.Log("Round is live");
+                RoundManager.Broadcast("The round has started.");
 
                 RoleManager.GeneratePlayerRoles();
 
@@ -73,7 +77,10 @@ namespace TTTUnturned.API.Round
         public async Task Stop()
         {
             CommandWindow.Log("Stopping round");
+            RoundManager.Broadcast("Round has ended.");
             RoundTime = 600;
+
+            State = RoundState.INTERMISSION;
 
             await Task.Delay(6000);
 
@@ -91,28 +98,8 @@ namespace TTTUnturned.API.Round
             State = RoundState.SETUP;
 
             LevelManager.ClearBarricadesUnsafe();
-            C4Manager.ActiveC4.ForEach(c4 => c4.Defused = true);
-            C4Manager.ActiveC4.Clear();
-        }
-
-        public async Task CheckWin()
-        {
-            CommandWindow.Log("Checking Win");
-            if (RoundManager.GetAlivePlayersWithRole(PlayerRole.TRAITOR).Count == 0)
-            {
-                CommandWindow.Log("Innocents win");
-                Players.ToList().ForEach(p => Task.Run(async () => await InterfaceManager.SendBannerMessage(p.SteamID, 8493, "Innocents win!", 6000, true)));
-                await Stop();
-                return;
-            }
-
-            if (RoundManager.GetAlivePlayersWithRole(PlayerRole.DETECTIVE).Count == 0 && RoundManager.GetAlivePlayersWithRole(PlayerRole.INNOCENT).Count == 0)
-            {
-                CommandWindow.Log("Traitors win");
-                Players.ToList().ForEach(p => Task.Run(async () => await InterfaceManager.SendBannerMessage(p.SteamID, 8492, "Traitors win!", 6000, true)));
-                await Stop();
-                return;
-            }
+            C4Manager.ClearC4();
+            TrackerGunManager.ClearTrackedPlayers();
         }
         #endregion
     }

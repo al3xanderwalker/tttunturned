@@ -85,7 +85,7 @@ namespace TTTUnturned.API.Players
 
         public void SendMessage(string message)
         {
-            ChatManager.serverSendMessage(message, Color.white, null, PlayerTool.getSteamPlayer(SteamID), EChatMode.SAY, null, true);
+            ChatManager.serverSendMessage(message, Color.white, null, PlayerTool.getSteamPlayer(SteamID), EChatMode.SAY, "https://i.imgur.com/olna2s1.png", true);
         }
         public void SendMessageUnsafe(string message)
         {
@@ -161,7 +161,7 @@ namespace TTTUnturned.API.Players
 
         private IEnumerator SendMessageEnumerator(string message)
         {
-            ChatManager.serverSendMessage(message, Color.white, null, PlayerTool.getSteamPlayer(SteamID), EChatMode.SAY, null, true);
+            ChatManager.serverSendMessage(message, Color.white, null, PlayerTool.getSteamPlayer(SteamID), EChatMode.SAY, "https://i.imgur.com/olna2s1.png", true);
             yield return null;
         }
 

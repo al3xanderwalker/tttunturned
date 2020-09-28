@@ -20,13 +20,16 @@ namespace TTTUnturned.API.Items.C4
         public static void Prefix(CSteamID steamID, byte id, PlayerAnimator __instance)
         {
             Player ply = __instance.channel.owner.player;
+            
             if (ply is null) return;
             TTTPlayer tttplayer = PlayerManager.GetTTTPlayer(ply.channel.owner.playerID.steamID);
+            
             if (tttplayer is null) return;
             if (tttplayer.Role == PlayerRole.TRAITOR) return;
 
             RaycastInfo traceResult = TraceRay(ply, 10f, RayMasks.BARRICADE_INTERACT);
-            if (traceResult is null)
+            if (traceResult is null) return;
+            if (traceResult.transform is null)
             {
                 return;
             }
@@ -57,13 +60,14 @@ namespace TTTUnturned.API.Items.C4
                 (ulong) ply.channel.owner.playerID.steamID,
                 (ulong) 0
             });
+
             if(PlayerManager.GetTTTPlayer(__instance.channel.owner.playerID.steamID).Defuser)
             {
-                __instance.channel.owner.player.interact.sendSalvageTimeOverride(8f);
+                __instance.channel.owner.player.interact.sendSalvageTimeOverride(5f);
             }
             else
             {
-                __instance.channel.owner.player.interact.sendSalvageTimeOverride(16f);
+                __instance.channel.owner.player.interact.sendSalvageTimeOverride(10f);
             }
             //CSteamID steamID, byte x, byte y, ushort plant, ushort index, ulong newOwner, ulong newGroup
 

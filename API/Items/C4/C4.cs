@@ -93,7 +93,7 @@ namespace TTTUnturned.API.Items.C4
 
         private void Beep()
         {
-            InterfaceManager.SendEffectLocation(56, Drop.model.position);
+            InterfaceManager.SendEffectLocationUnsafe(56, Drop.model.position);
         }
         #endregion
     }
