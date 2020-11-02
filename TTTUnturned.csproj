@@ -93,6 +93,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="API\Commands\CommandPos.cs" />
     <Compile Include="API\Commands\CommandMenu.cs" />
     <Compile Include="API\Commands\CommandDiscord.cs" />
     <Compile Include="API\Commands\CommandManager.cs" />
