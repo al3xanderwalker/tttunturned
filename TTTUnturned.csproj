@@ -96,6 +96,7 @@
     <Compile Include="API\Commands\CommandMenu.cs" />
     <Compile Include="API\Commands\CommandDiscord.cs" />
     <Compile Include="API\Commands\CommandManager.cs" />
+    <Compile Include="API\Commands\CommandPos.cs" />
     <Compile Include="API\Core\IObjectComponent.cs" />
     <Compile Include="API\Interface\InterfaceManager.cs" />
     <Compile Include="API\Items\ArmorVest\ArmorVestManager.cs" />
